@@ -4,14 +4,14 @@
 var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 
-var databaseUri = process.env.DATABASE_URI || process.env.MONGOLAB_URI;
+var databaseUri = process.env.MONGOLAB_URI;
 
 if (!databaseUri) {
   console.log('DATABASE_URI not specified, falling back to localhost.');
 }
 
 var api = new ParseServer({
-  databaseURI: databaseUri || 'mongodb://localhost:27017/dev',
+  databaseURI: databaseUri || 'mongodb://admin:tomyoav1708@ds055885.mongolab.com:55885/heroku_htf2c3kb',
   cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/cloud/main.js',
   appId: process.env.APP_ID || 'com.sashimi.letsbet',
   masterKey: process.env.MASTER_KEY || 'd37e616e-61dc-4602-9afa-39c4f0fc6001' //Add your master key here. Keep it secret!
