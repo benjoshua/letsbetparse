@@ -14,6 +14,7 @@ var api = new ParseServer({
   databaseURI: databaseUri || 'mongodb://admin:tomyoav1708@ds055885.mongolab.com:55885/heroku_htf2c3kb',
   cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/cloud/main.js',
   appId: process.env.APP_ID || 'com.sashimi.letsbet',
+  serverURL: 'https://letsbet.herokuapp.com/1/',
   masterKey: process.env.MASTER_KEY || 'd37e616e-61dc-4602-9afa-39c4f0fc6001' //Add your master key here. Keep it secret!
 });
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
