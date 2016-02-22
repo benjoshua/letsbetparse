@@ -146,6 +146,10 @@ Parse.Cloud.define("testPush", function(request, response) {
 // -------------------------Test hi----------------------------
 
 Parse.Cloud.define("testHi", function(request, response) {
+	var phoneNumber = "+972549844778";
+	var code = "" + (Math.floor(Math.random()*90000) + 10000);
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
 	response.success("Let Bet! Hi");
 });
 
