@@ -154,7 +154,7 @@ Parse.Cloud.define("testHi", function(request, response) {
 	
 	query.first({
 		success: function(user) {
-			response.success("Let Bet! Hi");
+			response.success(user);
 			// //If user already exists in Parse:
 			// if (user != undefined && user != null) {
 			// 	user.set("loginCode",code);
