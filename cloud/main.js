@@ -151,30 +151,28 @@ Parse.Cloud.define("testHi", function(request, response) {
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("phoneNumber",phoneNumber);
-	console.log(LBUserClass);
-	console.log(query);
-	response.success("Let Bet! Hi");
-	// query.first({
-	// 	success: function(user) {
-	// 		response.success("Let Bet! Hi");
-	// 		// //If user already exists in Parse:
-	// 		// if (user != undefined && user != null) {
-	// 		// 	user.set("loginCode",code);
-	//   //   		SaveUserAndSendSMS(user, phoneNumber, code, response);
-	// 		// } else {
-	// 		// //New user
-	// 		// 	var user = new LBUserClass();
-	// 		// 	user.set("phoneNumber",phoneNumber);
-	// 		// 	user.set("loginCode",code);
-	// 		// 	user.set("name","");
-	// 		// 	user.set("layerIdentityToken",generateUuid());
-	// 		// 	SaveUserAndSendSMS(user, phoneNumber, code, response);
-	// 		// }
-	// 	},
-	// 	error: function(error) {
-	// 		response.error(error);
-	// 	}
-	// });
+
+	query.first({
+		success: function(user) {
+			response.success("Let Bet! Hi");
+			// //If user already exists in Parse:
+			// if (user != undefined && user != null) {
+			// 	user.set("loginCode",code);
+	  //   		SaveUserAndSendSMS(user, phoneNumber, code, response);
+			// } else {
+			// //New user
+			// 	var user = new LBUserClass();
+			// 	user.set("phoneNumber",phoneNumber);
+			// 	user.set("loginCode",code);
+			// 	user.set("name","");
+			// 	user.set("layerIdentityToken",generateUuid());
+			// 	SaveUserAndSendSMS(user, phoneNumber, code, response);
+			// }
+		},
+		error: function(error) {
+			response.success("Error");
+		}
+	});
 
 
 	
