@@ -152,7 +152,7 @@ Parse.Cloud.define("testHi", function(request, response) {
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("phoneNumber",phoneNumber);
 
-	query.first({
+	query.asdasdas({
 		success: function(user) {
 			response.success("Let Bet! Hi");
 			// //If user already exists in Parse:
