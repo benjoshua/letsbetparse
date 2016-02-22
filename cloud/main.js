@@ -151,8 +151,8 @@ Parse.Cloud.define("testHi", function(request, response) {
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("phoneNumber",phoneNumber);
-
-	query.asdasdas({
+	
+	query.first({
 		success: function(user) {
 			response.success("Let Bet! Hi");
 			// //If user already exists in Parse:
@@ -170,7 +170,7 @@ Parse.Cloud.define("testHi", function(request, response) {
 			// }
 		},
 		error: function(error) {
-			response.success("Error");
+			response.error(error);
 		}
 	});
 
