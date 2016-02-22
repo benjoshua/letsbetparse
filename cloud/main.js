@@ -150,7 +150,31 @@ Parse.Cloud.define("testHi", function(request, response) {
 	var code = "" + (Math.floor(Math.random()*90000) + 10000);
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
-	response.success("Let Bet! Hi");
+	query.equalTo("phoneNumber",phoneNumber);
+	query.first({
+		success: function(user) {
+			response.success("Let Bet! Hi");
+			// //If user already exists in Parse:
+			// if (user != undefined && user != null) {
+			// 	user.set("loginCode",code);
+	  //   		SaveUserAndSendSMS(user, phoneNumber, code, response);
+			// } else {
+			// //New user
+			// 	var user = new LBUserClass();
+			// 	user.set("phoneNumber",phoneNumber);
+			// 	user.set("loginCode",code);
+			// 	user.set("name","");
+			// 	user.set("layerIdentityToken",generateUuid());
+			// 	SaveUserAndSendSMS(user, phoneNumber, code, response);
+			// }
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+
+
+	
 });
 
 
