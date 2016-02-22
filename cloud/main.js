@@ -134,13 +134,19 @@ Parse.Cloud.define("testPush", function(request, response) {
 	}, {
 		success: function() {
   		  	// Push was successful
-  		  	response.success("iko");
+  		  	response.success("YES!");
   		},
   		error: function(error) {
    		 	// Handle error
    		 	response.error(error);
    		}
    	});
+});
+
+// -------------------------Test hi----------------------------
+
+Parse.Cloud.define("testHi", function(request, response) {
+	response.success("Let Bet! Hi");
 });
 
 
