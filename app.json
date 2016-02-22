@@ -1,6 +1,6 @@
 {
-  "name": "Parse Server Example",
-  "description": "An example Parse API server using the parse-server module",
+  "name": "Let's Bet! Parse Server",
+  "description": "iko",
   "repository": "https://github.com/ParsePlatform/parse-server-example",
   "logo": "https://avatars0.githubusercontent.com/u/1294580?v=3&s=200",
   "keywords": ["node", "express", "parse"],
@@ -11,11 +11,11 @@
     },
     "APP_ID": {
       "description": "A unique identifier for your app.",
-      "value": "myAppId"
+      "value": "com.sashimi.letsbet"
     },
     "MASTER_KEY": {
       "description": "A key that overrides all permissions. Keep this secret.",
-      "value": "myMasterKey"
+      "value": "d37e616e-61dc-4602-9afa-39c4f0fc6001"
     }
   },
   "image": "heroku/nodejs",
