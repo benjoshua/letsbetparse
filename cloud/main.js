@@ -147,7 +147,7 @@ Parse.Cloud.define("testPush", function(request, response) {
 
 Parse.Cloud.define("testHi", function(request, response) {
 	var phoneNumber = "+972549844778";
-	var code = "" + (Math.floor(Math.random()*90000) + 10000);
+	var code = "2222"; //"" + (Math.floor(Math.random()*90000) + 10000);
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("phoneNumber",phoneNumber);
@@ -158,7 +158,7 @@ Parse.Cloud.define("testHi", function(request, response) {
 			//If user already exists in Parse:
 			if (user != undefined && user != null) {
 				user.set("loginCode",code);
-	    		SaveUserAndSendSMS(user, phoneNumber, code, response);
+	    		// SaveUserAndSendSMS(user, phoneNumber, code, response);
 			} else {
 			//New user
 				var user = new LBUserClass();
