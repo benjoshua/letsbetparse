@@ -270,7 +270,7 @@ function sendAdminMsgToGroup(layerGroupId, msg) {
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
 	    method: "POST",
 	    body: {
-	        sender: {name: "Admin"},
+	        sender: {user_id: "d8d43c25-4fa5-d321-8e91-fcfff1b36724"},
 	        parts: [{body: msg, mime_type: "text/plain"}],
 	        push: {text: "You have a new message"}
 	    },
@@ -283,7 +283,7 @@ function sendAdminMsgToGroup(layerGroupId, msg) {
 
 
 Parse.Cloud.define("AdminMsg", function(request, response) {
-	sendAdminMsgToGroup("f313bdb8-eede-4d08-9afe-e3b49a55d957","Fred! Ma Nish!");
+	sendAdminMsgToGroup("8dc83080-ae62-4602-b8d2-e400356096db","Fred! Ma Nish!");
 });
 
 
