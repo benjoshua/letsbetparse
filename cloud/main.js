@@ -270,7 +270,7 @@ function sendAdminMsgToGroup(layerGroupId, msg) {
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
 	    method: "POST",
 	    body: {
-	        sender: "Admin",
+	        sender: {name: "Admin"},
 	        parts: [{body: msg, mime_type: "text/plain"}],
 	        push: {text: "You have a new message"}
 	    },
