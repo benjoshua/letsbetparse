@@ -257,7 +257,18 @@ Parse.Cloud.define("AdminMsg", function(request, response) {
 
 // -------------------------getGroupOpenBets----------------------------
 Parse.Cloud.define("getGroupOpenBets", function(request, response) {
-	
+	var layerGroupId = request.params.layerGroupId;
+	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+	var query = new Parse.Query(LBFootballGameBetClass);
+	query.equalTo("layerGroupId",layerGroupId);
+	query.find({
+		success: function(bets) {
+			response.success(bets);
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
 });
 
 
