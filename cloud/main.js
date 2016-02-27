@@ -246,7 +246,7 @@ function sendAdminMsgToGroup(layerGroupId, msg) {
 		    var status;
 		    if (response.statusCode == 200) { //found layer conversation
 		    	var conversation = response.body.data;
-		    	console.log(conversation);
+		    	console.log(response);
 			} else { //no such conversation
 				console.error("No conversation found");
 			}
