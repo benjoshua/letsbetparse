@@ -162,11 +162,10 @@ Parse.Cloud.define("createGroup", function(request, response) {
 });
 
 // -------------------------createFootballGameBet----------------------------
-
 Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	var layerGroupId = request.params.layerGroupId;
 	var gameId = request.params.gameId;
-	var betAdmin = request.params.betAdmin;
+	var betAdminLayerId = request.params.betAdminLayerId;
 	var hostAdminGoalsBet = request.params.hostAdminGoalsBet;
 	var guestAdminGoalsBet = request.params.guestAdminGoalsBet;
 	var stakeType = request.params.stakeType;
@@ -187,14 +186,14 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				var bet = new LBFootballGameBetClass();
 				bet.set("layerGroupId",layerGroupId);
 				bet.set("gameId",gameId);
-				bet.set("betAdmin",betAdmin);
-				bet.set("hostAdminGoalsBet",hostAdminGoalsBet);
-				bet.set("guestAdminGoalsBet",guestAdminGoalsBet);
+				bet.set("betAdminLayerId",betAdminLayerId);
+				bet.set("usersGuesses",{betAdminLayerId:{"hostGoals": hostAdminGoalsBet, "guestGoals": guestAdminGoalsBet}});
 				bet.set("stakeType",stakeType);
 				bet.set("stakeDesc",stakeDesc);
 				bet.save(null,{
 					success:function(bet) { 
 						//TODO: send layer admin msg and push
+						sendAdminMsgToGroup(layerGroupId,"Created new bet!")
 						response.success(true)
 					},
 					error:function(bet, error) {
@@ -233,44 +232,11 @@ var layerPlatformApiInfo = {
 
 
 function sendAdminMsgToGroup(layerGroupId, msg) {
-	// console.log("1");
-	// // var def = deferred();
- //    request({
- //        uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId,
- //        method: "GET",
- //        body: {},
- //        json: true,
- //        headers: layerPlatformApiInfo.headers
- //    }, function(error, response, body) {
- //    	console.log("2");
-	// 	    var status;
-	// 	    switch(response.statusCode) {
-	// 			case 201:
-	// 			    status = "created";
-	// 			    break;
-	// 			case 303:
-	// 			    status = "found";
-	// 			    break;
-	// 			case 409:
-	// 			    status = "conflict";
-	// 			    break;
-	// 			default:
-	// 			    status = "error";
-
-	// 		}
-	// 		console.log(response);
-		   // def.resolve({
-		   //     statusCode: response.statusCode,
-		   //     statusMessage: status,
-		   //     conversation: status == "conflict" ? body.data : body
-	    // });
-	// });
-
 	request({
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
 	    method: "POST",
 	    body: {
-	        sender: {user_id: "admin"},
+	        sender: {name: "Admin"},
 	        parts: [{body: msg, mime_type: "text/plain"}],
 	        push: {text: "You have a new message"}
 	    },
