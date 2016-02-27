@@ -165,7 +165,6 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 			} else {
 			//New bet
 			var bet = new LBFootballGameBetClass();
-			bet.set("betId", generateUuid());
 			bet.set("layerGroupId",layerGroupId);
 			bet.set("gameId",gameId);
 			bet.set("betAdmin",betAdmin);
