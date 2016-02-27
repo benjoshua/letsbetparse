@@ -37,7 +37,7 @@ function SaveUserAndSendSMS(user, phoneNumber, code, response) {
   				client.sendSms({
   					to:phoneNumber, 
   					from: '+972526286926', 
-  					body: 'Welcome to Let\'s Bet!\nYour code is: ' + code + "."  
+  					body: 'Your code is: ' + code + "."  
   				}, function(err, responseData) { 
   					if (err) {
   						response.error(err);
@@ -140,11 +140,27 @@ Parse.Cloud.define("testPush", function(request, response) {
    	});
 });
 
-// -------------------------Test hi----------------------------
+// -------------------------createFootballGameBet----------------------------
 
-Parse.Cloud.define("testHi", function(request, response) {
-	var phoneNumber = "+972549844778";
-	var code = "2222"; //"" + (Math.floor(Math.random()*90000) + 10000);
+Parse.Cloud.define("createFootballGameBet", function(request, response) {
+    var layerGroupId = request.params.layerGroupId
+    console.log(layerGroupId)
+    var gameId = request.params.gameId
+    console.log(gameId)
+    var betAdmin = request.params.betAdmin
+    console.log(betAdmin)
+    var hostAdminGoalsBet = request.params.hostAdminGoalsBet
+    console.log(hostAdminGoalsBet)
+    var guestAdminGoalsBet = request.params.guestAdminGoalsBet
+    console.log(guestAdminGoalsBet)
+    var stakeType = request.params.stakeType
+    console.log(stakeType)
+    var stakeDesc = request.params.stakeDesc
+    console.log(stakeDesc)
+
+	response.success("iko")
+
+
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("phoneNumber",phoneNumber);
