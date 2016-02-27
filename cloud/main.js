@@ -143,7 +143,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				group.save(null,{
 					success:function(group) { 
 						//TODO: send layer admin msg and push
-						response.success(true)
+						response.success(true);
 					},
 					error:function(group, error) {
 						response.error(error);
