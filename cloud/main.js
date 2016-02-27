@@ -122,22 +122,39 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 
 //Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
 //in the same order it was received
-Parse.Cloud.define("testPush", function(request, response) {
-	Parse.Push.send({
-		channels: [ "A2" ],
-		data: {
-			alert: "The Giants won against the Mets 2-3."
+Parse.Cloud.define("createGroup", function(request, response) {
+	var layerGroupId = request.params.layerGroupId;
+	var layerUsersIds = request.params.layerUsersIds;
+
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.equalTo("layerGroupId",layerGroupId);
+
+	query.first({
+		success: function(group) {
+			//group already exists:
+			if (group != undefined && group != null) {
+				response.error("errorGroupAlreadyExists");
+			} else {
+				//New Group
+				var group = new LBGroupClass();
+				group.set("layerGroupId",layerGroupId);
+				group.set("layerUsersIds",layerUsersIds);
+				group.save(null,{
+					success:function(group) { 
+						//TODO: send layer admin msg and push
+						response.success(true)
+					},
+					error:function(group, error) {
+						response.error(error);
+					}
+				});
+			}
+		},
+		error: function(error) {
+			response.error(error);
 		}
-	}, {
-		success: function() {
-  		  	// Push was successful
-  		  	response.success("YES!");
-  		  },
-  		  error: function(error) {
-   		 	// Handle error
-   		 	response.error(error);
-   		 }
-   		});
+	});
 });
 
 // -------------------------createFootballGameBet----------------------------
@@ -158,35 +175,57 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	query.equalTo("gameId",gameId);
 
 	query.first({
-		success: function(user) {
+		success: function(bet) {
 			//If bet for group already exists in Parse:
-			if (user != undefined && user != null) {
+			if (bet != undefined && bet != null) {
 				response.error("errorBetAlreadyExists");
 			} else {
-			//New bet
-			var bet = new LBFootballGameBetClass();
-			bet.set("layerGroupId",layerGroupId);
-			bet.set("gameId",gameId);
-			bet.set("betAdmin",betAdmin);
-			bet.set("hostAdminGoalsBet",hostAdminGoalsBet);
-			bet.set("guestAdminGoalsBet",guestAdminGoalsBet);
-			bet.set("stakeType",stakeType);
-			bet.set("stakeDesc",stakeDesc);
-			bet.save(null,{
-				success:function(user) { 
-					//TODO: send layer admin msg and push
-					response.success(true)
-				},
-				error:function(user, error) {
-					response.error(error);
-				}
-			});
+				//New bet
+				var bet = new LBFootballGameBetClass();
+				bet.set("layerGroupId",layerGroupId);
+				bet.set("gameId",gameId);
+				bet.set("betAdmin",betAdmin);
+				bet.set("hostAdminGoalsBet",hostAdminGoalsBet);
+				bet.set("guestAdminGoalsBet",guestAdminGoalsBet);
+				bet.set("stakeType",stakeType);
+				bet.set("stakeDesc",stakeDesc);
+				bet.save(null,{
+					success:function(bet) { 
+						//TODO: send layer admin msg and push
+						response.success(true)
+					},
+					error:function(bet, error) {
+						response.error(error);
+					}
+				});
+			}
+		},
+		error: function(error) {
+			response.error(error);
 		}
-	},
-	error: function(error) {
-		response.error(error);
-	}
+	});
 });
+
+// -------------------------authenticatePhoneNumberAndSendToken----------------------------
+
+//Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
+//in the same order it was received
+Parse.Cloud.define("testPush", function(request, response) {
+	Parse.Push.send({
+		channels: [ "A2" ],
+		data: {
+			alert: "The Giants won against the Mets 2-3."
+		}
+	}, {
+		success: function() {
+  		  	// Push was successful
+  		  	response.success("YES!");
+  		  },
+  		  error: function(error) {
+   		 	// Handle error
+   		 	response.error(error);
+   		 }
+   	});
 });
 
 
