@@ -210,52 +210,60 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 });
 
 
-
-var appConfig = {
-    appId: process.env.LAYER_APP_UUID,
-    bearerToken: process.env.LAYER_PLATFORM_API_TOKEN,
-    serverUrl: "https://api.layer.com"
-};
-
-if (!appConfig.appId) {
-    console.error("Please set environmental variable LAYER_APP_UUID to match your Layer Application UUID.");
-    return;
-}
-
-if (!appConfig.bearerToken) {
-    console.error("Please set environmental variable LAYER_PLATFORM_API_TOKEN to match your Platform API token.");
-    return;
-}
-
-// (function() {
-//     var participant = String(Math.random()).replace(/\./,"");
-
-//     // A data cache of settings, request headers, and responses
-//     var layersample = {
-//         config: {
-//             serverUrl: appConfig.serverUrl + "/apps/" + appConfig.appId
-//         },
-//         headers: {
-//             Accept: "application/vnd.layer+json; version=1.0",
-//             Authorization: "Bearer " + appConfig.bearerToken,
-//             "Content-type": "application/json"
-//         },
-//         patchHeaders: {
-//             Accept: "application/vnd.layer+json; version=1.0",
-//             Authorization: "Bearer " + appConfig.bearerToken,
-//             "Content-type": "application/vnd.layer-patch+json"
-//         },
-//         cache: {
-//             newConversation: null,
-//             newMessage: null
-//         }
-//     };
-
+var layerPlatformApiInfo = {
+    config: {
+        serverUrl: "https://api.layer.com/apps/" + process.env.LAYER_APP_UUID
+    },
+    headers: {
+        Accept: "application/vnd.layer+json; version=1.0",
+        Authorization: "Bearer " + process.env.LAYER_PLATFORM_API_TOKEN,
+        "Content-type": "application/json"
+    },
+    patchHeaders: {
+        Accept: "application/vnd.layer+json; version=1.0",
+        Authorization: "Bearer " + process.env.LAYER_PLATFORM_API_TOKEN,
+        "Content-type": "application/vnd.layer-patch+json"
+    },
+    cache: {
+        newConversation: null,
+        newMessage: null
+    }
 
 
 
 function sendAdminMsgToGroup(layerGroupId, msg) {
+	console.log("1");
+	// var def = deferred();
+    request({
+        uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId,
+        method: "GET",
+        body: {},
+        json: true,
+        headers: layerPlatformApiInfo.headers
+    }, function(error, response, body) {
+    	console.log("2");
+		    var status;
+		    switch(response.statusCode) {
+				case 201:
+				    status = "created";
+				    break;
+				case 303:
+				    status = "found";
+				    break;
+				case 409:
+				    status = "conflict";
+				    break;
+				default:
+				    status = "error";
 
+			}
+			console.log(status);
+		   // def.resolve({
+		   //     statusCode: response.statusCode,
+		   //     statusMessage: status,
+		   //     conversation: status == "conflict" ? body.data : body
+	    // });
+	});
 
 
 }
