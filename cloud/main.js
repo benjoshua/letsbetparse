@@ -187,8 +187,8 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				bet.set("layerGroupId",layerGroupId);
 				bet.set("gameId",gameId);
 				bet.set("betAdminLayerId",betAdminLayerId);
-				bet.set("usersGuesses",[{"userLayerId": betAdminLayerId ,"hostGoals": hostAdminGoalsBet, "guestGoals": guestAdminGoalsBet}]);
-				bet.set("usersWhoGuessLayerIds",[betAdminLayerId]);
+				bet.set("usersGuesses",{{"userLayerId": betAdminLayerId ,"hostGoals": hostAdminGoalsBet, "guestGoals": guestAdminGoalsBet}});
+				bet.set("usersWhoGuessLayerIds",{betAdminLayerId});
 				bet.set("stakeType",stakeType);
 				bet.set("stakeDesc",stakeDesc);
 				bet.save(null,{
