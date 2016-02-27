@@ -187,7 +187,12 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				bet.set("layerGroupId",layerGroupId);
 				bet.set("gameId",gameId);
 				bet.set("betAdminLayerId",betAdminLayerId);
-				bet.set("usersGuesses",{betAdminLayerId:{"hostGoals": hostAdminGoalsBet, "guestGoals": guestAdminGoalsBet}});
+				var usersGuesses = []; // create an empty array
+				usersGuesses.push({
+				    key:   betAdminLayerId,
+				    value: {"hostGoals": hostAdminGoalsBet, "guestGoals": guestAdminGoalsBet}
+				});
+				bet.set("usersGuesses",usersGuesses);
 				bet.set("stakeType",stakeType);
 				bet.set("stakeDesc",stakeDesc);
 				bet.save(null,{
@@ -250,6 +255,12 @@ function sendAdminMsgToGroup(layerGroupId, msg) {
 
 Parse.Cloud.define("AdminMsg", function(request, response) {
 	sendAdminMsgToGroup("8dc83080-ae62-4602-b8d2-e400356096db","Fred! Ma Nish!");
+});
+
+
+// -------------------------getGroupOpenBets----------------------------
+Parse.Cloud.define("getGroupOpenBets", function(request, response) {
+	
 });
 
 
