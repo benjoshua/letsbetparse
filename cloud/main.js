@@ -233,40 +233,52 @@ var layerPlatformApiInfo = {
 
 
 function sendAdminMsgToGroup(layerGroupId, msg) {
-	console.log("1");
-	// var def = deferred();
-    request({
-        uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId,
-        method: "GET",
-        body: {},
-        json: true,
-        headers: layerPlatformApiInfo.headers
-    }, function(error, response, body) {
-    	console.log("2");
-		    var status;
-		    switch(response.statusCode) {
-				case 201:
-				    status = "created";
-				    break;
-				case 303:
-				    status = "found";
-				    break;
-				case 409:
-				    status = "conflict";
-				    break;
-				default:
-				    status = "error";
+	// console.log("1");
+	// // var def = deferred();
+ //    request({
+ //        uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId,
+ //        method: "GET",
+ //        body: {},
+ //        json: true,
+ //        headers: layerPlatformApiInfo.headers
+ //    }, function(error, response, body) {
+ //    	console.log("2");
+	// 	    var status;
+	// 	    switch(response.statusCode) {
+	// 			case 201:
+	// 			    status = "created";
+	// 			    break;
+	// 			case 303:
+	// 			    status = "found";
+	// 			    break;
+	// 			case 409:
+	// 			    status = "conflict";
+	// 			    break;
+	// 			default:
+	// 			    status = "error";
 
-			}
-			console.log(response);
+	// 		}
+	// 		console.log(response);
 		   // def.resolve({
 		   //     statusCode: response.statusCode,
 		   //     statusMessage: status,
 		   //     conversation: status == "conflict" ? body.data : body
 	    // });
-	});
+	// });
 
-
+	request({
+	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
+	    method: "POST",
+	    body: {
+	        sender: "Admin",
+	        parts: [{body: msg, mime_type: "text/plain"}],,
+	        push: push || {text: "You have a new message"}
+	    },
+	    json: true,
+	    headers: layerPlatformApiInfo.headers
+	    }, function(error, response, body) {
+	    	console.log(response);
+		});
 }
 
 
