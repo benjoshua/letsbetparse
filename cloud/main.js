@@ -1,4 +1,8 @@
 
+var request = require("request"); // used by platform API
+var deferred = require('deferred'); // used by platform API
+
+
 // -------------------------sendSmsForPhoneNumber----------------------------
 //Sends sms to user and saves the loginCode in Parse
 Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
@@ -207,8 +211,53 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 
 
 
+var appConfig = {
+    appId: process.env.LAYER_APP_UUID,
+    bearerToken: process.env.LAYER_PLATFORM_API_TOKEN,
+    serverUrl: "https://api.layer.com"
+};
+
+if (!appConfig.appId) {
+    console.error("Please set environmental variable LAYER_APP_UUID to match your Layer Application UUID.");
+    return;
+}
+
+if (!appConfig.bearerToken) {
+    console.error("Please set environmental variable LAYER_PLATFORM_API_TOKEN to match your Platform API token.");
+    return;
+}
+
+// (function() {
+//     var participant = String(Math.random()).replace(/\./,"");
+
+//     // A data cache of settings, request headers, and responses
+//     var layersample = {
+//         config: {
+//             serverUrl: appConfig.serverUrl + "/apps/" + appConfig.appId
+//         },
+//         headers: {
+//             Accept: "application/vnd.layer+json; version=1.0",
+//             Authorization: "Bearer " + appConfig.bearerToken,
+//             "Content-type": "application/json"
+//         },
+//         patchHeaders: {
+//             Accept: "application/vnd.layer+json; version=1.0",
+//             Authorization: "Bearer " + appConfig.bearerToken,
+//             "Content-type": "application/vnd.layer-patch+json"
+//         },
+//         cache: {
+//             newConversation: null,
+//             newMessage: null
+//         }
+//     };
+
+
+
+
 function sendAdminMsgToGroup(layerGroupId, msg) {
-	console.log("Fred!");
+
+
+
 }
 
 
