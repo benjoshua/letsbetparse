@@ -272,7 +272,7 @@ function sendAdminMsgToGroup(layerGroupId, msg) {
 	    body: {
 	        sender: "Admin",
 	        parts: [{body: msg, mime_type: "text/plain"}],
-	        push: push || {text: "You have a new message"}
+	        push: {text: "You have a new message"}
 	    },
 	    json: true,
 	    headers: layerPlatformApiInfo.headers
