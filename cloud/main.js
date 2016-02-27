@@ -271,7 +271,7 @@ function sendAdminMsgToGroup(layerGroupId, msg) {
 	    method: "POST",
 	    body: {
 	        sender: "Admin",
-	        parts: [{body: msg, mime_type: "text/plain"}],,
+	        parts: [{body: msg, mime_type: "text/plain"}],
 	        push: push || {text: "You have a new message"}
 	    },
 	    json: true,
