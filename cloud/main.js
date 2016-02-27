@@ -187,7 +187,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				bet.set("layerGroupId",layerGroupId);
 				bet.set("gameId",gameId);
 				bet.set("betAdminLayerId",betAdminLayerId);
-				var usersGuesses = []; // create an empty array
+				var usersGuesses =  {}; // create an empty array
 				usersGuesses.push({
 				    key:   betAdminLayerId,
 				    value: {"hostGoals": hostAdminGoalsBet, "guestGoals": guestAdminGoalsBet}
