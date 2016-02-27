@@ -228,6 +228,7 @@ var layerPlatformApiInfo = {
         newConversation: null,
         newMessage: null
     }
+}
 
 
 
