@@ -244,12 +244,26 @@ function sendAdminMsgToGroup(layerGroupId, msg) {
     }, function(error, response, body) {
     	console.log("2");
 		    var status;
-		    if (response.statusCode == 200) { //found layer conversation
-		    	// var conversation = response.body.data;
-		    	console.log(response);
-			} else { //no such conversation
-				console.error("No conversation found");
+		    switch(response.statusCode) {
+				case 201:
+				    status = "created";
+				    break;
+				case 303:
+				    status = "found";
+				    break;
+				case 409:
+				    status = "conflict";
+				    break;
+				default:
+				    status = "error";
+
 			}
+			console.log(response);
+		   // def.resolve({
+		   //     statusCode: response.statusCode,
+		   //     statusMessage: status,
+		   //     conversation: status == "conflict" ? body.data : body
+	    // });
 	});
 
 
