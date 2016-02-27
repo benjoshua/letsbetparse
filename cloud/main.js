@@ -158,7 +158,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
     var stakeDesc = request.params.stakeDesc;
     console.log(stakeDesc);
 
-	response.success("iko")
+	response.success("iko");
 
 
 	// var LBUserClass = Parse.Object.extend("LBUser");
