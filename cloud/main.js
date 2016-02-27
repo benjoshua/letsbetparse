@@ -258,6 +258,7 @@ function sendAdminMsgToGroup(layerGroupId, msg) {
 				    status = "error";
 
 			}
+			console.log(response.statusCode);
 			console.log(response);
 		   // def.resolve({
 		   //     statusCode: response.statusCode,
