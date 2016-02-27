@@ -12,54 +12,54 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 			//If user already exists in Parse:
 			if (user != undefined && user != null) {
 				user.set("loginCode",code);
-	    		SaveUserAndSendSMS(user, phoneNumber, code, response);
+				SaveUserAndSendSMS(user, phoneNumber, code, response);
 			} else {
 			//New user
-				var user = new LBUserClass();
-				user.set("phoneNumber",phoneNumber);
-				user.set("loginCode",code);
-				user.set("name","");
-				user.set("layerIdentityToken",generateUuid());
-				SaveUserAndSendSMS(user, phoneNumber, code, response);
-			}
-		},
-		error: function(error) {
-			response.error(error);
+			var user = new LBUserClass();
+			user.set("phoneNumber",phoneNumber);
+			user.set("loginCode",code);
+			user.set("name","");
+			user.set("layerIdentityToken",generateUuid());
+			SaveUserAndSendSMS(user, phoneNumber, code, response);
 		}
-	});
+	},
+	error: function(error) {
+		response.error(error);
+	}
+});
 });
 
 //Practically send the SMS, after saving all data in Parse
 function SaveUserAndSendSMS(user, phoneNumber, code, response) {
 	user.save(null,{
 		success:function(user) { 
-  				var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
-  				client.sendSms({
-  					to:phoneNumber, 
-  					from: '+972526286926', 
-  					body: 'Your code is: ' + code + "."  
-  				}, function(err, responseData) { 
-  					if (err) {
-  						response.error(err);
-  					} else { 
-  						response.success(true);
-  					}
-  				});
-  			},
+			var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
+			client.sendSms({
+				to:phoneNumber, 
+				from: '+972526286926', 
+				body: 'Your code is: ' + code + "."  
+			}, function(err, responseData) { 
+				if (err) {
+					response.error(err);
+				} else { 
+					response.success(true);
+				}
+			});
+		},
 		error:function(user, error) {
 			response.error(error);
 		}
-  	});
+	});
 }
 
 function generateUuid() {
 	function s4() {
 		return Math.floor((1 + Math.random()) * 0x10000)
-			.toString(16)
-			.substring(1);
+		.toString(16)
+		.substring(1);
 	}
 	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-		s4() + '-' + s4() + s4() + s4();
+	s4() + '-' + s4() + s4() + s4();
 }
 
 // -------------------------authenticatePhoneNumberAndSendToken----------------------------
@@ -132,60 +132,62 @@ Parse.Cloud.define("testPush", function(request, response) {
 		success: function() {
   		  	// Push was successful
   		  	response.success("YES!");
-  		},
-  		error: function(error) {
+  		  },
+  		  error: function(error) {
    		 	// Handle error
    		 	response.error(error);
-   		}
-   	});
+   		 }
+   		});
 });
 
 // -------------------------createFootballGameBet----------------------------
 
 Parse.Cloud.define("createFootballGameBet", function(request, response) {
-    var layerGroupId = request.params.layerGroupId;
-    console.log(layerGroupId);
-    var gameId = request.params.gameId;
-    console.log(gameId);
-    var betAdmin = request.params.betAdmin;
-    console.log(betAdmin);
-    var hostAdminGoalsBet = request.params.hostAdminGoalsBet;
-    console.log(hostAdminGoalsBet);
-    var guestAdminGoalsBet = request.params.guestAdminGoalsBet;
-    console.log(guestAdminGoalsBet);
-    var stakeType = request.params.stakeType;
-    console.log(stakeType);
-    var stakeDesc = request.params.stakeDesc;
-    console.log(stakeDesc);
-
-	response.success("iko");
+	var layerGroupId = request.params.layerGroupId;
+	var gameId = request.params.gameId;
+	var betAdmin = request.params.betAdmin;
+	var hostAdminGoalsBet = request.params.hostAdminGoalsBet;
+	var guestAdminGoalsBet = request.params.guestAdminGoalsBet;
+	var stakeType = request.params.stakeType;
+	var stakeDesc = request.params.stakeDesc;
 
 
-	// var LBUserClass = Parse.Object.extend("LBUser");
-	// var query = new Parse.Query(LBUserClass);
-	// query.equalTo("phoneNumber",phoneNumber);
+	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+	var query = new Parse.Query(LBFootballGameBetClass);
+	query.equalTo("layerGroupId",layerGroupId);
+	query.equalTo("gameId",gameId);
 
-	// query.first({
-	// 	success: function(user) {
-			
-	// 		//If user already exists in Parse:
-	// 		if (user != undefined && user != null) {
-	// 			user.set("loginCode",code);
-	//     		SaveUserAndSendSMS(user, phoneNumber, code, response);
-	// 		} else {
-	// 		//New user
-	// 			var user = new LBUserClass();
-	// 			user.set("phoneNumber",phoneNumber);
-	// 			user.set("loginCode",code);
-	// 			user.set("name","");
-	// 			user.set("layerIdentityToken",generateUuid());
-	// 			SaveUserAndSendSMS(user, phoneNumber, code, response);
-	// 		}
-	// 	},
-	// 	error: function(error) {
-	// 		response.error(error);
-	// 	}
-	// });
+	query.first({
+		success: function(user) {
+			//If bet for group already exists in Parse:
+			if (user != undefined && user != null) {
+				response.error("errorBetAlreadyExists");
+			} else {
+			//New bet
+			var bet = new LBFootballGameBetClass();
+			bet.set("betId", generateUuid());
+			bet.set("layerGroupId",layerGroupId);
+			bet.set("gameId",gameId);
+			bet.set("betAdmin",betAdmin);
+			bet.set("hostAdminGoalsBet",hostAdminGoalsBet);
+			bet.set("guestAdminGoalsBet",guestAdminGoalsBet);
+			bet.set("stakeType",stakeType);
+			bet.set("stakeDesc",stakeDesc);
+			bet.save(null,{
+				success:function(user) { 
+					//TODO: send layer admin msg and push
+					response.success(true)
+				},
+				error:function(user, error) {
+					response.error(error);
+				}
+			});
+		}
+	},
+	error: function(error) {
+		response.error(error);
+	}
+});
 });
 
 
