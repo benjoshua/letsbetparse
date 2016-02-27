@@ -161,31 +161,31 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	response.success("iko")
 
 
-	var LBUserClass = Parse.Object.extend("LBUser");
-	var query = new Parse.Query(LBUserClass);
-	query.equalTo("phoneNumber",phoneNumber);
+	// var LBUserClass = Parse.Object.extend("LBUser");
+	// var query = new Parse.Query(LBUserClass);
+	// query.equalTo("phoneNumber",phoneNumber);
 
-	query.first({
-		success: function(user) {
+	// query.first({
+	// 	success: function(user) {
 			
-			//If user already exists in Parse:
-			if (user != undefined && user != null) {
-				user.set("loginCode",code);
-	    		SaveUserAndSendSMS(user, phoneNumber, code, response);
-			} else {
-			//New user
-				var user = new LBUserClass();
-				user.set("phoneNumber",phoneNumber);
-				user.set("loginCode",code);
-				user.set("name","");
-				user.set("layerIdentityToken",generateUuid());
-				SaveUserAndSendSMS(user, phoneNumber, code, response);
-			}
-		},
-		error: function(error) {
-			response.error(error);
-		}
-	});
+	// 		//If user already exists in Parse:
+	// 		if (user != undefined && user != null) {
+	// 			user.set("loginCode",code);
+	//     		SaveUserAndSendSMS(user, phoneNumber, code, response);
+	// 		} else {
+	// 		//New user
+	// 			var user = new LBUserClass();
+	// 			user.set("phoneNumber",phoneNumber);
+	// 			user.set("loginCode",code);
+	// 			user.set("name","");
+	// 			user.set("layerIdentityToken",generateUuid());
+	// 			SaveUserAndSendSMS(user, phoneNumber, code, response);
+	// 		}
+	// 	},
+	// 	error: function(error) {
+	// 		response.error(error);
+	// 	}
+	// });
 });
 
 
