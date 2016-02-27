@@ -31,18 +31,24 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 
 //Practically send the SMS, after saving all data in Parse
 function SaveUserAndSendSMS(user, phoneNumber, code, response) {
+	console.log("3")
 	console.log(user.phoneNumber)
+	console.log("4")
 	user.save(null,{
 		success:function(user) { 
+			console.log("5")
   				var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
+  				console.log("6")
   				client.sendSms({
   					to:phoneNumber, 
   					from: '+972526286926', 
   					body: 'Welcome to Let\'s Bet!\nYour code is: ' + code + "."  
   				}, function(err, responseData) { 
   					if (err) {
+  						console.log("12")
   						response.error(err);
   					} else { 
+  						console.log("7")
   						console.log(responseData.from); 
   						console.log(responseData.body);
   						response.success(true);
@@ -50,6 +56,7 @@ function SaveUserAndSendSMS(user, phoneNumber, code, response) {
   				});
   			},
 		error:function(user, error) {
+			console.log("11")
 			response.error(error);
 		}
   	});
@@ -157,7 +164,9 @@ Parse.Cloud.define("testHi", function(request, response) {
 			
 			//If user already exists in Parse:
 			if (user != undefined && user != null) {
+				console.log("1")
 				user.set("loginCode",code);
+				console.log("2")
 	    		SaveUserAndSendSMS(user, phoneNumber, code, response);
 			} else {
 			//New user
