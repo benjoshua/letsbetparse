@@ -32,7 +32,7 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 //Practically send the SMS, after saving all data in Parse
 function SaveUserAndSendSMS(user, phoneNumber, code, response) {
 	console.log("3")
-	console.log(user.get("phoneNumber")
+	console.log(user.get("phoneNumber"))
 	console.log("4")
 	user.save(null,{
 		success:function(user) { 
