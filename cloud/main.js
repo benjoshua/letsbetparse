@@ -12,7 +12,7 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 			//If user already exists in Parse:
 			if (user != undefined && user != null) {
 				user.set("loginCode",code);
-				SaveUserAndSendSMS(user, phoneNumber, code, response);
+				saveUserAndSendSMS(user, phoneNumber, code, response);
 			} else {
 			//New user
 			var user = new LBUserClass();
@@ -20,7 +20,7 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 			user.set("loginCode",code);
 			user.set("name","");
 			user.set("layerIdentityToken",generateUuid());
-			SaveUserAndSendSMS(user, phoneNumber, code, response);
+			saveUserAndSendSMS(user, phoneNumber, code, response);
 		}
 	},
 	error: function(error) {
@@ -30,7 +30,7 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 });
 
 //Practically send the SMS, after saving all data in Parse
-function SaveUserAndSendSMS(user, phoneNumber, code, response) {
+function saveUserAndSendSMS(user, phoneNumber, code, response) {
 	user.save(null,{
 		success:function(user) { 
 			var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
@@ -168,7 +168,6 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	var stakeType = request.params.stakeType;
 	var stakeDesc = request.params.stakeDesc;
 
-
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass);
 	query.equalTo("layerGroupId",layerGroupId);
@@ -206,8 +205,19 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	});
 });
 
-// -------------------------authenticatePhoneNumberAndSendToken----------------------------
 
+
+function sendAdminMsgToGroup(layerGroupId, msg) {
+	console.log("Fred!");
+}
+
+
+Parse.Cloud.define("AdminMsg", function(request, response) {
+	sendAdminMsgToGroup("f313bdb8-eede-4d08-9afe-e3b49a55d957","Fred! Ma Nish!");
+});
+
+
+// -------------------------authenticatePhoneNumberAndSendToken----------------------------
 //Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
 //in the same order it was received
 Parse.Cloud.define("testPush", function(request, response) {
