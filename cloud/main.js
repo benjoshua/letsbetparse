@@ -143,20 +143,20 @@ Parse.Cloud.define("testPush", function(request, response) {
 // -------------------------createFootballGameBet----------------------------
 
 Parse.Cloud.define("createFootballGameBet", function(request, response) {
-    var layerGroupId = request.params.layerGroupId
-    
-    var gameId = request.params.gameId
-    
-    var betAdmin = request.params.betAdmin
-    
-    var hostAdminGoalsBet = request.params.hostAdminGoalsBet
-    
-    var guestAdminGoalsBet = request.params.guestAdminGoalsBet
-    
-    var stakeType = request.params.stakeType
-    
-    var stakeDesc = request.params.stakeDesc
-    
+    var layerGroupId = request.params.layerGroupId;
+    console.log(layerGroupId);
+    var gameId = request.params.gameId;
+    console.log(gameId);
+    var betAdmin = request.params.betAdmin;
+    console.log(betAdmin);
+    var hostAdminGoalsBet = request.params.hostAdminGoalsBet;
+    console.log(hostAdminGoalsBet);
+    var guestAdminGoalsBet = request.params.guestAdminGoalsBet;
+    console.log(guestAdminGoalsBet);
+    var stakeType = request.params.stakeType;
+    console.log(stakeType);
+    var stakeDesc = request.params.stakeDesc;
+    console.log(stakeDesc);
 
 	response.success("iko")
 
