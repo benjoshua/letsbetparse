@@ -195,8 +195,8 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				bet.save(null,{
 					success:function(bet) { 
 						//TODO: send layer admin msg and push
-						sendAdminMsgToGroup(layerGroupId,"Created new bet!")
-						response.success(true)
+						sendAdminMsgToGroup(layerGroupId,"Created new bet!");
+						response.success(true);
 					},
 					error:function(bet, error) {
 						response.error(error);
@@ -234,9 +234,9 @@ var layerPlatformApiInfo = {
 
 
 function sendAdminMsgToGroup(layerGroupId, msg) {
+	console.log("send admin msg to: " + layerGroupId);
 	request({
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
-		console.log("send admin msg to: " + uri);
 	    method: "POST",
 	    body: {
 	        sender: {name: "Admin"},
