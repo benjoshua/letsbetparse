@@ -15,7 +15,7 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 		success: function(user) {
 			//If user already exists in Parse:
 			if (user != undefined && user != null) {
-				user.set("loginCode",code);
+				user.set("loginCode","22222"); //TODO: change back to code
 				saveUserAndSendSMS(user, phoneNumber, code, response);
 			} else {
 			//New user
