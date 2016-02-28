@@ -74,7 +74,6 @@ Parse.Cloud.define("authenticatePhoneNumberAndSendToken", function(request, resp
 	var receivedCode = request.params.code;
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
-	console.log("1");
 	query.equalTo("phoneNumber",phoneNumber);
 	query.first({
 		success: function(user) {
