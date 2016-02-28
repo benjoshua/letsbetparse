@@ -15,13 +15,13 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 		success: function(user) {
 			//If user already exists in Parse:
 			if (user != undefined && user != null) {
-				user.set("loginCode","22222"); //TODO: change back to code
+				user.set("loginCode","1"); //TODO: change back to code
 				saveUserAndSendSMS(user, phoneNumber, code, response);
 			} else {
 			//New user
 			var user = new LBUserClass();
 			user.set("phoneNumber",phoneNumber);
-			user.set("loginCode","22222"); //TODO: change back to code
+			user.set("loginCode","1"); //TODO: change back to code
 			user.set("name","");
 			user.set("layerIdentityToken",generateUuid());
 			saveUserAndSendSMS(user, phoneNumber, code, response);
