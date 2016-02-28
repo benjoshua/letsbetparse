@@ -21,7 +21,7 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 			//New user
 			var user = new LBUserClass();
 			user.set("phoneNumber",phoneNumber);
-			user.set("loginCode",code);
+			user.set("loginCode","22222"); //TODO: change back to code
 			user.set("name","");
 			user.set("layerIdentityToken",generateUuid());
 			saveUserAndSendSMS(user, phoneNumber, code, response);
