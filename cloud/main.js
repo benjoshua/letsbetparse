@@ -128,7 +128,7 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 //in the same order it was received
 Parse.Cloud.define("createGroup", function(request, response) {
 	var layerGroupId = request.params.layerGroupId;
-	var layerUsersIds = request.params.layerUsersIds;
+	var groupAdminLayerId = request.params.groupAdminLayerId; 
 
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
@@ -143,13 +143,12 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				//New Group
 				var group = new LBGroupClass();
 				group.set("layerGroupId",layerGroupId);
-				group.set("layerUsersIds",layerUsersIds);
 				group.save(null,{
 					success:function(group) { 
 						var LBUserClass = Parse.Object.extend("LBUser");
 						var userQuery = new Parse.Query(LBUserClass);
 							
-						userQuery.equalTo("layerIdentityToken", betAdminLayerId);
+						userQuery.equalTo("layerIdentityToken", groupAdminLayerId);
 						userQuery.first({
 							success: function(user) {
 								console.log("layerGroupId = " + layerGroupId)
