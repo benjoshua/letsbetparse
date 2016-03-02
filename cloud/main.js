@@ -257,7 +257,7 @@ function sendAdminMsgToGroup(layerGroupId, msg, dataDic) {
 	    body: {
 	        sender: {name: "Admin"},
 	        parts: [{body: msg, mime_type: "text/plain"}],
-	        notification: {text: msg, data: data},
+	        notification: {text: msg, data: dataDic},
 	    },
 	    json: true,
 	    headers: layerPlatformApiInfo.headers
