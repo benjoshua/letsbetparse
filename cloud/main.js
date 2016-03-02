@@ -15,13 +15,13 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 		success: function(user) {
 			//If user already exists in Parse:
 			if (user != undefined && user != null) {
-				user.set("loginCode","1"); //TODO: change back to code
+				user.set("loginCode",code);
 				saveUserAndSendSMS(user, phoneNumber, code, response);
 			} else {
 			//New user
 			var user = new LBUserClass();
 			user.set("phoneNumber",phoneNumber);
-			user.set("loginCode","1"); //TODO: change back to code
+			user.set("loginCode",code);
 			user.set("name","");
 			user.set("layerIdentityToken",generateUuid());
 			saveUserAndSendSMS(user, phoneNumber, code, response);
@@ -147,6 +147,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				group.save(null,{
 					success:function(group) { 
 						//TODO: send layer admin msg and push
+						sendAdminMsgToGroup("New group!!!")
 						response.success(true);
 					},
 					error:function(group, error) {
@@ -195,8 +196,8 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				bet.save(null,{
 					success:function(bet) { 
 						//TODO: send layer admin msg and push
-						sendAdminMsgToGroup(layerGroupId,"Created new bet!");
-						response.success(true);
+						sendAdminMsgToGroup(layerGroupId,"Created new bet!")
+						response.success(true)
 					},
 					error:function(bet, error) {
 						response.error(error);
@@ -234,20 +235,19 @@ var layerPlatformApiInfo = {
 
 
 function sendAdminMsgToGroup(layerGroupId, msg) {
-	console.log("send admin msg to: " + layerGroupId);
 	request({
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
 	    method: "POST",
 	    body: {
 	        sender: {name: "Admin"},
 	        parts: [{body: msg, mime_type: "text/plain"}],
-	        notification: {text: msg},
+	        notification: {text: msggit p},
 
 	    },
 	    json: true,
 	    headers: layerPlatformApiInfo.headers
 	    }, function(error, response, body) {
-	    	console.log(response.code);
+	    	console.log(response);
 		});
 }
 
