@@ -197,13 +197,16 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 					success:function(bet) { 
 							var LBUserClass = Parse.Object.extend("LBUser");
 							var userQuery = new Parse.Query(LBUserClass);
-							userQuery.equalTo("layerIdentityToken",betAdminLayerId);
+							console.log("betAdminLayerId = " + betAdminLayerId);
+							userQuery.equalTo("layerIdentityToken", betAdminLayerId);
 							query.first({
 								success: function(user) {
 									var data = {
 										"betId" : bet.id
 									}
-									sendAdminMsgToGroup(layerGroupId, "" +user.get("name") +  " opened a new bet!",data);
+									console.log("bet.id = " + bet.id);
+									console.log("user = " + user);
+									sendAdminMsgToGroup(layerGroupId, "" + user.get("name") +  " opened a new bet!",data);
 									response.success(true);
 								},
 								error:function(bet, error) {
