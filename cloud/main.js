@@ -204,8 +204,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 									var data = {
 										"betId" : bet.id
 									}
-									console.log("bet.id = " + bet.id);
-									console.log("user = " + user);
+								
 									sendAdminMsgToGroup(layerGroupId, "" + user.get("name") +  " opened a new bet!",data);
 									response.success(true);
 								},
@@ -265,7 +264,7 @@ function sendAdminMsgToGroup(layerGroupId, msg, dataDic) {
 	    json: true,
 	    headers: layerPlatformApiInfo.headers
 	    }, function(error, response, body) {
-	    	console.log(response);
+	    	// console.log(response);
 		});
 }
 
