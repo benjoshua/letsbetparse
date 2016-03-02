@@ -195,9 +195,32 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				bet.set("stakeDesc",stakeDesc);
 				bet.save(null,{
 					success:function(bet) { 
-						//TODO: send layer admin msg and push
-						sendAdminMsgToGroup(layerGroupId,"Created new bet!")
-						response.success(true)
+							var LBUserClass = Parse.Object.extend("LBUser");
+							var userQuery = new Parse.Query(LBUserClass);
+							userQuery.equalTo("layerIdentityToken",betAdminLayerId);
+							query.first({
+								success: function(user) {
+
+									console.log("bet.get(\"_id\") = " + bet.get("_id"));
+									console.log("bet.get(\"id\") = " + bet.get("id"));
+									console.log("bet.id = " + bet.id);
+									console.log("bet._id = " + bet._id);
+
+
+									var data = {
+										"betId" : bet.get("_id")
+									}
+									sendAdminMsgToGroup(layerGroupId, "" +user.get("name") +  " opened a new bet!",data);
+									response.success(true);
+								},
+								error:function(bet, error) {
+									response.error(error);
+								}
+							});
+
+
+
+						
 					},
 					error:function(bet, error) {
 						response.error(error);
@@ -234,15 +257,14 @@ var layerPlatformApiInfo = {
 
 
 
-function sendAdminMsgToGroup(layerGroupId, msg) {
+function sendAdminMsgToGroup(layerGroupId, msg, dataDic) {
 	request({
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
 	    method: "POST",
 	    body: {
 	        sender: {name: "Admin"},
 	        parts: [{body: msg, mime_type: "text/plain"}],
-	        notification: {text: msggit p},
-
+	        notification: {text: msg, data: data},
 	    },
 	    json: true,
 	    headers: layerPlatformApiInfo.headers
