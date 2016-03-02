@@ -143,6 +143,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				//New Group
 				var group = new LBGroupClass();
 				group.set("layerGroupId",layerGroupId);
+				group.set("groupAdminLayerId",groupAdminLayerId);
 				group.save(null,{
 					success:function(group) { 
 						var LBUserClass = Parse.Object.extend("LBUser");
