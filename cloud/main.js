@@ -200,15 +200,8 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 							userQuery.equalTo("layerIdentityToken",betAdminLayerId);
 							query.first({
 								success: function(user) {
-
-									console.log("bet.get(\"_id\") = " + bet.get("_id"));
-									console.log("bet.get(\"id\") = " + bet.get("id"));
-									console.log("bet.id = " + bet.id);
-									console.log("bet._id = " + bet._id);
-
-
 									var data = {
-										"betId" : bet.get("_id")
+										"betId" : bet.id
 									}
 									sendAdminMsgToGroup(layerGroupId, "" +user.get("name") +  " opened a new bet!",data);
 									response.success(true);
