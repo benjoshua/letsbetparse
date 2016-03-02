@@ -147,19 +147,19 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				group.save(null,{
 					success:function(group) { 
 						var LBUserClass = Parse.Object.extend("LBUser");
-							var userQuery = new Parse.Query(LBUserClass);
+						var userQuery = new Parse.Query(LBUserClass);
 							
-							userQuery.equalTo("layerIdentityToken", betAdminLayerId);
-							userQuery.first({
-								success: function(user) {
-									sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " opened a new group", {});
-									response.success(true);
-								},
-								error:function(bet, error) {
-									response.error(error);
-								}
-							});
-						
+						userQuery.equalTo("layerIdentityToken", betAdminLayerId);
+						userQuery.first({
+							success: function(user) {
+								console.log("layerGroupId = " + layerGroupId)
+								sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " opened a new group", {});
+								response.success(true);
+							},
+							error:function(bet, error) {
+								response.error(error);
+							}
+						});
 					},
 					error:function(group, error) {
 						response.error(error);
