@@ -199,9 +199,9 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 							var userQuery = new Parse.Query(LBUserClass);
 							
 							userQuery.equalTo("layerIdentityToken", betAdminLayerId);
-							query.first({
+							userQuery.first({
 								success: function(user) {
-									console.log(user);
+									
 									var data = {
 										"betId" : bet.id
 									}
