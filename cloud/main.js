@@ -146,9 +146,20 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				group.set("layerUsersIds",layerUsersIds);
 				group.save(null,{
 					success:function(group) { 
-						//TODO: send layer admin msg and push
-						sendAdminMsgToGroup("New group!!!")
-						response.success(true);
+						var LBUserClass = Parse.Object.extend("LBUser");
+							var userQuery = new Parse.Query(LBUserClass);
+							
+							userQuery.equalTo("layerIdentityToken", betAdminLayerId);
+							userQuery.first({
+								success: function(user) {
+									sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " opened a new group", {});
+									response.success(true);
+								},
+								error:function(bet, error) {
+									response.error(error);
+								}
+							});
+						
 					},
 					error:function(group, error) {
 						response.error(error);
@@ -201,7 +212,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 							userQuery.equalTo("layerIdentityToken", betAdminLayerId);
 							userQuery.first({
 								success: function(user) {
-									
+
 									var data = {
 										"betId" : bet.id
 									}
