@@ -7,7 +7,7 @@ var deferred = require('deferred'); // used by platform API
 //Sends sms to user and saves the loginCode in Parse
 Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 	var phoneNumber = request.params.phoneNumber;
-	var code = "" + (Math.floor(Math.random()*90000) + 10000);
+	var code = "1"; //"" + (Math.floor(Math.random()*90000) + 10000); //TODO: change back to this random num
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("phoneNumber",phoneNumber);
@@ -15,13 +15,13 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 		success: function(user) {
 			//If user already exists in Parse:
 			if (user != undefined && user != null) {
-				user.set("loginCode","1"); //TODO: change back to 'code'
+				user.set("loginCode",code); //TODO: change back to 'code'
 				saveUserAndSendSMS(user, phoneNumber, code, response);
 			} else {
 			//New user
 			var user = new LBUserClass();
 			user.set("phoneNumber",phoneNumber);
-			user.set("loginCode","1"); //TODO: change back to 'code'
+			user.set("loginCode",code);
 			user.set("name","");
 			user.set("layerIdentityToken",generateUuid());
 			saveUserAndSendSMS(user, phoneNumber, code, response);
