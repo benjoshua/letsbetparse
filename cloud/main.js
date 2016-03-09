@@ -297,7 +297,7 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 			response.success(bets);
 		},
 		error: function(error) {
-			response.error(error);
+			response.error("GroupId not found");
 		}
 	});
 });
