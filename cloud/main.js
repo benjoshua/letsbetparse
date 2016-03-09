@@ -16,7 +16,7 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 			//If user already exists in Parse:
 			if (user != undefined && user != null) {
 				user.set("loginCode",code); //TODO: change back to 'code'
-				saveUserAndSendSMS(user, phoneNumber, code, response);
+				saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
 			} else {
 			//New user
 			var user = new LBUserClass();
@@ -24,7 +24,7 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 			user.set("loginCode",code);
 			user.set("name","");
 			user.set("layerIdentityToken",generateUuid());
-			saveUserAndSendSMS(user, phoneNumber, code, response);
+			saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
 		}
 	},
 	error: function(error) {
@@ -37,7 +37,9 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 function saveUserAndSendSMS(user, phoneNumber, code, response) {
 	user.save(null,{
 		success:function(user) { 
-			var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
+			//TODO: return to Twilio! now we just send success
+			response.success(true);
+			/**var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
 			client.sendSms({
 				to:phoneNumber, 
 				from: '+972526286926', 
@@ -48,7 +50,7 @@ function saveUserAndSendSMS(user, phoneNumber, code, response) {
 				} else { 
 					response.success(true);
 				}
-			});
+			});*/
 		},
 		error:function(user, error) {
 			response.error(error);
