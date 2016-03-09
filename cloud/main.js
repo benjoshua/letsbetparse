@@ -294,10 +294,15 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 	query.equalTo("layerGroupId",layerGroupId);
 	query.find({
 		success: function(bets) {
-			response.success(bets);
+			if (bets.length == 0){
+				response.error("GroupId not found");
+			}
+			else{
+				response.success(bets);
+			}
 		},
 		error: function(error) {
-			response.error("GroupId not found");
+			response.error(error);
 		}
 	});
 });
