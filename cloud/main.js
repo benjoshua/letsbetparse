@@ -184,7 +184,14 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	var guestAdminGoalsBet = request.params.guestAdminGoalsBet;
 	var stakeType = request.params.stakeType;
 	var stakeDesc = request.params.stakeDesc;
-
+	
+	
+	//TODO: maybe delete, cause we can get this information from our API
+	var teamHostName =  request.params.teamHostName;
+	var teamGuestName =  request.params.teamGuestName;
+	var betDueDateLong =  request.params.betDueDateLong;
+	
+	
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass);
 	query.equalTo("layerGroupId",layerGroupId);
@@ -206,6 +213,14 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				bet.set("usersGuesses",usersGuesses);
 				bet.set("stakeType",stakeType);
 				bet.set("stakeDesc",stakeDesc);
+				
+				//TODO: maybe delete, cause we can get this information from our API
+				bet.set("teamHostName",teamHostName);
+				bet.set("teamGuestName",teamGuestName);
+				bet.set("betDueDateLong",betDueDateLong);
+				
+				
+				
 				bet.save(null,{
 					success:function(bet) { 
 							var LBUserClass = Parse.Object.extend("LBUser");
