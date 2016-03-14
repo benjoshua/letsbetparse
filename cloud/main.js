@@ -177,6 +177,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 
 // -------------------------createFootballGameBet----------------------------
 Parse.Cloud.define("createFootballGameBet", function(request, response) {
+	console.log("createFootballGameBet");
 	var layerGroupId = request.params.layerGroupId;
 	var gameId = request.params.gameId;
 	var betAdminLayerId = request.params.betAdminLayerId;
