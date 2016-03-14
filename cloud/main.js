@@ -262,7 +262,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 
 // ------------------------- addGuessToFootballGameBet ----------------------------
 Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
-		console.log("a");
+	console.log("a");
 	var gameApiId = request.params.gameApiId;
 	var groupLayerId = request.params.groupLayerId;
 	var userLayerId = request.params.userLayerId;
