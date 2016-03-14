@@ -223,7 +223,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				
 				
 				bet.save(null,{
-					success:function(bet) { 
+					success:function(savedBet) { 
 							var LBUserClass = Parse.Object.extend("LBUser");
 							var userQuery = new Parse.Query(LBUserClass);
 							
@@ -232,14 +232,14 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 								success: function(user) {
 
 									var data = {
-										"betId" : bet.id
+										"betId" : savedBet.id
 									}
 
 									sendAdminMsgToGroup(layerGroupId, "" + user.get("name") +  " opened a new bet!",data);
 									response.success(true);
 								},
-								error:function(bet, error) {
-									response.error("q"+error);
+								error:function(savedBet, error) {
+									response.error("q");
 								}
 							});
 
@@ -248,13 +248,13 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 						
 					},
 					error:function(bet, error) {
-						response.error("W"+error);
+						response.error("W");
 					}
 				});
 			}
 		},
 		error: function(error) {
-			response.error("E"+error);
+			response.error("E");
 		}
 	});
 });
