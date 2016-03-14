@@ -239,7 +239,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 									response.success(true);
 								},
 								error:function(bet, error) {
-									response.error(error);
+									response.error("q"+error);
 								}
 							});
 
@@ -248,13 +248,13 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 						
 					},
 					error:function(bet, error) {
-						response.error(error);
+						response.error("W"+error);
 					}
 				});
 			}
 		},
 		error: function(error) {
-			response.error(error);
+			response.error("E"+error);
 		}
 	});
 });
