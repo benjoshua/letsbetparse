@@ -259,6 +259,63 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 });
 
 
+// ------------------------- addGuessToFootballGameBet ----------------------------
+Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
+	var gameApiId = request.params.gameApiId;
+	var groupLayerId = request.params.groupLayerId;
+	var userLayerId = request.params.userLayerId;
+	var goalsTeamHost = request.params.goalsTeamHost;
+	var goalsTeamGuest = request.params.goalsTeamGuest;
+	
+	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+	var query = new Parse.Query(LBFootballGameBetClass);
+	query.equalTo("layerGroupId",groupLayerId);
+	query.equalTo("gameId",gameApiId);
+
+	query.first({
+		success: function(bet) {
+			//If bet for group exists in Parse:
+			if (bet != undefined && bet != null) {	
+				//Add guess to bet
+				var usersGuesses = bet.get("usersGuesses");
+				usersGuesses[userLayerId] = {"hostGoals": goalsTeamHost, "guestGoals": goalsTeamGuest};
+				
+				//TODO: make sure guess doesn't exist already
+				
+				bet.save(null,{
+					success:function(bet) { 
+							//TODO: fix to right behavior
+							var LBUserClass = Parse.Object.extend("LBUser");
+							var userQuery = new Parse.Query(LBUserClass);
+							
+							userQuery.equalTo("layerIdentityToken", userLayerId);
+							userQuery.first({
+								success: function(user) {
+									sendAdminMsgToGroup(layerGroupId, "" + user.get("name") +  " added a guess to bet ",bet.id);
+									response.success(true);
+								},
+								error:function(bet, error) {
+									response.error(error);
+								}
+							});
+					},
+					error:function(bet, error) {
+						response.error(error);
+					}
+				});
+			} else {
+				response.error("errorBetDoesntExist");
+				
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
+
+
+
 var layerPlatformApiInfo = {
     config: {
         serverUrl: "https://api.layer.com/apps/" + process.env.LAYER_APP_UUID
