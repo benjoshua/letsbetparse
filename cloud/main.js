@@ -311,7 +311,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 							userQuery.first({
 								success: function(user) {
 									console.log("6");
-									if ((user == undefined) or (user == null)){
+									if ((user == undefined) || (user == null)){
 										response.error("couldn't find userID to add his guess");
 									}else{
 										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") +  " added a guess to bet");//, bet.id
