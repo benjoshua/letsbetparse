@@ -154,7 +154,6 @@ Parse.Cloud.define("createGroup", function(request, response) {
 						userQuery.equalTo("layerIdentityToken", groupAdminLayerId);
 						userQuery.first({
 							success: function(user) {
-								console.log("groupLayerId = " + groupLayerId)
 								sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " opened a new group", {});
 								response.success(true);
 							},
@@ -189,7 +188,6 @@ Parse.Cloud.define("createGroup", function(request, response) {
 
 // -------------------------createFootballGameBet----------------------------
 Parse.Cloud.define("createFootballGameBet", function(request, response) {
-	console.log("createFootballGameBet");
 	var groupLayerId = request.params.layerGroupId;
 	var gameId = request.params.gameId;
 	var betAdminLayerId = request.params.betAdminLayerId;
@@ -274,7 +272,6 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 
 // ------------------------- addGuessToFootballGameBet ----------------------------
 Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
-	console.log("a");
 	var gameApiId = request.params.gameApiId;
 	var groupLayerId = request.params.groupLayerId;
 	var userLayerId = request.params.userLayerId;
@@ -290,18 +287,16 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 			//If bet for group exists in Parse:
 			if (bet != undefined && bet != null) {	
 				//Add guess to bet
+
 				var usersGuesses = bet.get("usersGuesses");
-				console.log(usersGuesses[userLayerId]);
-				if ((usersGuesses[userLayerId] != undefined) && (usersGuesses[userLayerId] != null) && (usersGuesses[userLayerId] != {})){
+				//Make sure guess doesn't exist yet
+				if (usersGuesses[userLayerId] != undefined){
 					response.error("User added guess to this bet already");
 				}
-				usersGuesses[userLayerId] = {"hostGoals": goalsTeamHost, "guestGoals": goalsTeamGuest};
-				
-				//TODO: make sure guess doesn't exist already
-				
+
+				usersGuesses[userLayerId] = {"hostGoals": goalsTeamHost, "guestGoals": goalsTeamGuest};				
 				bet.save(null,{
 					success:function(bet) { 
-							//TODO: fix to right behavior
 							var LBUserClass = Parse.Object.extend("LBUser");
 							var userQuery = new Parse.Query(LBUserClass);
 							
@@ -311,6 +306,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 									if ((user == undefined) || (user == null)){
 										response.error("couldn't find userID to add his guess");
 									}else{
+										//TODO: make sure what's the right behavior for updating etc.
 										sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, {});
 										response.success(true);
 									}
@@ -330,7 +326,6 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 			}
 		},
 		error: function(error) {
-				console.log("10");
 			response.error(error);
 		}
 	});
@@ -361,7 +356,6 @@ var layerPlatformApiInfo = {
 
 
 function sendAdminMsgToGroup(groupLayerId, msg, dataDic) {
-	console.log("sendAdminMsgToGroup");
 	request({
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
 	    method: "POST",
@@ -373,7 +367,7 @@ function sendAdminMsgToGroup(groupLayerId, msg, dataDic) {
 	    json: true,
 	    headers: layerPlatformApiInfo.headers
 	    }, function(error, response, body) {
-	    	//console.log(response);
+	    	
 		});
 }
 
