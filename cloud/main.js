@@ -368,7 +368,7 @@ var layerPlatformApiInfo = {
 
 
 function sendAdminMsgToGroup(layerGroupId, msg, dataDic) {
-	console.log("sending admin msg")
+	console.log("sending admin msg");
 	request({
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
 	    method: "POST",
