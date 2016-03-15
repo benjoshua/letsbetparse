@@ -281,21 +281,20 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 	var goalsTeamHost = request.params.goalsTeamHost;
 	var goalsTeamGuest = request.params.goalsTeamGuest;
 	
-	console.log("1");
-	
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass);
 	query.equalTo("layerGroupId",groupLayerId);
 	query.equalTo("gameId",gameApiId);
-	console.log("2");
 	query.first({
 		success: function(bet) {
-				console.log("3");
 			//If bet for group exists in Parse:
 			if (bet != undefined && bet != null) {	
 				//Add guess to bet
-					console.log("4");
 				var usersGuesses = bet.get("usersGuesses");
+				console.log(usersGuesses[userLayerId]);
+				if ((usersGuesses[userLayerId] != undefined) && (usersGuesses[userLayerId] != null) && (usersGuesses[userLayerId] != {})){
+					response.error("User added guess to this bet already");
+				}
 				usersGuesses[userLayerId] = {"hostGoals": goalsTeamHost, "guestGoals": goalsTeamGuest};
 				
 				//TODO: make sure guess doesn't exist already
@@ -303,40 +302,29 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 				bet.save(null,{
 					success:function(bet) { 
 							//TODO: fix to right behavior
-								console.log("5");
 							var LBUserClass = Parse.Object.extend("LBUser");
 							var userQuery = new Parse.Query(LBUserClass);
 							
 							userQuery.equalTo("layerIdentityToken", userLayerId);
 							userQuery.first({
 								success: function(user) {
-									console.log("6");
 									if ((user == undefined) || (user == null)){
-										console.log("6.5");
 										response.error("couldn't find userID to add his guess");
 									}else{
-										console.log("6.7");
-										var data = {
-											"betId" : "whatttt"
-										}
 										sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, {});
-										console.log("returning success");
 										response.success(true);
 									}
 								},
 								error:function(bet, error) {
-										console.log("7");
 									response.error(error);
 								}
 							});
 					},
 					error:function(bet, error) {
-							console.log("8");
 						response.error(error);
 					}
 				});
 			} else {
-					console.log("9");
 				response.error("errorBetDoesntExist");
 				
 			}
