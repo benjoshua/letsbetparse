@@ -316,7 +316,10 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 										response.error("couldn't find userID to add his guess");
 									}else{
 										console.log("6.7");
-										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " added a guess to bet", {}); // + bet.id
+										var data = {
+											"betId" : "whatttt"
+										}
+										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " added a guess to bet", data); // + bet.id
 										console.log("returning success");
 										response.success(true);
 									}
