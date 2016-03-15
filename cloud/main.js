@@ -129,12 +129,12 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 //Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
 //in the same order it was received
 Parse.Cloud.define("createGroup", function(request, response) {
-	var layerGroupId = request.params.layerGroupId;
+	var groupLayerId = request.params.layerGroupId;
 	var groupAdminLayerId = request.params.groupAdminLayerId; 
 
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
-	query.equalTo("layerGroupId",layerGroupId);
+	query.equalTo("layerGroupId",groupLayerId);
 
 	query.first({
 		success: function(group) {
@@ -144,7 +144,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 			} else {
 				//New Group
 				var group = new LBGroupClass();
-				group.set("layerGroupId",layerGroupId);
+				group.set("layerGroupId",groupLayerId);
 				group.set("groupAdminLayerId",groupAdminLayerId);
 				group.save(null,{
 					success:function(group) { 
@@ -154,8 +154,8 @@ Parse.Cloud.define("createGroup", function(request, response) {
 						userQuery.equalTo("layerIdentityToken", groupAdminLayerId);
 						userQuery.first({
 							success: function(user) {
-								console.log("layerGroupId = " + layerGroupId)
-								sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " opened a new group", {});
+								console.log("groupLayerId = " + groupLayerId)
+								sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " opened a new group", {});
 								response.success(true);
 							},
 							error:function(bet, error) {
@@ -190,7 +190,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 // -------------------------createFootballGameBet----------------------------
 Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	console.log("createFootballGameBet");
-	var layerGroupId = request.params.layerGroupId;
+	var groupLayerId = request.params.layerGroupId;
 	var gameId = request.params.gameId;
 	var betAdminLayerId = request.params.betAdminLayerId;
 	var hostAdminGoalsBet = request.params.hostAdminGoalsBet;
@@ -207,7 +207,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass);
-	query.equalTo("layerGroupId",layerGroupId);
+	query.equalTo("layerGroupId",groupLayerId);
 	query.equalTo("gameId",gameId);
 
 	query.first({
@@ -218,7 +218,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 			} else {
 				//New bet
 				var bet = new LBFootballGameBetClass();
-				bet.set("layerGroupId",layerGroupId);
+				bet.set("layerGroupId",groupLayerId);
 				bet.set("gameId",gameId);
 				bet.set("betAdminLayerId",betAdminLayerId);
 				var usersGuesses = {};
@@ -247,7 +247,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 										"betId" : savedBet.id
 									}
 
-									sendAdminMsgToGroup(layerGroupId, "" + user.get("name") +  " opened a new bet!",data);
+									sendAdminMsgToGroup(groupLayerId, "" + user.get("name") +  " opened a new bet!",data);
 									response.success(true);
 								},
 								error:function(savedBet, error) {
@@ -319,7 +319,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 										var data = {
 											"betId" : "whatttt"
 										}
-										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " added a guess to bet", data); // + bet.id
+										sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, {});
 										console.log("returning success");
 										response.success(true);
 									}
@@ -372,10 +372,10 @@ var layerPlatformApiInfo = {
 
 
 
-function sendAdminMsgToGroup(layerGroupId, msg, dataDic) {
+function sendAdminMsgToGroup(groupLayerId, msg, dataDic) {
 	console.log("sendAdminMsgToGroup");
 	request({
-	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
+	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
 	    method: "POST",
 	    body: {
 	        sender: {name: "Admin"},
@@ -397,10 +397,10 @@ Parse.Cloud.define("AdminMsg", function(request, response) {
 
 // -------------------------getGroupOpenBets----------------------------
 Parse.Cloud.define("getGroupOpenBets", function(request, response) {
-	var layerGroupId = request.params.layerGroupId;
+	var groupLayerId = request.params.layerGroupId;
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass);
-	query.equalTo("layerGroupId",layerGroupId);
+	query.equalTo("layerGroupId",groupLayerId);
 	query.find({
 		success: function(bets) {
 			if (bets.length == 0){
