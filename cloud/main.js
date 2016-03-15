@@ -124,7 +124,7 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 
 
 
-// -------------------------authenticatePhoneNumberAndSendToken----------------------------
+// -------------------------createGroup----------------------------
 
 //Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
 //in the same order it was received
@@ -173,6 +173,16 @@ Parse.Cloud.define("createGroup", function(request, response) {
 			response.error(error);
 		}
 	});
+});
+
+// -------------------------deleteAllGroupsFromDB----------------------------
+
+Parse.Cloud.define("deleteAllGroupsFromDB", function(request, response) {
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.equalTo("layerGroupId",layerGroupId);
+
+	//TODO: implement...
 });
 
 // -------------------------createFootballGameBet----------------------------
@@ -381,7 +391,7 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 	query.find({
 		success: function(bets) {
 			if (bets.length == 0){
-				response.error("GroupId not found");
+				response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
 			}
 			else{
 				response.success(bets);
