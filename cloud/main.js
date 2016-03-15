@@ -385,7 +385,7 @@ function sendAdminMsgToGroup(layerGroupId, msg, dataDic) {
 	    json: true,
 	    headers: layerPlatformApiInfo.headers
 	    }, function(error, response, body) {
-	    	console.log(response);
+	    	//console.log(response);
 		});
 }
 
