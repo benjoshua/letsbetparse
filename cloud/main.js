@@ -317,7 +317,6 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 									}else{
 										console.log("6.7");
 										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " added a guess to bet", {}); // + bet.id
-										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " added a guess to bet", {});
 										console.log("returning success");
 										response.success(true);
 									}
