@@ -316,7 +316,8 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 										response.error("couldn't find userID to add his guess");
 									}else{
 										console.log("6.7");
-										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") +  " added a guess to bet " + bet.id,{});
+										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " added a guess to bet", {}); // + bet.id
+										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") + " added a guess to bet", {});
 										console.log("returning success");
 										response.success(true);
 									}
@@ -370,7 +371,6 @@ var layerPlatformApiInfo = {
 
 
 function sendAdminMsgToGroup(layerGroupId, msg, dataDic) {
-	console.log("sending admin msg");
 	request({
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
 	    method: "POST",
