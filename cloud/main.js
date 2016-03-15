@@ -175,15 +175,17 @@ Parse.Cloud.define("createGroup", function(request, response) {
 	});
 });
 
+
+
 // -------------------------deleteAllGroupsFromDB----------------------------
 
-Parse.Cloud.define("deleteAllGroupsFromDB", function(request, response) {
+/**Parse.Cloud.define("deleteAllGroupsFromDB", function(request, response) {
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
 	query.equalTo("layerGroupId",layerGroupId);
 
 	//TODO: implement...
-});
+});*/
 
 // -------------------------createFootballGameBet----------------------------
 Parse.Cloud.define("createFootballGameBet", function(request, response) {
@@ -308,9 +310,14 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 							userQuery.equalTo("layerIdentityToken", userLayerId);
 							userQuery.first({
 								success: function(user) {
-										console.log("6");
-									sendAdminMsgToGroup(layerGroupId, "" + user.get("name") +  " added a guess to bet ",bet.id);
-									response.success(true);
+									console.log("6");
+									if ((user == undefined) or (user == null)){
+										response.error("couldn't find userID to add his guess");
+									}else{
+										sendAdminMsgToGroup(layerGroupId, "" + user.get("name") +  " added a guess to bet");//, bet.id
+										console.log("returning success");
+										response.success(true);
+									}
 								},
 								error:function(bet, error) {
 										console.log("7");
@@ -361,6 +368,7 @@ var layerPlatformApiInfo = {
 
 
 function sendAdminMsgToGroup(layerGroupId, msg, dataDic) {
+	console.log("sending admin msg")
 	request({
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + layerGroupId + "/messages",
 	    method: "POST",
