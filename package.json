@@ -18,7 +18,8 @@
     "parse": "~1.6.12",
     "parse-server": "~2.1",
     "request": "^2.58.0",
-    "twilio": "~2.9.0"
+    "twilio": "~2.9.0",
+    "xmldom": "^0.1.22"
   },
   "scripts": {
     "start": "node index.js"
