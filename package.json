@@ -12,6 +12,7 @@
     "deferred": "^0.7.2",
     "express": "~4.2.x",
     "jquery": "^2.2.2",
+    "jsdom": "^8.1.0",
     "kerberos": "~0.0.x",
     "layer-patch": "layerhq/layer-patch",
     "parse": "~1.6.12",
