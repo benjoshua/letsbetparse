@@ -357,8 +357,8 @@ Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 
 // ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
-	console.log(jQuery);
 	var xmlDoc = jQuery.parseXML("<foo>Stuff</foo>");
+	console.log(xmlDoc);
 	if (xmlDoc) {
 		console.log(xmlDoc.documentElement.nodeName);
 	}
