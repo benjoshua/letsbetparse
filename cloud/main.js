@@ -1,7 +1,17 @@
-
+var jQuery;
 var request = require("request"); // used by platform API
 var deferred = require('deferred'); // used by platform API
-var jQuery = require('jquery')(window); // used for xml from XMLSOCCER
+
+// used for xml from XMLSOCCER
+require("jsdom").env("", function(err, window) {
+	if (err) {
+		console.error(err);
+		return;
+	}
+ 
+	jQuery = require("jquery")(window);
+});
+
 
 
 // -------------------------sendSmsForPhoneNumber----------------------------
