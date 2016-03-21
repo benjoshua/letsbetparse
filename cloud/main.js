@@ -344,7 +344,7 @@ Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 });
 
 
-// ------------------------- getGamesPerDatesRange ----------------------------
+// ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
 	updateComingGames();
 	//updateLiveScores();
@@ -379,12 +379,12 @@ function updateComingGames() {
 		"La Liga":8,
 		"Champions League":16,
 		"EURO 2016":56
-	}
+	};
 	
 	
 	var startDate = new Date();
 	var endDate = new Date();
-	endDate.setDate(endDate.getDate()+14);;
+	endDate.setDate(endDate.getDate()+14);
 
 	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString"="
 			+formatDate(startDate)+"&endDateString="+formatDate(endDate);
