@@ -1,4 +1,4 @@
-global.DOMParser = require('xmldom').DOMParser;
+
 var jQuery;
 var request = require("request"); // used by platform API
 var deferred = require('deferred'); // used by platform API
@@ -11,6 +11,7 @@ require("jsdom").env("", function(err, window) {
 	}
  
 	jQuery = require("jquery")(window);
+	global.DOMParser = require('xmldom').DOMParser;
 });
 
 
