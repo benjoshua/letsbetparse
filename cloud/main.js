@@ -340,24 +340,103 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 
 // ------------------------- getGamesPerDatesRange ----------------------------
 Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
+
+});
+
+
+// ------------------------- getGamesPerDatesRange ----------------------------
+Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
+	updateComingGames();
+	//updateLiveScores();
+	
+	response.success();
+});
+
+//yyyy-mm-dd
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+//Called daily
+function updateComingGames() {
 	var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
-	var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
+	var xmlSoccerUrl = "https://www.xmlsoccer.com/FootballData.asmx/";
+		
+	var leaguesId = ["1","4","5","7","8","16","56"];
+	var leaguesDic = {
+		"English Premier League":1,
+		"Bundesliga":4,
+		"Serie A":5,
+		"Ligue 1":7,
+		"La Liga":8,
+		"Champions League":16,
+		"EURO 2016":56
+	}
 	
-	var startDate = iko.params.startDate;
-	var endDate = iko.params.endDate;
 	
-	//var leaguesId = {"1","2","3"};
-	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
-			+startDate+"&endDateString="+endDate;
-	console.log(fullUrl);
+	var startDate = new Date();
+	var endDate = new Date();
+	endDate.setDate(endDate.getDate()+14);;
+
+	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString"="
+			+formatDate(startDate)+"&endDateString="+formatDate(endDate);
 	request({
 	    uri: fullUrl,
 	    method: "GET",
 	    json: true,
 	    }, function(error, response, body) {
-	    	piko.success(body);
+	    	updateComingGamesInDB(body);
+	});
+}
+
+function updateComingGamesInDB(xmlFutureMatches){
+	// get XML 
+	//var xml = xhr.responseXML;
+
+	console.log(xmlFutureMatches);
+	// get users
+	var macthes = xmlFutureMatches.getElementsByTagName("XMLSOCCER.COM");
+	console.log("----------------");
+	console.log(matches);
+	for (var i = 0; i < matches.length; i++) {   
+		console.log("***********");
+		console.log(matches(i));
+		var match = matches[i].firstChild.nodeValue;
+		console.log("@@@@@@@@@@@@@@@@@@@@@@");
+		console.log(matches[i].firstChild);
+		console.log("@@@@@@@@@@@@@@@@@@@@@@");
+		console.log(matches[i].firstChild.nodeValue);
+		
+		
+	}   
+}
+
+
+//Called eery 30 seconds
+function updateLiveScores() {
+	request({
+	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
+	    method: "POST",
+	    body: {
+	        sender: {name: "Admin"},
+	        parts: [{body: msg, mime_type: "text/plain"}],
+	        notification: {text: msg, data: dataDic},
+	    },
+	    json: true,
+	    headers: layerPlatformApiInfo.headers
+	    }, function(error, response, body) {
+	    	
 		});
-});
+}
+
 
 
 var layerPlatformApiInfo = {
