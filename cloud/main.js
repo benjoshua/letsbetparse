@@ -1,6 +1,7 @@
 
 var request = require("request"); // used by platform API
 var deferred = require('deferred'); // used by platform API
+var jquery = require('jquery'); // used for xml from XMLSOCCER
 
 
 // -------------------------sendSmsForPhoneNumber----------------------------
@@ -346,7 +347,13 @@ Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 
 // ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
-	updateComingGames();
+	var xmlDoc = jQuery.parseXML("<foo>Stuff</foo>");
+	if (xmlDoc) {
+		console.log(xmlDoc.documentElement.nodeName);
+	}
+	response.success(xmlDoc);
+	
+	//updateComingGames();
 	//updateLiveScores();
 	
 	//response.success();
