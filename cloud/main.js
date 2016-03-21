@@ -351,7 +351,7 @@ Parse.Cloud.define("getGamesPerDatesRange", function(request, response) {
 			+startDate+"&endDateString="+endDate;
 	console.log(fullUrl);
 	request({
-	    uri: fullUrl
+	    uri: fullUrl,
 	    method: "GET",
 	    json: true,
 	    }, function(error, response, body) {
