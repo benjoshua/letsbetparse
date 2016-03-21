@@ -339,12 +339,12 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 */
 
 // ------------------------- getGamesPerDatesRange ----------------------------
-Parse.Cloud.define("getGamesPerDatesRange", function(request, response) {
+Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 	var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
 	var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
 	
-	var startDate = request.params.startDate;
-	var endDate = request.params.endDate;
+	var startDate = iko.params.startDate;
+	var endDate = iko.params.endDate;
 	
 	//var leaguesId = {"1","2","3"};
 	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
@@ -355,7 +355,7 @@ Parse.Cloud.define("getGamesPerDatesRange", function(request, response) {
 	    method: "GET",
 	    json: true,
 	    }, function(error, response, body) {
-	    	response.success(body);
+	    	piko.success(body);
 		});
 });
 
