@@ -14,6 +14,9 @@ require("jsdom").env("", function(err, window) {
 	global.DOMParser = require('xmldom').DOMParser;
 });
 
+var parseString = require('xml2js').parseString;
+
+
 
 
 
@@ -361,12 +364,12 @@ Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 
 // ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
-	var xmlDoc = jQuery.parseXML("<foo>Stuff</foo>");
-	console.log(xmlDoc);
-	if (xmlDoc) {
-		console.log(xmlDoc.documentElement.nodeName);
-	}
-	response.success(xmlDoc);
+	var xml = "<root>Hello xml2js!</root>"
+	parseString(xml, function (err, result) {
+		console.log(result);
+		response.success(result);
+	});
+	
 	
 	//updateComingGames();
 	//updateLiveScores();
