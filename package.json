@@ -19,6 +19,7 @@
     "parse-server": "~2.1",
     "request": "^2.58.0",
     "twilio": "~2.9.0",
+    "xml2js": "^0.4.16",
     "xmldom": "^0.1.22"
   },
   "scripts": {
