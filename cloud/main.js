@@ -388,11 +388,18 @@ function updateComingGames() {
 
 	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
 			+formatDate(startDate)+"&endDateString="+formatDate(endDate);
+	console.log(fullUrl);
+	
 	request({
 	    uri: fullUrl,
 	    method: "GET",
 	    json: true,
 	    }, function(error, response, body) {
+			console.log("ppppppppppppppppppppppppppppppppppppppppppppppppp");
+			console.log(error);
+			console.log("wwwwwwwwwwwwwwwwwww");
+			console.log(response);
+			console.log(body);
 	    	updateComingGamesInDB(body);
 	});
 }
