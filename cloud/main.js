@@ -349,7 +349,7 @@ Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
 	updateComingGames();
 	//updateLiveScores();
 	
-	response.success();
+	//response.success();
 });
 
 //yyyy-mm-dd
