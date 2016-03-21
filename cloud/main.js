@@ -368,7 +368,7 @@ function formatDate(date) {
 //Called daily
 function updateComingGames() {
 	var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
-	var xmlSoccerUrl = "https://www.xmlsoccer.com/FootballData.asmx/";
+	var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
 		
 	var leaguesId = ["1","4","5","7","8","16","56"];
 	var leaguesDic = {
