@@ -404,7 +404,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	console.log(xmlFutureMatches);
 	// get users
 	var macthes = xmlFutureMatches.getElementsByTagName("XMLSOCCER.COM");
-	console.log("----------------");
+	console.log("--------------s--");
 	console.log(matches);
 	for (var i = 0; i < matches.length; i++) {   
 		console.log("***********");
