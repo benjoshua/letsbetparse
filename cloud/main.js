@@ -346,7 +346,7 @@ Parse.Cloud.define("getGamesPerDatesRange", function(request, response) {
 	var startDate = request.params.startDate;
 	var endDate = request.params.endDate;
 	
-	var leaguesId = {"1","2","3"};
+	//var leaguesId = {"1","2","3"};
 	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
 			+startDate+"&endDateString="+endDate;
 	console.log(fullUrl);
