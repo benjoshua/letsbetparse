@@ -349,7 +349,7 @@ Parse.Cloud.define("getGamesPerDatesRange", function(request, response) {
 	var leaguesId = {"1","2","3"};
 	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
 			+startDate+"&endDateString="+endDate;
-			console.log(fullUrl);
+	console.log(fullUrl);
 	request({
 	    uri: fullUrl
 	    method: "GET",
@@ -357,65 +357,6 @@ Parse.Cloud.define("getGamesPerDatesRange", function(request, response) {
 	    }, function(error, response, body) {
 	    	response.success(body);
 		});
-	
-	
-	
-	
-	var userLayerId = request.params.userLayerId;
-	var goalsTeamHost = request.params.goalsTeamHost;
-	var goalsTeamGuest = request.params.goalsTeamGuest;
-	
-	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
-	var query = new Parse.Query(LBFootballGameBetClass);
-	query.equalTo("layerGroupId",groupLayerId);
-	query.equalTo("gameId",gameApiId);
-	query.first({
-		success: function(bet) {
-			//If bet for group exists in Parse:
-			if (bet != undefined && bet != null) {	
-				//Add guess to bet
-
-				var usersGuesses = bet.get("usersGuesses");
-				//Make sure guess doesn't exist yet
-				if (usersGuesses[userLayerId] != undefined){
-					response.error("User added guess to this bet already");
-				}
-
-				usersGuesses[userLayerId] = {"hostGoals": goalsTeamHost, "guestGoals": goalsTeamGuest};				
-				bet.save(null,{
-					success:function(bet) { 
-							var LBUserClass = Parse.Object.extend("LBUser");
-							var userQuery = new Parse.Query(LBUserClass);
-							
-							userQuery.equalTo("layerIdentityToken", userLayerId);
-							userQuery.first({
-								success: function(user) {
-									if ((user == undefined) || (user == null)){
-										response.error("couldn't find userID to add his guess");
-									}else{
-										//TODO: make sure what's the right behavior for updating etc.
-										sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, {});
-										response.success(true);
-									}
-								},
-								error:function(bet, error) {
-									response.error(error);
-								}
-							});
-					},
-					error:function(bet, error) {
-						response.error(error);
-					}
-				});
-			} else {
-				response.error("errorBetDoesntExist");
-				
-			}
-		},
-		error: function(error) {
-			response.error(error);
-		}
-	});
 });
 
 
