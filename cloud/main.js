@@ -401,7 +401,7 @@ function updateComingGames() {
 	parseString(body, function (err, result) {
 		console.log("finished parsing");
 		console.log(result);
-		updateComingGamesInDB(body);
+		updateComingGamesInDB(result);
 		//response.success(result);
 	});
 	
