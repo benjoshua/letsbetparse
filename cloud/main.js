@@ -364,14 +364,10 @@ Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 
 // ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
-	var xml = "<root>Hello xml2js!</root>";
-	parseString(xml, function (err, result) {
-		console.log(result);
-		response.success(result);
-	});
+
 	
 	
-	//updateComingGames();
+	updateComingGames();
 	//updateLiveScores();
 	
 	//response.success();
@@ -420,12 +416,17 @@ function updateComingGames() {
 	    method: "GET",
 	    json: true,
 	    }, function(error, response, body) {
-			console.log("ppppppppppppppppppppppppppppppppppppppppppppppppp");
+				//var xml = "<root>Hello xml2js!</root>";
+				parseString(body, function (err, result) {
+					console.log(result);
+					response.success(result);
+				});
+			/*console.log("ppppppppppppppppppppppppppppppppppppppppppppppppp");
 			console.log(error);
 			console.log("wwwwwwwwwwwwwwwwwww");
 			console.log(response);
 			console.log(body);
-	    	updateComingGamesInDB(body);
+	    	updateComingGamesInDB(body);*/
 	});
 }
 
