@@ -364,7 +364,7 @@ Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 
 // ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
-	var xml = "<root>Hello xml2js!</root>"
+	var xml = "<root>Hello xml2js!</root>";
 	parseString(xml, function (err, result) {
 		console.log(result);
 		response.success(result);
