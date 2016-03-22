@@ -364,7 +364,7 @@ Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 
 // ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
-	var body = "<?xml version="1.0" encoding="utf-8"?><XMLSOCCER.COM><Match><Id>360017</Id><Date>2016-04-09T22:00:00+00:00</Date><League>Mexican Primera League</League><Round>13</Round><HomeTeam>CF America</HomeTeam><HomeTeam_Id>623</HomeTeam_Id><AwayTeam>Tijuana</AwayTeam><AwayTeam_Id>632</AwayTeam_Id><Location>Estadio Azteca</Location></Match><Match><Id>361017</Id><Date>2016-04-09T21:30:00+00:00</Date><League>Major League Soccer</League><Round>1</Round><HomeTeam>DC United</HomeTeam><HomeTeam_Id>574</HomeTeam_Id><AwayTeam>Vancouver Whitecaps</AwayTeam><AwayTeam_Id>577</AwayTeam_Id><Location>RFK Stadium</Location></Match><AccountInformation>Data requested at 3/21/2016 4:44:19 PM from 62.219.35.63, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation></XMLSOCCER.COM>";
+	var body = "<XMLSOCCER.COM><Match><Id>360017</Id><Date>2016-04-09T22:00:00+00:00</Date><League>Mexican Primera League</League><Round>13</Round><HomeTeam>CF America</HomeTeam><HomeTeam_Id>623</HomeTeam_Id><AwayTeam>Tijuana</AwayTeam><AwayTeam_Id>632</AwayTeam_Id><Location>Estadio Azteca</Location></Match><Match><Id>361017</Id><Date>2016-04-09T21:30:00+00:00</Date><League>Major League Soccer</League><Round>1</Round><HomeTeam>DC United</HomeTeam><HomeTeam_Id>574</HomeTeam_Id><AwayTeam>Vancouver Whitecaps</AwayTeam><AwayTeam_Id>577</AwayTeam_Id><Location>RFK Stadium</Location></Match><AccountInformation>Data requested at 3/21/2016 4:44:19 PM from 62.219.35.63, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation></XMLSOCCER.COM>";
 	parseString(body, function (err, result) {
 		console.log(result);
 		response.success(result);
@@ -392,6 +392,15 @@ function formatDate(date) {
 
 //Called daily
 function updateComingGames() {
+	
+	var body = "<XMLSOCCER.COM><Match><Id>360017</Id><Date>2016-04-09T22:00:00+00:00</Date><League>Mexican Primera League</League><Round>13</Round><HomeTeam>CF America</HomeTeam><HomeTeam_Id>623</HomeTeam_Id><AwayTeam>Tijuana</AwayTeam><AwayTeam_Id>632</AwayTeam_Id><Location>Estadio Azteca</Location></Match><Match><Id>361017</Id><Date>2016-04-09T21:30:00+00:00</Date><League>Major League Soccer</League><Round>1</Round><HomeTeam>DC United</HomeTeam><HomeTeam_Id>574</HomeTeam_Id><AwayTeam>Vancouver Whitecaps</AwayTeam><AwayTeam_Id>577</AwayTeam_Id><Location>RFK Stadium</Location></Match><AccountInformation>Data requested at 3/21/2016 4:44:19 PM from 62.219.35.63, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation></XMLSOCCER.COM>";
+	parseString(body, function (err, result) {
+		console.log(result);
+		updateComingGamesInDB(body);
+		//response.success(result);
+	});
+	
+	
 	var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
 	var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
 		
