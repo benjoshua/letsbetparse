@@ -439,7 +439,7 @@ function updateComingGames() {
 }
 
 function updateComingGamesInDB(xmlFutureMatches){
-		console.log("updateComingGamesInDB");
+	console.log("updateComingGamesInDB");
 	// get XML 
 	//var xml = xhr.responseXML;
 	
