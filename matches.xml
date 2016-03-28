@@ -64,7 +64,7 @@
     <HomeTeam_Id>539</HomeTeam_Id>
     <AwayTeam>Maritimo</AwayTeam>
     <AwayTeam_Id>445</AwayTeam_Id>
-    <Location>Estádio José Alvalade</Location>
+    <Location>Estádio Jose Alvalade</Location>
   </Match>
   <Match>
     <Id>351494</Id>
@@ -218,7 +218,7 @@
     <Date>2016-04-09T17:30:00+00:00</Date>
     <League>Primeira Liga</League>
     <Round>29</Round>
-    <HomeTeam>Associação Académica de Coimbra</HomeTeam>
+    <HomeTeam>Associação Academica de Coimbra</HomeTeam>
     <HomeTeam_Id>541</HomeTeam_Id>
     <AwayTeam>Benfica </AwayTeam>
     <AwayTeam_Id>531</AwayTeam_Id>
@@ -584,7 +584,7 @@
     <HomeTeam_Id>154</HomeTeam_Id>
     <AwayTeam>Eibar</AwayTeam>
     <AwayTeam_Id>1089</AwayTeam_Id>
-    <Location>Estadio Santiago Bernabéu</Location>
+    <Location>Estadio Santiago Bernabeu</Location>
   </Match>
   <Match>
     <Id>350843</Id>
@@ -1711,7 +1711,7 @@
     <HomeTeam_Id>1176</HomeTeam_Id>
     <AwayTeam>Lens</AwayTeam>
     <AwayTeam_Id>238</AwayTeam_Id>
-    <Location>Stade René Gaillard</Location>
+    <Location>Stade Rene Gaillard</Location>
   </Match>
   <Match>
     <Id>353212</Id>
@@ -1722,7 +1722,7 @@
     <HomeTeam_Id>119</HomeTeam_Id>
     <AwayTeam>Le Havre</AwayTeam>
     <AwayTeam_Id>278</AwayTeam_Id>
-    <Location>Stade Francis-Le Blé</Location>
+    <Location>Stade Francis-Le Ble</Location>
   </Match>
   <Match>
     <Id>353210</Id>
@@ -1733,7 +1733,7 @@
     <HomeTeam_Id>126</HomeTeam_Id>
     <AwayTeam>Metz</AwayTeam>
     <AwayTeam_Id>299</AwayTeam_Id>
-    <Location>Stade de l'Abbé-Deschamps</Location>
+    <Location>Stade de l'Abbe-Deschamps</Location>
   </Match>
   <Match>
     <Id>353209</Id>
@@ -1777,7 +1777,7 @@
     <HomeTeam_Id>1300</HomeTeam_Id>
     <AwayTeam>Bourg-Peronnas</AwayTeam>
     <AwayTeam_Id>1299</AwayTeam_Id>
-    <Location>Stade Charléty</Location>
+    <Location>Stade Charlety</Location>
   </Match>
   <Match>
     <Id>353217</Id>
@@ -1920,7 +1920,7 @@
     <HomeTeam_Id>143</HomeTeam_Id>
     <AwayTeam>Sevilla</AwayTeam>
     <AwayTeam_Id>151</AwayTeam_Id>
-    <Location>San Mamés</Location>
+    <Location>San Mames</Location>
     <Group>1/16 Finals</Group>
     <Group_Id>73</Group_Id>
   </Match>
@@ -2675,7 +2675,7 @@
     <HomeTeam_Id>1335</HomeTeam_Id>
     <AwayTeam>Godoy Cruz</AwayTeam>
     <AwayTeam_Id>1347</AwayTeam_Id>
-    <Location>Estadio José Amalfitani</Location>
+    <Location>Estadio Jose Amalfitani</Location>
   </Match>
   <Match>
     <Id>360308</Id>
@@ -3142,7 +3142,7 @@
     <HomeTeam_Id>257</HomeTeam_Id>
     <AwayTeam>Almeria</AwayTeam>
     <AwayTeam_Id>233</AwayTeam_Id>
-    <Location>José Zorrilla</Location>
+    <Location>Jose Zorrilla</Location>
   </Match>
   <Match>
     <Id>355569</Id>
@@ -3764,7 +3764,7 @@
     <HomeTeam_Id>143</HomeTeam_Id>
     <AwayTeam>Granada</AwayTeam>
     <AwayTeam_Id>137</AwayTeam_Id>
-    <Location>San Mamés</Location>
+    <Location>San Mames</Location>
   </Match>
   <Match>
     <Id>355561</Id>
@@ -3929,7 +3929,7 @@
     <HomeTeam_Id>1382</HomeTeam_Id>
     <AwayTeam>River Plate</AwayTeam>
     <AwayTeam_Id>1329</AwayTeam_Id>
-    <Location>	Estadio Presbítero Bartolomé Grella</Location>
+    <Location>	Estadio Presbítero Bartolome Grella</Location>
   </Match>
   <Match>
     <Id>360303</Id>
@@ -4379,7 +4379,7 @@
     <Round>28</Round>
     <HomeTeam>Arouca</HomeTeam>
     <HomeTeam_Id>843</HomeTeam_Id>
-    <AwayTeam>Associação Académica de Coimbra</AwayTeam>
+    <AwayTeam>Associação Academica de Coimbra</AwayTeam>
     <AwayTeam_Id>541</AwayTeam_Id>
     <Location>Estádio Municipal</Location>
   </Match>
@@ -5262,7 +5262,7 @@
     <HomeTeam_Id>135</HomeTeam_Id>
     <AwayTeam>Nancy</AwayTeam>
     <AwayTeam_Id>127</AwayTeam_Id>
-    <Location>Stade Gaston Gérard</Location>
+    <Location>Stade Gaston Gerard</Location>
   </Match>
   <Match>
     <Id>358654</Id>
@@ -5550,7 +5550,7 @@
     <HomeTeam_Id>1381</HomeTeam_Id>
     <AwayTeam>Huracan</AwayTeam>
     <AwayTeam_Id>1334</AwayTeam_Id>
-    <Location>Monumental José Fierro</Location>
+    <Location>Monumental Jose Fierro</Location>
   </Match>
   <Match>
     <Id>353756</Id>
@@ -5638,7 +5638,7 @@
     <HomeTeam_Id>1299</HomeTeam_Id>
     <AwayTeam>Ajaccio</AwayTeam>
     <AwayTeam_Id>117</AwayTeam_Id>
-    <Location>Stade Municipal de Péronnas</Location>
+    <Location>Stade Municipal de Peronnas</Location>
   </Match>
   <Match>
     <Id>353203</Id>
@@ -5649,7 +5649,7 @@
     <HomeTeam_Id>1179</HomeTeam_Id>
     <AwayTeam>Brest</AwayTeam>
     <AwayTeam_Id>119</AwayTeam_Id>
-    <Location>Stade de la Vallée du Cher</Location>
+    <Location>Stade de la Vallee du Cher</Location>
   </Match>
   <Match>
     <Id>353198</Id>
@@ -5671,7 +5671,7 @@
     <HomeTeam_Id>238</HomeTeam_Id>
     <AwayTeam>Auxerre</AwayTeam>
     <AwayTeam_Id>126</AwayTeam_Id>
-    <Location>Stade Félix Bollaert</Location>
+    <Location>Stade Felix Bollaert</Location>
   </Match>
   <Match>
     <Id>353205</Id>
@@ -6221,7 +6221,7 @@
     <AwayTeam_Id>1337</AwayTeam_Id>
     <AwayGoals>2</AwayGoals>
     <Time>Finished</Time>
-    <Location>Estadio José Amalfitani</Location>
+    <Location>Estadio Jose Amalfitani</Location>
     <HomeTeamYellowCardDetails />
     <AwayTeamYellowCardDetails />
     <HomeTeamRedCardDetails>83': Cristian Javier Nasuti;</HomeTeamRedCardDetails>
@@ -8025,7 +8025,7 @@
     <AwayTeam_Id>627</AwayTeam_Id>
     <AwayGoals>0</AwayGoals>
     <Time>Finished</Time>
-    <Location>Estadio Cuauhtémoc</Location>
+    <Location>Estadio Cuauhtemoc</Location>
     <HomeTeamYellowCardDetails />
     <AwayTeamYellowCardDetails />
     <HomeTeamRedCardDetails>68': Christian Bermudez;</HomeTeamRedCardDetails>

@@ -504,8 +504,16 @@ function updateComingGamesInDB(xmlFutureMatches){
 							match.set("awayTeamId",awayTeamId);
 							match.set("location",location);
 
-							saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
-							}
+							
+							match.save(null,{
+								success:function(match) { 
+									//yofi
+								},
+								error:function(match, error) {
+									response.error(error);
+								}
+							});
+							
 						},
 						error: function(error) {
 							response.error(error);
