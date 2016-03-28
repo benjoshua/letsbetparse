@@ -444,7 +444,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	// get XML 
 	//var xml = xhr.responseXML;
 	
-	var parser = new xml2js.Parser();
+	var parser = new parseString.Parser();
 	fs.readFile('C:/Users/Popo/Dropbox/Yohapimer/' + 'xml_example.xml', function(err, data) {
 		parser.parseString(data, function (err, result) {
 			console.dir(result);
