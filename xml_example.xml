@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<XMLSOCCERCOM>
+<XMLSOCCER.COM>
   <Match>
     <Id>360017</Id>
     <Date>2016-04-09T22:00:00+00:00</Date>
@@ -45,4 +45,4 @@
     <Location>Gillette Stadium</Location>
   </Match>
   <AccountInformation>Data requested at 3/21/2016 4:44:19 PM from 62.219.35.63, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation>
-</XMLSOCCERCOM>
+</XMLSOCCER.COM>

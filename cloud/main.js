@@ -457,8 +457,12 @@ function updateComingGamesInDB(xmlFutureMatches){
 			console.log(bla);
 			
 			var resultArr = [];
-			for(var i = 0; i < result.XMLSOCCERCOM.Match.length; i++) {
-			   var Id = result.XMLSOCCERCOM.Match[i].Id;
+			console.log(result.XMLSOCCER.COM.Match.length);
+			console.log(result.XMLSOCCERCOM.Match.length);
+			console.log(result.XMLSOCCERCOM.match.length);
+			console.log(result.XMLSOCCER.COM.match.length);
+			for(var i = 0; i < result.XMLSOCCER.COM.Match.length; i++) {
+			   var Id = result.XMLSOCCER.COM.Match[i].Id[0];
 			   console.log(Id);
 			 }
 			
