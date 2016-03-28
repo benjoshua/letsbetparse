@@ -458,7 +458,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 			
 			var matches = result.getElementsByTagName("user");
 			console.log("----------------");
-			console.logf(matches);
+			console.log(matches);
 			console.log('Done');
 		});
 	});
