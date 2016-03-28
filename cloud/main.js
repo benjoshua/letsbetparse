@@ -486,8 +486,8 @@ function updateComingGamesInDB(xmlFutureMatches){
 					var awayTeamId = result.match[i].awayteam_id[0];
 					var loc = result.match[i].location[0];
 					
-					console.log("adding matchId "+matchId+ " to DB");
-					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+					//console.log("adding matchId "+matchId+ " to DB");
+					/*var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 					var match = new LBFootballMatchClass();
 					console.log("bla");
 					match.set("matchId",matchId);
@@ -497,9 +497,9 @@ function updateComingGamesInDB(xmlFutureMatches){
 					match.set("homeTeamId",homeTeamId);
 					match.set("awayTeam",awayTeam);
 					match.set("awayTeamId",awayTeamId);
-					match.set("location",location);
+					match.set("location",loc);
 
-					/**
+					
 					match.save(null,{
 						success:function(match) { 
 							console.log("succeeded saving matchID " + match.get("matchId"));
@@ -511,7 +511,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 					});
 					*/
 					
-					/*
+					
 					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 					var query = new Parse.Query(LBFootballMatchClass);
 					query.equalTo("matchId",matchId);
@@ -520,7 +520,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 						success: function(match) {
 							//If match already exists in Parse:
 							if (match != undefined && match != null) {
-								console.log("matchID "+matchID+ " exists in DB already")
+								console.log("matchId "+ matchId + " exists in DB already")
 							} else {
 								//New match
 								console.log("adding matchID "+matchID+ " to DB")
@@ -532,7 +532,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 								match.set("homeTeamId",homeTeamId);
 								match.set("awayTeam",awayTeam);
 								match.set("awayTeamId",awayTeamId);
-								match.set("location",location);
+								match.set("location",loc);
 
 								
 								match.save(null,{
@@ -550,7 +550,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 						error: function(error) {
 							response.error(error);
 						}
-					});*/
+					});
 					
 				}
 			   
