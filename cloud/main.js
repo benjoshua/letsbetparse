@@ -457,7 +457,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 		"EURO 2016":56
 	};
 	
-	var parser = new xml2js.Parser({explicitRoot: false}); //Without "XMLSOCCER.COM"
+	var parser = new xml2js.Parser({explicitRoot: false, }); //Without "XMLSOCCER.COM"
 	fs.readFile('./matches.xml', function(err, data) {
 		console.log("1");
 		//console.log(data);
