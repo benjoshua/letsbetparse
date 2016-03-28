@@ -445,7 +445,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	// get XML 
 	//var xml = xhr.responseXML;
 	
-	var parser = new xml2js.Parser();
+	var parser = new xml2js.Parser({explicitRoot:false});
 	fs.readFile('./xml_example.xml', function(err, data) {
 		console.log("1");
 		//console.log(data);
@@ -457,12 +457,12 @@ function updateComingGamesInDB(xmlFutureMatches){
 			console.log(bla);
 			
 			var resultArr = [];
-			console.log(result.XMLSOCCER.COM.Match.length);
-			console.log(result.XMLSOCCERCOM.Match.length);
-			console.log(result.XMLSOCCERCOM.match.length);
-			console.log(result.XMLSOCCER.COM.match.length);
-			for(var i = 0; i < result.XMLSOCCER.COM.Match.length; i++) {
-			   var Id = result.XMLSOCCER.COM.Match[i].Id[0];
+			console.log(result.Match.length);
+			//console.log(result.XMLSOCCERCOM.Match.length);
+			//console.log(result.XMLSOCCERCOM.match.length);
+			//console.log(result.XMLSOCCER.COM.match.length);
+			for(var i = 0; i < result.Match.length; i++) {
+			   var Id = result.Match[i].Id[0];
 			   console.log(Id);
 			 }
 			
