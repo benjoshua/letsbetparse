@@ -486,7 +486,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 					var awayTeamId = result.match[i].awayteam_id[0];
 					var loc = result.match[i].location[0];
 					
-					console.log("adding matchID "+matchID+ " to DB")
+					console.log("adding matchID "+matchID+ " to DB");
 					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 					var match = new LBFootballMatchClass();
 					match.set("matchId",matchId);
@@ -498,7 +498,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 					match.set("awayTeamId",awayTeamId);
 					match.set("location",location);
 
-					
+					/**
 					match.save(null,{
 						success:function(match) { 
 							console.log("succeeded saving matchID " + match.get("matchId"));
@@ -508,6 +508,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 							response.error(error);
 						}
 					});
+					*/
 					
 					/*
 					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
