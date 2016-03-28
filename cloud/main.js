@@ -456,9 +456,16 @@ function updateComingGamesInDB(xmlFutureMatches){
 			var bla = JSON.stringify(result);
 			console.log(bla);
 			
-			var matches = result.getElementsByTagName("user");
-			console.log("----------------");
-			console.log(matches);
+			var resultArr = [];
+			for(var i = 0; i < result.XMLSOCCERCOM.Match.length; i++) {
+			   var Id = result.XMLSOCCERCOM.Match[i].Id;
+			   console.log(Id);
+			 }
+			
+			
+			//var matches = result.getElementsByTagName("user");
+			//console.log("----------------");
+			//console.log(matches);
 			
 			console.log('Done');
 		});
@@ -466,7 +473,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	
 	console.log("after updateComingGamesInDB");
 	
-	
+	/**
 	
 	
 	
@@ -501,6 +508,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 		
 		
 	}   
+	*/
 }
 
 
