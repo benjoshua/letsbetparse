@@ -523,7 +523,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 								console.log("matchId "+ matchId + " exists in DB already")
 							} else {
 								//New match
-								console.log("adding matchID "+matchID+ " to DB")
+								console.log("adding matchId "+ matchId + " to DB")
 								var match = new LBFootballMatchClass();
 								match.set("matchId",matchId);
 								match.set("date",date);
