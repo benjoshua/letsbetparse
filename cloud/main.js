@@ -498,7 +498,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 					match.set("awayTeam",awayTeam);
 					match.set("awayTeamId",awayTeamId);
 					match.set("location",location);
-*/
+
 					/**
 					match.save(null,{
 						success:function(match) { 
