@@ -457,7 +457,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 		"EURO 2016":56
 	};
 	
-	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM"
+	var parser = new xml2js.Parser({explicitRoot: false}); //Without "XMLSOCCER.COM"
 	fs.readFile('./matches.xml', function(err, data) {
 		console.log("1");
 		//console.log(data);
@@ -471,22 +471,22 @@ function updateComingGamesInDB(xmlFutureMatches){
 			
 			var resultArr = [];
 			for(var i = 0; i < result.match.length; i++) {
-				var id = result.match[i].id[0];
-				var date = result.match[i].date[0];
-				var leagueName = result.match[i].league[0];
-				var homeTeam = result.match[i].hometeam[0];
-				var homeTeamId = result.match[i].hometeam_id[0];
-				var awayTeam = result.match[i].awayteam[0];
-				var awayTeamId = result.match[i].awayteam_id[0];
-				var loc = result.match[i].location[0];
+				var matchId = result.match[i].Id[0];
+				var date = result.match[i].Date[0];
+				var leagueName = result.match[i].League[0];
+				var homeTeam = result.match[i].HomeTeam[0];
+				var homeTeamId = result.match[i].HomeTeam_Id[0];
+				var awayTeam = result.match[i].AwayTeam[0];
+				var awayTeamId = result.match[i].AwayTeam_Id[0];
+				var loc = result.match[i].Location[0];
 				if (leagueName in leaguesDic){
 					var leagueId = leaguesDic[leagueName];
-					console.log("gameID "+ id + " is in league "+leagueId +" on "+date);
+					console.log("gameID "+ matchId + " is in league "+leagueId +" on "+date);
 					
 					/**
-					var LBUserClass = Parse.Object.extend("LBUser");
-					var query = new Parse.Query(LBUserClass);
-					query.equalTo("phoneNumber",phoneNumber);
+					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+					var query = new Parse.Query(LBFootballMatchClass);
+					query.equalTo("matchId",matchId);
 					query.first({
 						success: function(user) {
 							//If user already exists in Parse:
