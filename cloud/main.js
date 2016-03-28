@@ -470,15 +470,15 @@ function updateComingGamesInDB(xmlFutureMatches){
 			//console.log(bla);
 			
 			var resultArr = [];
-			for(var i = 0; i < result.match.length; i++) {
-				var matchId = result.match[i].Id[0];
-				var date = result.match[i].Date[0];
-				var leagueName = result.match[i].League[0];
-				var homeTeam = result.match[i].HomeTeam[0];
-				var homeTeamId = result.match[i].HomeTeam_Id[0];
-				var awayTeam = result.match[i].AwayTeam[0];
-				var awayTeamId = result.match[i].AwayTeam_Id[0];
-				var loc = result.match[i].Location[0];
+			for(var i = 0; i < result.Match.length; i++) {
+				var matchId = result.Match[i].Id[0];
+				var date = result.Match[i].Date[0];
+				var leagueName = result.Match[i].League[0];
+				var homeTeam = result.Match[i].HomeTeam[0];
+				var homeTeamId = result.Match[i].HomeTeam_Id[0];
+				var awayTeam = result.Match[i].AwayTeam[0];
+				var awayTeamId = result.Match[i].AwayTeam_Id[0];
+				var loc = result.Match[i].Location[0];
 				if (leagueName in leaguesDic){
 					var leagueId = leaguesDic[leagueName];
 					console.log("gameID "+ matchId + " is in league "+leagueId +" on "+date);
@@ -488,18 +488,22 @@ function updateComingGamesInDB(xmlFutureMatches){
 					var query = new Parse.Query(LBFootballMatchClass);
 					query.equalTo("matchId",matchId);
 					query.first({
-						success: function(user) {
-							//If user already exists in Parse:
+						success: function(match) {
+							//If match already exists in Parse:
 							if (user != undefined && user != null) {
-								user.set("loginCode",code); //TODO: change back to 'code'
-								saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
+								//stuff
 							} else {
-							//New user
-							var user = new LBUserClass();
-							user.set("phoneNumber",phoneNumber);
-							user.set("loginCode",code);
-							user.set("name","");
-							user.set("layerIdentityToken",generateUuid());
+							//New match
+							var match = new LBFootballMatchClass();
+							match.set("matchId",matchId);
+							match.set("date",date);
+							match.set("leagueId",leagueId);
+							match.set("homeTeam",homeTeam);
+							match.set("homeTeamId",homeTeamId);
+							match.set("awayTeam",awayTeam);
+							match.set("awayTeamId",awayTeamId);
+							match.set("location",location);
+
 							saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
 							}
 						},
