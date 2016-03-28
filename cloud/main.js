@@ -477,7 +477,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 				
 					var matchId = result.match[i].id[0];
 					
-					//console.log("getting data for gameID "+ matchId + " from league "+leagueId);
+					console.log("getting data for gameID "+ matchId + " from league "+leagueId);
 					
 					var date = result.match[i].date[0];
 					var homeTeam = result.match[i].hometeam[0];
