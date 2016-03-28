@@ -418,6 +418,9 @@ function updateComingGames() {
 
 	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
 			+formatDate(startDate)+"&endDateString="+formatDate(endDate);
+			
+	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateIntervalAndLeague"+"?league=1&"+"Apikey="+xmlSoccerApiKey+"&"+"startDateString="
+		+formatDate(startDate)+"&endDateString="+formatDate(endDate);
 	console.log(fullUrl);
 	
 	request({
@@ -425,17 +428,17 @@ function updateComingGames() {
 	    method: "GET",
 	    json: true,
 	    }, function(error, response, body) {
-	
+	/*
 				parseString(body, function (err, result) {
 					console.log(result);
-					response.success(result);
-				});
+					//response.success(result);
+				});*/
 			console.log("ppppppppppppppppppppppppppppppppppppppppppppppppp");
 			console.log(error);
 			console.log("wwwwwwwwwwwwwwwwwww");
 			console.log(response);
 			console.log("--------------------------------");
-			console.log(body);
+			//console.log(body);
 	    	updateComingGamesInDB(body);
 	});
 }
