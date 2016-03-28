@@ -416,8 +416,8 @@ function updateComingGames() {
 	var endDate = new Date();
 	endDate.setDate(endDate.getDate()+14);
 
-	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
-			+formatDate(startDate)+"&endDateString="+formatDate(endDate);
+//	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
+//			+formatDate(startDate)+"&endDateString="+formatDate(endDate);
 			
 	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateIntervalAndLeague"+"?league=1&"+"Apikey="+xmlSoccerApiKey+"&"+"startDateString="
 		+formatDate(startDate)+"&endDateString="+formatDate(endDate);
