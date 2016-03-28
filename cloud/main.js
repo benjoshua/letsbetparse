@@ -19,8 +19,8 @@ var parseString = require('xml2js').parseString;
 var fs = require('fs');
 
 
-
-
+//For not calling XMLSOCCER too many times, change to TRUE:
+var shouldUseXmlExamples = true;
 
 
 // -------------------------sendSmsForPhoneNumber----------------------------
@@ -395,33 +395,43 @@ function formatDate(date) {
 
 //Called daily
 function updateComingGames() {
-	var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
-	var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
-	
-	var startDate = new Date();
-	var endDate = new Date();
-	endDate.setDate(endDate.getDate()+14);
+	//If we wanna use the xml example, just use this:
+	if (shouldUseXmlExamples){
+		fs.readFile('./many_matches.xml', function(err, data) {
+			updateComingGamesInDB(data);
+		}
+	}
+	else{
+		var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
+		var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
+		
+		var startDate = new Date();
+		var endDate = new Date();
+		endDate.setDate(endDate.getDate()+14);
 
-	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
-			+formatDate(startDate)+"&endDateString="+formatDate(endDate);
-			
-//	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateIntervalAndLeague"+"?league=1&"+"Apikey="+xmlSoccerApiKey+"&"+"startDateString="
-//		+formatDate(startDate)+"&endDateString="+formatDate(endDate);
-	console.log(fullUrl);
-	
-	request({
-	    uri: fullUrl,
-	    method: "GET",
-	    json: true,
-	    }, function(error, response, body) {
-	    	updateComingGamesInDB(body);
-	});
+		var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
+				+formatDate(startDate)+"&endDateString="+formatDate(endDate);
+				
+		//In case we ran too many XMLSOCCER calls for the upper function:
+	//	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateIntervalAndLeague"+"?league=1&"+"Apikey="+xmlSoccerApiKey+"&"+"startDateString="
+	//		+formatDate(startDate)+"&endDateString="+formatDate(endDate);
+		console.log(fullUrl);
+		
+		request({
+			uri: fullUrl,
+			method: "GET",
+			json: true,
+			}, function(error, response, body) {
+				updateComingGamesInDB(body);
+		});
+	}
 }
 
-function updateComingGamesInDB(data){
+function updateComingGamesInDB(fuureMatchesXML){
 	console.log("updateComingGamesInDB");
 
 	var leaguesId = ["1","4","5","7","8","16","56"];
+	//var leaguesDic = {"English Premier League":1}; //TODO: good for not too much actions like DB saves and log writing and stuff
 	var leaguesDic = {
 		"English Premier League":1,
 		"Bundesliga":4,
@@ -432,12 +442,9 @@ function updateComingGamesInDB(data){
 		"EURO 2016":56
 	};
 	
-	//var leaguesDic = {"English Premier League":1};
 	
-	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM"
-//	fs.readFile('./many_matches.xml', function(err, data) {
-
-		parser.parseString(data, function (err, result) {
+	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
+		parser.parseString(fuureMatchesXML, function (err, result) {
 			var resultArr = [];
 			for(var i = 0; i < result.match.length; i++) {
 				var leagueName = result.match[i].league[0];
@@ -458,7 +465,6 @@ function updateComingGamesInDB(data){
 				}
 			}
 		});
-//	});
 	console.log("finished updateComingGamesInDB");
 }
 
@@ -484,7 +490,6 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				match.set("awayTeamId",awayTeamId);
 				match.set("location",loc);
 
-				
 				match.save(null,{
 					success:function(match_success) { 
 						console.log("succeeded saving matchID " + match_success.get("matchId"));
