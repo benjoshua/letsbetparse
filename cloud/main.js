@@ -399,7 +399,7 @@ function updateComingGames() {
 	if (shouldUseXmlExamples){
 		fs.readFile('./many_matches.xml', function(err, data) {
 			updateComingGamesInDB(data);
-		}
+		});
 	}
 	else{
 		var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
