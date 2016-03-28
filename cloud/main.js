@@ -458,7 +458,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	};
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM"
-	fs.readFile('./matches.xml', function(err, data) {
+	fs.readFile('./many_matches.xml', function(err, data) {
 		console.log("1");
 		//console.log(data);
 		//console.log(err);
