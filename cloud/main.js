@@ -471,15 +471,20 @@ function updateComingGamesInDB(xmlFutureMatches){
 			
 			var resultArr = [];
 			for(var i = 0; i < result.match.length; i++) {
-			   var id = result.match[i].id[0];
-			   var date = result.match[i].date[0];
-			   var leagueName = result.match[i].league[0];
-			   if (leagueName in leaguesDic){
-				   var leagueId = leaguesDic[leagueName];
-				   console.log("gameID "+ id + " is in league "+leagueId);
-			   }
+				var id = result.match[i].id[0];
+				var date = result.match[i].date[0];
+				var leagueName = result.match[i].league[0];
+				var homeTeam = result.match[i].homeTeam[0];
+				var homeTeamId = result.match[i].HomeTeam_Id[0];
+				var awayTeam = result.match[i].awayTeam[0];
+				var awayTeamId = result.match[i].awayTeamId[0];
+				var location = result.match[i].location[0];
+				if (leagueName in leaguesDic){
+					var leagueId = leaguesDic[leagueName];
+					console.log("gameID "+ id + " is in league "+leagueId +" on "+date);
+				}
 			   
-			 }
+			}
 			
 			
 			//var matches = result.getElementsByTagName("user");
