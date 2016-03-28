@@ -478,7 +478,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 				var homeTeamId = result.match[i].hometeam_id[0];
 				var awayTeam = result.match[i].awayteam[0];
 				var awayTeamId = result.match[i].awayteam_id[0];
-				var location = result.match[i].location[0];
+				//var location = result.match[i].location[0];
 				if (leagueName in leaguesDic){
 					var leagueId = leaguesDic[leagueName];
 					console.log("gameID "+ id + " is in league "+leagueId +" on "+date);
