@@ -448,11 +448,14 @@ function updateComingGamesInDB(xmlFutureMatches){
 	var parser = new xml2js.Parser();
 	fs.readFile('./xml_example.xml', function(err, data) {
 		console.log("1");
-		console.log(data);
+		//console.log(data);
 		console.log(err);
 		parser.parseString(data, function (err, result) {
 			console.log("2");
-			console.dir(result);
+			//console.dir(result);
+			var matches = result.getElementsByTagName("user");
+			console.log("----------------");
+			console.log(matches);
 			console.log('Done');
 		});
 	});
