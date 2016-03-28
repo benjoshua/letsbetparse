@@ -471,16 +471,18 @@ function updateComingGamesInDB(xmlFutureMatches){
 			
 			var resultArr = [];
 			for(var i = 0; i < result.match.length; i++) {
-				var matchId = result.match[i].id[0];
-				var date = result.match[i].date[0];
 				var leagueName = result.match[i].league[0];
-				var homeTeam = result.match[i].hometeam[0];
-				var homeTeamId = result.match[i].hometeam_id[0];
-				var awayTeam = result.match[i].awayteam[0];
-				var awayTeamId = result.match[i].awayteam_id[0];
-				var loc = result.match[i].location[0];
 				if (leagueName in leaguesDic){
 					var leagueId = leaguesDic[leagueName];
+					
+					var matchId = result.match[i].id[0];
+					var date = result.match[i].date[0];
+					var homeTeam = result.match[i].hometeam[0];
+					var homeTeamId = result.match[i].hometeam_id[0];
+					var awayTeam = result.match[i].awayteam[0];
+					var awayTeamId = result.match[i].awayteam_id[0];
+					var loc = result.match[i].location[0];
+					
 					console.log("gameID "+ matchId + " is in league "+leagueId +" on "+date);
 					
 					/**
