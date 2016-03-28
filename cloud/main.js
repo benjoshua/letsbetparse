@@ -454,9 +454,11 @@ function updateComingGamesInDB(xmlFutureMatches){
 			console.log("2");
 			//console.dir(result);
 			var bla = JSON.stringify(result);
-			//var matches = result.getElementsByTagName("user");
-			console.log("----------------");
 			console.log(bla);
+			
+			var matches = result.getElementsByTagName("user");
+			console.log("----------------");
+			console.logf(matches);
 			console.log('Done');
 		});
 	});
