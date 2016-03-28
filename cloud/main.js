@@ -450,7 +450,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	var leaguesDic = {
 		"English Premier League":1,
 		"Bundesliga":4,
-		"Serie A":5,
+		"Serie A":5,
 		"Ligue 1":7,
 		"La Liga":8,
 		"Champions League":16,
