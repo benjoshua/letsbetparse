@@ -486,6 +486,9 @@ function updateComingGamesInDB(xmlFutureMatches){
 					var awayTeamId = result.match[i].awayteam_id[0];
 					var loc = result.match[i].location[0];
 					
+					
+					addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
+
 					/*console.log("adding matchId "+matchId+ " to DB");
 					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 					var match = new LBFootballMatchClass();
@@ -502,7 +505,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 					
 					match.save(null,{
 						success:function(match) { 
-							console.log("succeeded saving matchID " + match.get("matchId"));
+							console.log("succeeded saving matchId " + match.get("matchId"));
 							//yofi
 						},
 						error:function(match, error) {
@@ -510,48 +513,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 						}
 					});
 					*/
-					
-					
-					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
-					var query = new Parse.Query(LBFootballMatchClass);
-					query.equalTo("matchId",matchId);
-					console.log("bla");
-					query.first({
-						success: function(match) {
-							//If match already exists in Parse:
-							if (match != undefined && match != null) {
-								console.log("matchId "+ matchId + " exists in DB already")
-							} else {
-								//New match
-								console.log("adding matchId "+ matchId + " to DB")
-								var match = new LBFootballMatchClass();
-								match.set("matchId",matchId);
-								match.set("date",date);
-								match.set("leagueId",leagueId);
-								match.set("homeTeam",homeTeam);
-								match.set("homeTeamId",homeTeamId);
-								match.set("awayTeam",awayTeam);
-								match.set("awayTeamId",awayTeamId);
-								match.set("location",loc);
-
-								
-								match.save(null,{
-									success:function(match) { 
-										console.log("succeeded saving matchID " + match.get("matchId"));
-										//yofi
-									},
-									error:function(match, error) {
-										response.error(error);
-									}
-								});
-							}
-							
-						},
-						error: function(error) {
-							response.error(error);
-						}
-					});
-					
+				
 				}
 			   
 			}
@@ -594,6 +556,48 @@ function updateComingGamesInDB(xmlFutureMatches){
 		
 	}   
 	*/
+}
+
+function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc){
+	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+	var query = new Parse.Query(LBFootballMatchClass);
+	query.equalTo("matchId",matchId);
+	console.log("bla");
+	query.first({
+		success: function(match) {
+			//If match already exists in Parse:
+			if (match != undefined && match != null) {
+				console.log("matchId "+ matchId + " exists in DB already")
+			} else {
+				//New match
+				console.log("adding matchId "+ matchId + " to DB")
+				var match = new LBFootballMatchClass();
+				match.set("matchId",matchId);
+				match.set("date",date);
+				match.set("leagueId",leagueId);
+				match.set("homeTeam",homeTeam);
+				match.set("homeTeamId",homeTeamId);
+				match.set("awayTeam",awayTeam);
+				match.set("awayTeamId",awayTeamId);
+				match.set("location",loc);
+
+				
+				match.save(null,{
+					success:function(match_success) { 
+						console.log("succeeded saving matchID " + match_success.get("matchId"));
+						//yofi
+					},
+					error:function(match_err, error) {
+						response.error(error);
+					}
+				});
+			}
+			
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});	
 }
 
 
