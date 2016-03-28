@@ -457,12 +457,12 @@ function updateComingGamesInDB(xmlFutureMatches){
 		"EURO 2016":56
 	};
 	
-	var parser = new xml2js.Parser({explicitRoot: false}); //Without "XMLSOCCER.COM"
+	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM"
 	fs.readFile('./matches.xml', function(err, data) {
 		console.log("1");
 		//console.log(data);
 		//console.log(err);
-		parser.parseString(data, {firstCharLowerCase: true}, function (err, result) {
+		parser.parseString(data, function (err, result) {
 			console.log("2");
 			//console.dir(result);
 			
@@ -474,10 +474,10 @@ function updateComingGamesInDB(xmlFutureMatches){
 				var matchId = result.match[i].id[0];
 				var date = result.match[i].date[0];
 				var leagueName = result.match[i].league[0];
-				var homeTeam = result.match[i].homeTeam[0];
-				var homeTeamId = result.match[i].homeTeam_Id[0];
-				var awayTeam = result.match[i].awayTeam[0];
-				var awayTeamId = result.match[i].awayTeam_Id[0];
+				var homeTeam = result.match[i].hometeam[0];
+				var homeTeamId = result.match[i].hometeam_id[0];
+				var awayTeam = result.match[i].awayteam[0];
+				var awayTeamId = result.match[i].awayteam_id[0];
 				var loc = result.match[i].location[0];
 				if (leagueName in leaguesDic){
 					var leagueId = leaguesDic[leagueName];
