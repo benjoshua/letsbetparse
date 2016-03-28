@@ -448,6 +448,8 @@ function updateComingGamesInDB(xmlFutureMatches){
 	var parser = new xml2js.Parser();
 	fs.readFile('C:/Users/Popo/Dropbox/Yohapimer/' + 'xml_example.xml', function(err, data) {
 		console.log("1");
+		console.log(data);
+		console.log(err);
 		parser.parseString(data, function (err, result) {
 			console.log("2");
 			console.dir(result);
