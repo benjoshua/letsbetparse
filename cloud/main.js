@@ -458,7 +458,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	};
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM"
-	fs.readFile('./matches.xml', function(err, data) {
+	fs.readFile('./many_matches.xml', function(err, data) {
 		console.log("1");
 		//console.log(data);
 		//console.log(err);
@@ -488,40 +488,11 @@ function updateComingGamesInDB(xmlFutureMatches){
 					
 					
 					addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
-
-					/*console.log("adding matchId "+matchId+ " to DB");
-					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
-					var match = new LBFootballMatchClass();
-					console.log("bla");
-					match.set("matchId",matchId);
-					match.set("date",date);
-					match.set("leagueId",leagueId);
-					match.set("homeTeam",homeTeam);
-					match.set("homeTeamId",homeTeamId);
-					match.set("awayTeam",awayTeam);
-					match.set("awayTeamId",awayTeamId);
-					match.set("location",loc);
-
-					
-					match.save(null,{
-						success:function(match) { 
-							console.log("succeeded saving matchId " + match.get("matchId"));
-							//yofi
-						},
-						error:function(match, error) {
-							response.error(error);
-						}
-					});
-					*/
 				
 				}
 			   
 			}
 			
-			
-			//var matches = result.getElementsByTagName("user");
-			//console.log("----------------");
-			//console.log(matches);
 			
 			console.log('Done');
 		});
@@ -529,33 +500,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	
 	console.log("after updateComingGamesInDB");
 	
-	/**
-	
-	
-	
-	
-	
 
-	console.log(xmlFutureMatches);
-	xmlFutureMatches = loadXMLDoc("file:///C:/Users/Popo/Dropbox/Yohapimer/xml_example.xml"); 
-	console.log(xmlFutureMatches);
-	// get users
-	//var matches = xmlFutureMatches.getElementsByTagName("XMLSOCCER.COM");
-	var matches = xmlFutureMatches.getElementsByTagName("user");;
-	console.log("----------------");
-	console.log(matches);
-	for (var i = 0; i < matches.length; i++) {   
-		console.log("***********");
-		console.log(matches(i));
-		var match = matches[i].firstChild.nodeValue;
-		console.log("@@@@@@@@@@@@@@@@@@@@@@");
-		console.log(matches[i].firstChild);
-		console.log("@@@@@@@@@@@@@@@@@@@@@@");
-		console.log(matches[i].firstChild.nodeValue);
-		
-		
-	}   
-	*/
 }
 
 function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc){
