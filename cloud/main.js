@@ -395,23 +395,22 @@ function formatDate(date) {
 
 //Called daily
 function updateComingGames() {
-	var bodyWithXml = "<?xml version='1.0' encoding='utf-8'?><XMLSOCCER.COM><Match><Id>360017</Id><Date>2016-04-09T22:00:00+00:00</Date><League>Mexican Primera League</League><Round>13</Round><HomeTeam>CF America</HomeTeam><HomeTeam_Id>623</HomeTeam_Id><AwayTeam>Tijuana</AwayTeam><AwayTeam_Id>632</AwayTeam_Id><Location>Estadio Azteca</Location></Match><Match><Id>361017</Id><Date>2016-04-09T21:30:00+00:00</Date><League>Major League Soccer</League><Round>1</Round><HomeTeam>DC United</HomeTeam><HomeTeam_Id>574</HomeTeam_Id><AwayTeam>Vancouver Whitecaps</AwayTeam><AwayTeam_Id>577</AwayTeam_Id><Location>RFK Stadium</Location></Match><AccountInformation>Data requested at 3/21/2016 4:44:19 PM from 62.219.35.63, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation></XMLSOCCER.COM>";
-	var body = bodyWithXml.split('>')[1];
-	body = "<user>text data</user>"
-	console.log(body);
+	//var bodyWithXml = "<?xml version='1.0' encoding='utf-8'?><XMLSOCCER.COM><Match><Id>360017</Id><Date>2016-04-09T22:00:00+00:00</Date><League>Mexican Primera League</League><Round>13</Round><HomeTeam>CF America</HomeTeam><HomeTeam_Id>623</HomeTeam_Id><AwayTeam>Tijuana</AwayTeam><AwayTeam_Id>632</AwayTeam_Id><Location>Estadio Azteca</Location></Match><Match><Id>361017</Id><Date>2016-04-09T21:30:00+00:00</Date><League>Major League Soccer</League><Round>1</Round><HomeTeam>DC United</HomeTeam><HomeTeam_Id>574</HomeTeam_Id><AwayTeam>Vancouver Whitecaps</AwayTeam><AwayTeam_Id>577</AwayTeam_Id><Location>RFK Stadium</Location></Match><AccountInformation>Data requested at 3/21/2016 4:44:19 PM from 62.219.35.63, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation></XMLSOCCER.COM>";
+	//var body = bodyWithXml.split('>')[1];
+	//body = "<user>text data</user>"
+	//console.log(body);
 	//var body = "<XMLSOCCER.COM><Match><Id>360017</Id><Date>2016-04-09T22:00:00+00:00</Date><League>Mexican Primera League</League><Round>13</Round><HomeTeam>CF America</HomeTeam><HomeTeam_Id>623</HomeTeam_Id><AwayTeam>Tijuana</AwayTeam><AwayTeam_Id>632</AwayTeam_Id><Location>Estadio Azteca</Location></Match><Match><Id>361017</Id><Date>2016-04-09T21:30:00+00:00</Date><League>Major League Soccer</League><Round>1</Round><HomeTeam>DC United</HomeTeam><HomeTeam_Id>574</HomeTeam_Id><AwayTeam>Vancouver Whitecaps</AwayTeam><AwayTeam_Id>577</AwayTeam_Id><Location>RFK Stadium</Location></Match><AccountInformation>Data requested at 3/21/2016 4:44:19 PM from 62.219.35.63, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation></XMLSOCCER.COM>";
-	parseString(body, function (err, result) {
+	/*parseString(body, function (err, result) {
 		console.log("finished parsing");
 		console.log(result);
 		updateComingGamesInDB(result);
 		//response.success(result);
-	});
+	});*/
 	
-	/*
+	
 	var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
 	var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
-		
-
+	
 	
 	var startDate = new Date();
 	var endDate = new Date();
@@ -420,13 +419,13 @@ function updateComingGames() {
 	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
 			+formatDate(startDate)+"&endDateString="+formatDate(endDate);
 	console.log(fullUrl);
-	
+	/*
 	request({
 	    uri: fullUrl,
 	    method: "GET",
 	    json: true,
 	    }, function(error, response, body) {
-				//var xml = "<root>Hello xml2js!</root>";
+	
 				parseString(body, function (err, result) {
 					console.log(result);
 					response.success(result);
@@ -435,19 +434,20 @@ function updateComingGames() {
 			console.log(error);
 			console.log("wwwwwwwwwwwwwwwwwww");
 			console.log(response);
+			console.log("--------------------------------");
 			console.log(body);
 	    	updateComingGamesInDB(body);
 	});*/
 }
 
-function updateComingGamesInDB(xmlFutureMatches){
+function updateComingGamesInDB(data){
 	console.log("updateComingGamesInDB");
 	// get XML 
 	//var xml = xhr.responseXML;
 	
 	
 	var leaguesId = ["1","4","5","7","8","16","56"];
-	var leaguesDic = {
+	/*var leaguesDic = {
 		"English Premier League":1,
 		"Bundesliga":4,
 		"Serie A":5,
@@ -455,10 +455,14 @@ function updateComingGamesInDB(xmlFutureMatches){
 		"La Liga":8,
 		"Champions League":16,
 		"EURO 2016":56
+	};*/
+	
+	var leaguesDic = {
+		"English Premier League":1
 	};
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM"
-	fs.readFile('./many_matches.xml', function(err, data) {
+//	fs.readFile('./many_matches.xml', function(err, data) {
 		console.log("1");
 		//console.log(data);
 		//console.log(err);
@@ -496,7 +500,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 			
 			console.log('Done');
 		});
-	});
+//	});
 	
 	console.log("after updateComingGamesInDB");
 	
