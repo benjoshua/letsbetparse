@@ -474,8 +474,11 @@ function updateComingGamesInDB(xmlFutureMatches){
 				var leagueName = result.match[i].league[0];
 				if (leagueName in leaguesDic){
 					var leagueId = leaguesDic[leagueName];
-					
+				
 					var matchId = result.match[i].id[0];
+					
+					//console.log("getting data for gameID "+ matchId + " from league "+leagueId);
+					
 					var date = result.match[i].date[0];
 					var homeTeam = result.match[i].hometeam[0];
 					var homeTeamId = result.match[i].hometeam_id[0];
@@ -483,9 +486,8 @@ function updateComingGamesInDB(xmlFutureMatches){
 					var awayTeamId = result.match[i].awayteam_id[0];
 					var loc = result.match[i].location[0];
 					
-					console.log("gameID "+ matchId + " is in league "+leagueId +" on "+date);
 					
-					/**
+					
 					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 					var query = new Parse.Query(LBFootballMatchClass);
 					query.equalTo("matchId",matchId);
@@ -493,9 +495,10 @@ function updateComingGamesInDB(xmlFutureMatches){
 						success: function(match) {
 							//If match already exists in Parse:
 							if (user != undefined && user != null) {
-								//stuff
+								console.log("matchID "+matchID+ " exists in DB already")
 							} else {
 							//New match
+							console.log("adding matchID "+matchID+ " to DB")
 							var match = new LBFootballMatchClass();
 							match.set("matchId",matchId);
 							match.set("date",date);
@@ -509,6 +512,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 							
 							match.save(null,{
 								success:function(match) { 
+									console.log("succeeded saving matchID " + match.get("matchId"));
 									//yofi
 								},
 								error:function(match, error) {
@@ -521,7 +525,6 @@ function updateComingGamesInDB(xmlFutureMatches){
 							response.error(error);
 						}
 					});
-					*/
 					
 				}
 			   
