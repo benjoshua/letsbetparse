@@ -445,25 +445,40 @@ function updateComingGamesInDB(xmlFutureMatches){
 	// get XML 
 	//var xml = xhr.responseXML;
 	
-	var parser = new xml2js.Parser({explicitRoot:false});
-	fs.readFile('./xml_example.xml', function(err, data) {
+	
+	var leaguesId = ["1","4","5","7","8","16","56"];
+	var leaguesDic = {
+		"English Premier League":1,
+		"Bundesliga":4,
+		"Serie A":5,
+		"Ligue 1":7,
+		"La Liga":8,
+		"Champions League":16,
+		"EURO 2016":56
+	};
+	
+	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM"
+	fs.readFile('./matches.xml', function(err, data) {
 		console.log("1");
 		//console.log(data);
-		console.log(err);
+		//console.log(err);
 		parser.parseString(data, function (err, result) {
 			console.log("2");
 			//console.dir(result);
-			var bla = JSON.stringify(result);
-			console.log(bla);
+			
+			//var bla = JSON.stringify(result);
+			//console.log(bla);
 			
 			var resultArr = [];
-			console.log(result.Match.length);
-			//console.log(result.XMLSOCCERCOM.Match.length);
-			//console.log(result.XMLSOCCERCOM.match.length);
-			//console.log(result.XMLSOCCER.COM.match.length);
-			for(var i = 0; i < result.Match.length; i++) {
-			   var Id = result.Match[i].Id[0];
-			   console.log(Id);
+			for(var i = 0; i < result.match.length; i++) {
+			   var id = result.match[i].id[0];
+			   var date = result.match[i].date[0];
+			   var leagueName = result.match[i].league[0];
+			   if (leagueName in leaguesDic){
+				   var leagueId = leaguesDic[leagueName];
+				   console.log("gameID "+ id + " is in league "+leagueId);
+			   }
+			   
 			 }
 			
 			
@@ -481,16 +496,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	
 	
 	
-	var leaguesId = ["1","4","5","7","8","16","56"];
-	var leaguesDic = {
-		"English Premier League":1,
-		"Bundesliga":4,
-		"Serie A":5,
-		"Ligue 1":7,
-		"La Liga":8,
-		"Champions League":16,
-		"EURO 2016":56
-	};
+	
 	
 
 	console.log(xmlFutureMatches);
