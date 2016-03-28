@@ -14,6 +14,7 @@ require("jsdom").env("", function(err, window) {
 	global.DOMParser = require('xmldom').DOMParser;
 });
 
+var xml2js = require('xml2js');
 var parseString = require('xml2js').parseString;
 var fs = require('fs');
 
@@ -444,9 +445,11 @@ function updateComingGamesInDB(xmlFutureMatches){
 	// get XML 
 	//var xml = xhr.responseXML;
 	
-	var parser = new parseString.Parser();
+	var parser = new xml2js.Parser();
 	fs.readFile('C:/Users/Popo/Dropbox/Yohapimer/' + 'xml_example.xml', function(err, data) {
+		console.log("1");
 		parser.parseString(data, function (err, result) {
+			console.log("2");
 			console.dir(result);
 			console.log('Done');
 		});
