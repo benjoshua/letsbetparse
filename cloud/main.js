@@ -458,6 +458,8 @@ function updateComingGamesInDB(xmlFutureMatches){
 	
 
 	console.log(xmlFutureMatches);
+	xmlFutureMatches = loadXMLDoc("file:///C:/Users/Popo/Dropbox/Yohapimer/xml_example.xml"); 
+	console.log(xmlFutureMatches);
 	// get users
 	//var matches = xmlFutureMatches.getElementsByTagName("XMLSOCCER.COM");
 	var matches = xmlFutureMatches.getElementsByTagName("user");;
