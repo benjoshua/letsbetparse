@@ -458,7 +458,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 	};
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM"
-	fs.readFile('./many_matches.xml', function(err, data) {
+	fs.readFile('./matches.xml', function(err, data) {
 		console.log("1");
 		//console.log(data);
 		//console.log(err);
@@ -487,14 +487,13 @@ function updateComingGamesInDB(xmlFutureMatches){
 					var loc = result.match[i].location[0];
 					
 					
-					
 					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 					var query = new Parse.Query(LBFootballMatchClass);
 					query.equalTo("matchId",matchId);
 					query.first({
 						success: function(match) {
 							//If match already exists in Parse:
-							if (user != undefined && user != null) {
+							if (match != undefined && match != null) {
 								console.log("matchID "+matchID+ " exists in DB already")
 							} else {
 								//New match
