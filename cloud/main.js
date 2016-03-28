@@ -486,8 +486,8 @@ function updateComingGamesInDB(xmlFutureMatches){
 					var awayTeamId = result.match[i].awayteam_id[0];
 					var loc = result.match[i].location[0];
 					
-					/*console.log("adding matchID "+matchID+ " to DB");
-					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+					console.log("adding matchID "+matchID+ " to DB");
+					/*var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 					var match = new LBFootballMatchClass();
 					match.set("matchId",matchId);
 					match.set("date",date);
