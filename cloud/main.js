@@ -486,10 +486,34 @@ function updateComingGamesInDB(xmlFutureMatches){
 					var awayTeamId = result.match[i].awayteam_id[0];
 					var loc = result.match[i].location[0];
 					
+					console.log("adding matchID "+matchID+ " to DB")
+					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+					var match = new LBFootballMatchClass();
+					match.set("matchId",matchId);
+					match.set("date",date);
+					match.set("leagueId",leagueId);
+					match.set("homeTeam",homeTeam);
+					match.set("homeTeamId",homeTeamId);
+					match.set("awayTeam",awayTeam);
+					match.set("awayTeamId",awayTeamId);
+					match.set("location",location);
+
 					
+					match.save(null,{
+						success:function(match) { 
+							console.log("succeeded saving matchID " + match.get("matchId"));
+							//yofi
+						},
+						error:function(match, error) {
+							response.error(error);
+						}
+					});
+					
+					/*
 					var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 					var query = new Parse.Query(LBFootballMatchClass);
 					query.equalTo("matchId",matchId);
+					console.log("bla");
 					query.first({
 						success: function(match) {
 							//If match already exists in Parse:
@@ -524,7 +548,7 @@ function updateComingGamesInDB(xmlFutureMatches){
 						error: function(error) {
 							response.error(error);
 						}
-					});
+					});*/
 					
 				}
 			   
