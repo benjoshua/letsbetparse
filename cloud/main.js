@@ -497,28 +497,29 @@ function updateComingGamesInDB(xmlFutureMatches){
 							if (user != undefined && user != null) {
 								console.log("matchID "+matchID+ " exists in DB already")
 							} else {
-							//New match
-							console.log("adding matchID "+matchID+ " to DB")
-							var match = new LBFootballMatchClass();
-							match.set("matchId",matchId);
-							match.set("date",date);
-							match.set("leagueId",leagueId);
-							match.set("homeTeam",homeTeam);
-							match.set("homeTeamId",homeTeamId);
-							match.set("awayTeam",awayTeam);
-							match.set("awayTeamId",awayTeamId);
-							match.set("location",location);
+								//New match
+								console.log("adding matchID "+matchID+ " to DB")
+								var match = new LBFootballMatchClass();
+								match.set("matchId",matchId);
+								match.set("date",date);
+								match.set("leagueId",leagueId);
+								match.set("homeTeam",homeTeam);
+								match.set("homeTeamId",homeTeamId);
+								match.set("awayTeam",awayTeam);
+								match.set("awayTeamId",awayTeamId);
+								match.set("location",location);
 
-							
-							match.save(null,{
-								success:function(match) { 
-									console.log("succeeded saving matchID " + match.get("matchId"));
-									//yofi
-								},
-								error:function(match, error) {
-									response.error(error);
-								}
-							});
+								
+								match.save(null,{
+									success:function(match) { 
+										console.log("succeeded saving matchID " + match.get("matchId"));
+										//yofi
+									},
+									error:function(match, error) {
+										response.error(error);
+									}
+								});
+							}
 							
 						},
 						error: function(error) {
