@@ -428,10 +428,8 @@ function updateComingGames() {
 }
 
 function updateComingGamesInDB(fuureMatchesXML){
-	console.log("updateComingGamesInDB");
-
+	//console.log("updateComingGamesInDB");
 	var leaguesId = ["1","4","5","7","8","16","56"];
-	//var leaguesDic = {"English Premier League":1}; //TODO: good for not too much actions like DB saves and log writing and stuff
 	var leaguesDic = {
 		"English Premier League":1,
 		"Bundesliga":4,
@@ -442,7 +440,6 @@ function updateComingGamesInDB(fuureMatchesXML){
 		"EURO 2016":56
 	};
 	
-	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(fuureMatchesXML, function (err, result) {
 			var resultArr = [];
@@ -451,9 +448,7 @@ function updateComingGamesInDB(fuureMatchesXML){
 				if (leagueName in leaguesDic){
 					var leagueId = leaguesDic[leagueName];
 					var matchId = result.match[i].id[0];
-					
-					console.log("getting data for gameID "+ matchId + " from league "+leagueId);
-					
+					//console.log("getting data for gameID "+ matchId + " from league "+leagueId);
 					var date = result.match[i].date[0];
 					var homeTeam = result.match[i].hometeam[0];
 					var homeTeamId = result.match[i].hometeam_id[0];
@@ -465,7 +460,7 @@ function updateComingGamesInDB(fuureMatchesXML){
 				}
 			}
 		});
-	console.log("finished updateComingGamesInDB");
+	//console.log("finished updateComingGamesInDB");
 }
 
 function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc){
@@ -476,10 +471,10 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 		success: function(match) {
 			//If match already exists in Parse:
 			if (match != undefined && match != null) {
-				console.log("matchId "+ matchId + " exists in DB already")
+				//console.log("matchId "+ matchId + " exists in DB already");
 			} else {
 				//New match
-				console.log("adding matchId "+ matchId + " to DB")
+				//console.log("adding matchId "+ matchId + " to DB");
 				var match = new LBFootballMatchClass();
 				match.set("matchId",matchId);
 				match.set("date",date);
@@ -492,7 +487,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 
 				match.save(null,{
 					success:function(match_success) { 
-						console.log("succeeded saving matchID " + match_success.get("matchId"));
+						//console.log("succeeded saving matchID " + match_success.get("matchId"));
 						//yofi
 					},
 					error:function(match_err, error) {
