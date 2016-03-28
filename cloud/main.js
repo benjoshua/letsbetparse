@@ -45,12 +45,12 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 			user.set("name","");
 			user.set("layerIdentityToken",generateUuid());
 			saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
+			}
+		},
+		error: function(error) {
+			response.error(error);
 		}
-	},
-	error: function(error) {
-		response.error(error);
-	}
-});
+	});
 });
 
 //Practically send the SMS, after saving all data in Parse
@@ -474,14 +474,41 @@ function updateComingGamesInDB(xmlFutureMatches){
 				var id = result.match[i].id[0];
 				var date = result.match[i].date[0];
 				var leagueName = result.match[i].league[0];
-				var homeTeam = result.match[i].homeTeam[0];
-				var homeTeamId = result.match[i].HomeTeam_Id[0];
-				var awayTeam = result.match[i].awayTeam[0];
-				var awayTeamId = result.match[i].awayTeamId[0];
+				var homeTeam = result.match[i].hometeam[0];
+				var homeTeamId = result.match[i].hometeam_id[0];
+				var awayTeam = result.match[i].awayteam[0];
+				var awayTeamId = result.match[i].awayteam_id[0];
 				var location = result.match[i].location[0];
 				if (leagueName in leaguesDic){
 					var leagueId = leaguesDic[leagueName];
 					console.log("gameID "+ id + " is in league "+leagueId +" on "+date);
+					
+					/**
+					var LBUserClass = Parse.Object.extend("LBUser");
+					var query = new Parse.Query(LBUserClass);
+					query.equalTo("phoneNumber",phoneNumber);
+					query.first({
+						success: function(user) {
+							//If user already exists in Parse:
+							if (user != undefined && user != null) {
+								user.set("loginCode",code); //TODO: change back to 'code'
+								saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
+							} else {
+							//New user
+							var user = new LBUserClass();
+							user.set("phoneNumber",phoneNumber);
+							user.set("loginCode",code);
+							user.set("name","");
+							user.set("layerIdentityToken",generateUuid());
+							saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
+							}
+						},
+						error: function(error) {
+							response.error(error);
+						}
+					});
+					*/
+					
 				}
 			   
 			}
