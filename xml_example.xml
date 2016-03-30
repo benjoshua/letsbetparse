@@ -2,7 +2,7 @@
 <XMLSOCCER.COM>
   <Match>
     <Id>361017</Id>
-    <Date>2016-04-09T21:30:00+00:00</Date>
+    <Date>2016-04-01T21:30:00+00:00</Date>
     <League>Major League Soccer</League>
     <Round>1</Round>
     <HomeTeam>DC United</HomeTeam>
@@ -24,7 +24,7 @@
   </Match>
   <Match>
     <Id>356552</Id>
-    <Date>2016-04-03T18:45:00+00:00</Date>
+    <Date>2016-04-02T18:45:00+00:00</Date>
     <League>Serie A</League>
     <Round>32</Round>
     <HomeTeam>Milan</HomeTeam>
@@ -35,7 +35,7 @@
   </Match>
   <Match>
     <Id>354999</Id>
-    <Date>2016-03-09T18:30:00+00:00</Date>
+    <Date>2016-04-03T18:30:00+00:00</Date>
     <League>La Liga</League>
     <Round>32</Round>
     <HomeTeam>Sociedad</HomeTeam>
@@ -57,7 +57,7 @@
   </Match>
   <Match>
     <Id>351173</Id>
-    <Date>2016-03-30T18:00:00+00:00</Date>
+    <Date>2016-04-04T18:00:00+00:00</Date>
     <League>Ligue 1</League>
     <Round>33</Round>
     <HomeTeam>Stade de Reims</HomeTeam>
@@ -68,7 +68,7 @@
   </Match>
   <Match>
     <Id>351175</Id>
-    <Date>2016-05-09T18:00:00+00:00</Date>
+    <Date>2016-04-05T18:00:00+00:00</Date>
     <League>Ligue 1</League>
     <Round>33</Round>
     <HomeTeam>Toulouse</HomeTeam>

@@ -625,43 +625,22 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 }
 
 // ------------------------- getLBFootballMatchesBetweenDates ----------------------------
-//Given start and end date, get all LBFootballMatches happening between those dates
-Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, response) {
+//Given start and end date, get all LBFootballMatches saved in the DB
+Parse.Cloud.define("getLBFootballMatches", function(request, response) {
 	var LBFootballGameMatchlass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballGameMatchlass);
-	var startDate = new Date();
-	var time = (7 * 24 * 3600 * 1000); // 14 days from today
-	var endDate = new Date(startDate.getTime() + (time));
-	console.log("start date: "+ startDate);
-	console.log("end date:   "+ endDate);
-	//query.exists("date");
-	//query.lessThanOrEqualTo("date",expirationDate);
-	var allMatches = [];
-	//query.select("matchId", "date");
 	query.find({
 		success: function(matches) {
-			console.log(matches);
+			//console.log(matches);
 			if (matches.length == 0){
-				response.error("No matches exist for this time interval"); //TODO: distinct between the two
+				response.error("No matches exist for this time interval");
 			}
 			else{
-				//console.log("got " + matches.length+" results");
 				response.success(matches);
-				/*for (var i = 0; i < matches.length; i++) {
-					console.log("match: "+ matches[i]);
-					var matchDate = matches[i].get("date");
-					console.log("match date: "+ matchDate);
-					if (dates.inRange(matchDate,startDate,endDate)){
-						console.log("adding match");
-						allMatches.push(matches[i]);
-					}
-				}
-				response.success(allMatches);*/
-				
 			}
 		},
 		error: function(error) {
-			response.error("bummer: "+error);
+			response.error("getLBFootballMatches error: " + error);
 		}
 	});
 });
