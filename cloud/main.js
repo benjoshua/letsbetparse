@@ -628,11 +628,14 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, response) {
 	var LBFootballGameMatchlass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballGameMatchlass);
-	var d = new Date();
+	var startDate = new Date();
 	var time = (7 * 24 * 3600 * 1000); // 14 days from today
-	var expirationDate = new Date(d.getTime() + (time));
+	var endDate = new Date(startDate.getTime() + (time));
+	console.log("start date: "+ startDate);
+	console.log("end date:   "+ endDate);
 	//query.exists("date");
-	query.lessThanOrEqualTo("date",expirationDate);
+	//query.lessThanOrEqualTo("date",expirationDate);
+	var allMatches = [];
 	query.find({
 		success: function(matches) {
 			console.log(matches);
@@ -641,7 +644,16 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 			}
 			else{
 				console.log("got results");
-				response.success(matches);
+				for (match in matches){
+					var matchDate = match.get("date");
+					console.log("match date: "+ matchDate);
+					if (dates.inRange(matchDate,startDate,endDate){
+						console.log("adding matchId " + match.get("matchId");
+						allMatches.push(match);
+					}
+				}
+				response.success(allMatches);
+				
 			}
 		},
 		error: function(error) {
