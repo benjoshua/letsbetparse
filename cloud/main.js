@@ -637,6 +637,7 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 	//query.exists("date");
 	//query.lessThanOrEqualTo("date",expirationDate);
 	var allMatches = [];
+	query.select("matchId", "date");
 	query.find({
 		success: function(matches) {
 			console.log(matches);
