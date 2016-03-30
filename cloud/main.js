@@ -619,13 +619,14 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 	var expirationDate = new Date(d.getTime() + (time));
 	//query.exists("date");
 	query.equalTo("matchId","350048");
-	query.find({
+	query.first({
 		success: function(matches) {
+			console.log(matches);
 			if (matches.length == 0){
 				response.error("No matches exist for this time interval"); //TODO: distinct between the two
 			}
 			else{
-				//console.log(matches);
+				console.log("got results");
 				response.success(matches);
 			}
 		},
