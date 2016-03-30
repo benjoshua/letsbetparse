@@ -596,7 +596,9 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				console.log("adding matchId "+ matchId + " to DB");
 				var match = new LBFootballMatchClass();
 				match.set("matchId",matchId);
-				match.set("date", new Date());
+				var d = new Date(date);
+				console.log(d);
+				match.set("date", d);
 				match.set("leagueId",leagueId);
 				match.set("homeTeam",homeTeam);
 				match.set("homeTeamId",homeTeamId);
