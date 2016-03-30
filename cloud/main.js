@@ -612,13 +612,13 @@ Parse.Cloud.define("testPush", function(request, response) {
 // ------------------------- getLBFootballMatchesBetweenDates ----------------------------
 //Given start and end date, get all LBFootballMatches happening between those dates
 Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, response) {
-	var LBFootballGameMatchlass = Parse.Object.extend("LBFootballGameBet");
+	var LBFootballGameMatchlass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballGameMatchlass);
 	var d = new Date();
 	var time = (14 * 24 * 3600 * 1000); // 14 days from today
 	var expirationDate = new Date(d.getTime() + (time));
 	//query.exists("date");
-	query.equalTo("layerGroupId","7f75e136-06ac-43d2-b70c-670ecf94c008");
+	query.equalTo("matchId","350048");
 	query.first({
 		success: function(matches) {
 			console.log(matches);
