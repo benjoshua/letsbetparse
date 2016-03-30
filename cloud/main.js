@@ -593,10 +593,10 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				//console.log("matchId "+ matchId + " exists in DB already");
 			} else {
 				//New match
-				//console.log("adding matchId "+ matchId + " to DB");
+				console.log("adding matchId "+ matchId + " to DB");
 				var match = new LBFootballMatchClass();
 				match.set("matchId",matchId);
-				match.set("date", new Date(date));
+				match.set("date", date);
 				match.set("leagueId",leagueId);
 				match.set("homeTeam",homeTeam);
 				match.set("homeTeamId",homeTeamId);
@@ -606,7 +606,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 
 				match.save(null,{
 					success:function(match_success) { 
-						//console.log("succeeded saving matchID " + match_success.get("matchId"));
+						console.log("succeeded saving matchID " + match_success.get("matchId"));
 						//yofi
 					},
 					error:function(match_err, error) {
