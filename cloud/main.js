@@ -615,7 +615,7 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 	var LBFootballGameMatchlass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballGameMatchlass);
 	var d = new Date();
-	var time = (14 * 24 * 3600 * 1000); // 14 days from today
+	var time = (7 * 24 * 3600 * 1000); // 14 days from today
 	var expirationDate = new Date(d.getTime() + (time));
 	//query.exists("date");
 	query.lessThanOrEqualTo("updatedAt",expirationDate);
