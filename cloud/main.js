@@ -20,7 +20,7 @@ var fs = require('fs');
 
 
 //For not calling XMLSOCCER too many times, change to TRUE:
-var shouldUseXmlExamples = false;
+var shouldUseXmlExamples = true;
 
 
 // -------------------------sendSmsForPhoneNumber----------------------------
@@ -397,7 +397,7 @@ function formatDate(date) {
 function updateComingGames() {
 	//If we wanna use the xml example, just use this:
 	if (shouldUseXmlExamples){
-		fs.readFile('./many_matches.xml', function(err, data) {
+		fs.readFile('./matches.xml', function(err, data) {
 			updateComingGamesInDB(data);
 		});
 	}
@@ -609,5 +609,27 @@ Parse.Cloud.define("testPush", function(request, response) {
    	});
 });
 
-
-
+// ------------------------- getLBFootballMatchesBetweenDates ----------------------------
+//Given start and end date, get all LBFootballMatches happening between those dates
+Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, response) {
+	var LBFootballGameMatchlass = Parse.Object.extend("LBFootballGameMatch");
+	var query = new Parse.Query(LBFootballGameMatchlass);
+	var d = new Date();
+	var time = (14 * 24 * 3600 * 1000); // 14 days from today
+	var expirationDate = new Date(d.getTime() + (time));
+	query.lessThanOrEqualTo("date",expirationDate);
+	query.find({
+		success: function(matches) {
+			if (matches.length == 0){
+				response.error("No matches exist for this time interval"); //TODO: distinct between the two
+			}
+			else{
+				//console.log(matches);
+				response.success(matches);
+			}
+		},
+		error: function(error) {
+			response.error("bummer: "+error);
+		}
+	});
+});
