@@ -515,6 +515,7 @@ Parse.Cloud.define("testPush", function(request, response) {
 function updateComingGames() {
 	//If we wanna use the xml example, just use this:
 	if (shouldUseXmlExamples){
+		console.log("using example xml");
 		fs.readFile('./matches.xml', function(err, data) {
 			updateComingGamesInDB(data);
 		});
@@ -546,7 +547,7 @@ function updateComingGames() {
 }
 
 function updateComingGamesInDB(fuureMatchesXML){
-	//console.log("updateComingGamesInDB");
+	console.log("updateComingGamesInDB");
 	var leaguesId = ["1","4","5","7","8","16","56"];
 	var leaguesDic = {
 		"English Premier League":1,
@@ -566,7 +567,7 @@ function updateComingGamesInDB(fuureMatchesXML){
 				if (leagueName in leaguesDic){
 					var leagueId = leaguesDic[leagueName];
 					var matchId = result.match[i].id[0];
-					//console.log("getting data for gameID "+ matchId + " from league "+leagueId);
+					console.log("getting data for gameID "+ matchId + " from league "+leagueId);
 					var date = result.match[i].date[0];
 					var homeTeam = result.match[i].hometeam[0];
 					var homeTeamId = result.match[i].hometeam_id[0];
@@ -578,7 +579,7 @@ function updateComingGamesInDB(fuureMatchesXML){
 				}
 			}
 		});
-	//console.log("finished updateComingGamesInDB");
+	console.log("finished updateComingGamesInDB");
 }
 
 function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc){
