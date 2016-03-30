@@ -516,7 +516,7 @@ function updateComingGames() {
 	//If we wanna use the xml example, just use this:
 	if (shouldUseXmlExamples){
 		console.log("using example xml");
-		fs.readFile('./matches.xml', function(err, data) {
+		fs.readFile('./xml_example.xml', function(err, data) {
 			updateComingGamesInDB(data);
 		});
 	}
