@@ -624,8 +624,8 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 	});	
 }
 
-// ------------------------- getLBFootballMatchesBetweenDates ----------------------------
-//Given start and end date, get all LBFootballMatches saved in the DB
+// ------------------------- getLBFootballMatches ----------------------------
+//Get all LBFootballMatches saved in the DB
 Parse.Cloud.define("getLBFootballMatches", function(request, response) {
 	var LBFootballGameMatchlass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballGameMatchlass);
@@ -633,7 +633,7 @@ Parse.Cloud.define("getLBFootballMatches", function(request, response) {
 		success: function(matches) {
 			//console.log(matches);
 			if (matches.length == 0){
-				response.error("No matches exist for this time interval");
+				response.error("No matches found in DB");
 			}
 			else{
 				response.success(matches);
