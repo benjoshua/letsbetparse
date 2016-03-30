@@ -637,7 +637,7 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 	//query.exists("date");
 	//query.lessThanOrEqualTo("date",expirationDate);
 	var allMatches = [];
-	query.select("matchId", "date");
+	//query.select("matchId", "date");
 	query.find({
 		success: function(matches) {
 			console.log(matches);
@@ -645,9 +645,9 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 				response.error("No matches exist for this time interval"); //TODO: distinct between the two
 			}
 			else{
-				console.log("got " + matches.length+" results");
-				//response.success(matches);
-				for (var i = 0; i < matches.length; i++) {
+				//console.log("got " + matches.length+" results");
+				response.success(matches);
+				/*for (var i = 0; i < matches.length; i++) {
 					console.log("match: "+ matches[i]);
 					var matchDate = matches[i].get("date");
 					console.log("match date: "+ matchDate);
@@ -656,7 +656,7 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 						allMatches.push(matches[i]);
 					}
 				}
-				response.success(allMatches);
+				response.success(allMatches);*/
 				
 			}
 		},
