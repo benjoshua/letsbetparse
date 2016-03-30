@@ -646,8 +646,8 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 			}
 			else{
 				console.log("got " + matches.length+" results");
-				//response.success(matches);
-				for (var i = 0; i < matches.length; i++) {
+				response.success(matches);
+				/*for (var i = 0; i < matches.length; i++) {
 					console.log("match: "+ matches[i]);
 					var matchDate = matches[i].date;
 					console.log("match date: "+ matchDate);
@@ -656,7 +656,7 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 						allMatches.push(matches[i]);
 					}
 				}
-				response.success(allMatches);
+				response.success(allMatches);*/
 				
 			}
 		},
