@@ -23,6 +23,45 @@ var fs = require('fs');
 var shouldUseXmlExamples = true;
 
 
+
+
+var layerPlatformApiInfo = {
+    config: {
+        serverUrl: "https://api.layer.com/apps/" + process.env.LAYER_APP_UUID
+    },
+    headers: {
+        Accept: "application/vnd.layer+json; version=1.0",
+        Authorization: "Bearer " + process.env.LAYER_PLATFORM_API_TOKEN,
+        "Content-type": "application/json"
+    },
+    patchHeaders: {
+        Accept: "application/vnd.layer+json; version=1.0",
+        Authorization: "Bearer " + process.env.LAYER_PLATFORM_API_TOKEN,
+        "Content-type": "application/vnd.layer-patch+json"
+    },
+    cache: {
+        newConversation: null,
+        newMessage: null
+    }
+}
+
+
+//yyyy-mm-dd
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+
+
+
 // -------------------------sendSmsForPhoneNumber----------------------------
 //Sends sms to user and saves the loginCode in Parse
 Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
@@ -380,18 +419,97 @@ Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
 	//response.success();
 });
 
-//yyyy-mm-dd
-function formatDate(date) {
-    var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
 
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
 
-    return [year, month, day].join('-');
+
+//Called eery 30 seconds
+function updateLiveScores() {
+	request({
+	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
+	    method: "POST",
+	    body: {
+	        sender: {name: "Admin"},
+	        parts: [{body: msg, mime_type: "text/plain"}],
+	        notification: {text: msg, data: dataDic},
+	    },
+	    json: true,
+	    headers: layerPlatformApiInfo.headers
+	    }, function(error, response, body) {
+	    	
+		});
 }
+
+
+
+
+
+
+function sendAdminMsgToGroup(groupLayerId, msg, dataDic) {
+	request({
+	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
+	    method: "POST",
+	    body: {
+	        sender: {name: "Admin"},
+	        parts: [{body: msg, mime_type: "text/plain"}],
+	        notification: {text: msg, data: dataDic},
+	    },
+	    json: true,
+	    headers: layerPlatformApiInfo.headers
+	    }, function(error, response, body) {
+	    	
+		});
+}
+
+
+Parse.Cloud.define("AdminMsg", function(request, response) {
+	sendAdminMsgToGroup("8dc83080-ae62-4602-b8d2-e400356096db","Fred! Ma Nish!");
+});
+
+
+// -------------------------getGroupOpenBets----------------------------
+Parse.Cloud.define("getGroupOpenBets", function(request, response) {
+	var groupLayerId = request.params.layerGroupId;
+	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+	var query = new Parse.Query(LBFootballGameBetClass);
+	query.equalTo("layerGroupId",groupLayerId);
+	query.find({
+		success: function(bets) {
+			if (bets.length == 0){
+				response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
+			}
+			else{
+				response.success(bets);
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
+
+
+// -------------------------authenticatePhoneNumberAndSendToken----------------------------
+//Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
+//in the same order it was received
+Parse.Cloud.define("testPush", function(request, response) {
+	Parse.Push.send({
+		channels: [ "A2" ],
+		data: {
+			alert: "The Giants won against the Mets 2-3."
+		}
+	}, {
+		success: function() {
+  		  	// Push was successful
+  		  	response.success("YES!");
+  		  },
+  		  error: function(error) {
+   		 	// Handle error
+   		 	response.error(error);
+   		 }
+   	});
+});
+
+
 
 //Called daily
 function updateComingGames() {
@@ -501,113 +619,6 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 		}
 	});	
 }
-
-
-//Called eery 30 seconds
-function updateLiveScores() {
-	request({
-	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
-	    method: "POST",
-	    body: {
-	        sender: {name: "Admin"},
-	        parts: [{body: msg, mime_type: "text/plain"}],
-	        notification: {text: msg, data: dataDic},
-	    },
-	    json: true,
-	    headers: layerPlatformApiInfo.headers
-	    }, function(error, response, body) {
-	    	
-		});
-}
-
-
-
-var layerPlatformApiInfo = {
-    config: {
-        serverUrl: "https://api.layer.com/apps/" + process.env.LAYER_APP_UUID
-    },
-    headers: {
-        Accept: "application/vnd.layer+json; version=1.0",
-        Authorization: "Bearer " + process.env.LAYER_PLATFORM_API_TOKEN,
-        "Content-type": "application/json"
-    },
-    patchHeaders: {
-        Accept: "application/vnd.layer+json; version=1.0",
-        Authorization: "Bearer " + process.env.LAYER_PLATFORM_API_TOKEN,
-        "Content-type": "application/vnd.layer-patch+json"
-    },
-    cache: {
-        newConversation: null,
-        newMessage: null
-    }
-}
-
-
-
-function sendAdminMsgToGroup(groupLayerId, msg, dataDic) {
-	request({
-	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
-	    method: "POST",
-	    body: {
-	        sender: {name: "Admin"},
-	        parts: [{body: msg, mime_type: "text/plain"}],
-	        notification: {text: msg, data: dataDic},
-	    },
-	    json: true,
-	    headers: layerPlatformApiInfo.headers
-	    }, function(error, response, body) {
-	    	
-		});
-}
-
-
-Parse.Cloud.define("AdminMsg", function(request, response) {
-	sendAdminMsgToGroup("8dc83080-ae62-4602-b8d2-e400356096db","Fred! Ma Nish!");
-});
-
-
-// -------------------------getGroupOpenBets----------------------------
-Parse.Cloud.define("getGroupOpenBets", function(request, response) {
-	var groupLayerId = request.params.layerGroupId;
-	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
-	var query = new Parse.Query(LBFootballGameBetClass);
-	query.equalTo("layerGroupId",groupLayerId);
-	query.find({
-		success: function(bets) {
-			if (bets.length == 0){
-				response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
-			}
-			else{
-				response.success(bets);
-			}
-		},
-		error: function(error) {
-			response.error(error);
-		}
-	});
-});
-
-
-// -------------------------authenticatePhoneNumberAndSendToken----------------------------
-//Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
-//in the same order it was received
-Parse.Cloud.define("testPush", function(request, response) {
-	Parse.Push.send({
-		channels: [ "A2" ],
-		data: {
-			alert: "The Giants won against the Mets 2-3."
-		}
-	}, {
-		success: function() {
-  		  	// Push was successful
-  		  	response.success("YES!");
-  		  },
-  		  error: function(error) {
-   		 	// Handle error
-   		 	response.error(error);
-   		 }
-   	});
-});
 
 // ------------------------- getLBFootballMatchesBetweenDates ----------------------------
 //Given start and end date, get all LBFootballMatches happening between those dates
