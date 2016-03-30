@@ -648,7 +648,7 @@ Parse.Cloud.define("getLBFootballMatchesBetweenDates", function(request, respons
 				console.log("got results");
 				//response.success(matches);
 				for (match in matches){
-					console.log("matchId: "+ match["matchId"]);
+					console.log("matchId: "+ match["className"]);
 					var matchDate = match["date"];
 					console.log("match date: "+ matchDate);
 					if (dates.inRange(matchDate,startDate,endDate)){
