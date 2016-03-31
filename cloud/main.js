@@ -128,7 +128,6 @@ function generateUuid() {
 }
 
 // -------------------------authenticatePhoneNumberAndSendToken----------------------------
-
 //Given a phone number and an entered SMS code, the client will get a Token that Layer will identify
 Parse.Cloud.define("authenticatePhoneNumberAndSendToken", function(request, response) {
 	var phoneNumber = request.params.phoneNumber;
@@ -159,8 +158,38 @@ Parse.Cloud.define("authenticatePhoneNumberAndSendToken", function(request, resp
 	});
 });
 
-// -------------------------getUserObjectsForPhoneNumbers----------------------------
+// -------------------------changeUserNickname----------------------------
+//Function for changing the nickname ma nizma.
+Parse.Cloud.define("changeUserNickname", function(request, response) {
+	var nickname = request.params.nickname;
+	var layerIdentityToken = request.params.layerIdentityToken;
 
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.equalTo("layerIdentityToken",layerIdentityToken);
+	query.first({
+		success: function(user) {
+			//If user exists in Parse:
+			if (user != undefined && user != null) {
+				user.set("name",nickname);
+				user.save(null,{
+					success:function(user) { 
+						response.success(true);
+					}, error:function(user, error) {
+						response.error(error);
+					}
+				});
+			} else {
+				response.error("User doesn't exist")
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
+
+// -------------------------getUserObjectsForPhoneNumbers----------------------------
 //Given an array of phone numbers (Strings), returun an equivalent array of User Objects
 //Phone numbers should be in form of +972...
 Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) {
