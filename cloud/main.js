@@ -576,6 +576,7 @@ function updateComingGamesInDB(fuureMatchesXML){
 					var awayTeamId = result.match[i].awayteam_id[0];
 					var loc = result.match[i].location[0];
 					
+					
 					addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
 				}
 			}
