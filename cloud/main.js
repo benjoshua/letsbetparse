@@ -585,8 +585,8 @@ function updateComingGamesInDB(fuureMatchesXML){
 		"Serie A":5,
 		"Ligue 1":7,
 		"La Liga":8,
-		"Champions League":16,
-		"EURO 2016":56
+		"Champions League":16,
+		"EURO 2016":56
 	};
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
