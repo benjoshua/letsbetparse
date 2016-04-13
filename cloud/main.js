@@ -21,7 +21,7 @@ var fs = require('fs');
 // ---------------------- global variables ------------------
 
 //For not calling XMLSOCCER too many times, change to TRUE:
-var shouldUseXmlExamples = true;
+var shouldUseXmlExamples = false;
 
 
 var layerPlatformApiInfo = {
