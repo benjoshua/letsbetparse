@@ -439,7 +439,7 @@ Parse.Cloud.define("updateComingGames", function(request, response) {
 
 // ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("updateLiveScores", function(request, response) {
-	updateLiveScores();
+	updateLiveScores(response);
 });
 
 
@@ -640,14 +640,14 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 
 
 //Called every 20 seconds
-function updateLiveScores() {
+function updateLiveScores(piko) {
 	//If we wanna use the xml example, just use this:
 	if (shouldUseXmlExamples){
 		console.log("using example xml");
 		//TODO: change to real xml example
 		
 		fs.readFile('./live_scores_example_xml.xml', function(err, data) {
-			updateLiveScoresInDB(data);
+			updateLiveScoresInDB(data, piko);
 		});
 	}
 	else{
@@ -668,12 +668,12 @@ function updateLiveScores() {
 			method: "GET",
 			json: true,
 			}, function(error, response, body) {
-				updateComingGamesInDB(body);
+				updateComingGamesInDB(body, piko);
 		});
 	}
 }
 
-function updateLiveScoresInDB(futureMatchesXML){
+function updateLiveScoresInDB(futureMatchesXML, piko){
 	console.log("updateComingGamesInDB");
 	var leaguesId = ["1","4","5","7","8","16","56"];
 	var leaguesDic = {
@@ -698,14 +698,14 @@ function updateLiveScoresInDB(futureMatchesXML){
 					var awayGoals = result.match[i].goals_away[0];					
 					console.log("gameID "+ matchId + ", score: "+homeGoals+"-"+awayGoals);
 					
-					updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
+					updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals, piko);
 				}
 			}
 		});
 	console.log("finished updateLiveScoresInDB()");
 }
 
-function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
+function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals, piko){
 	console.log("in updateLiveGameIfNeeded() with matchId "+matchId);
 	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballMatchClass);
@@ -732,7 +732,8 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 							//yofi
 						},
 						error:function(match_err, error) {
-							console.log("error: "+error.toString());
+							console.log("error: "+error);
+							piko.error(error);
 						}
 					});
 				}
@@ -764,6 +765,7 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 
 //Find groups that opened a bet regarding given gameId
 function sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus){
+	console.log("in sendMessageToRelevantGroupsThatStatusChanged()");
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass);
 	query.equalTo("gameId",matchId);
