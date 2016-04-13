@@ -20,7 +20,7 @@ var fs = require('fs');
 
 
 //For not calling XMLSOCCER too many times, change to TRUE:
-var shouldUseXmlExamples = false;
+var shouldUseXmlExamples = true;
 
 
 
