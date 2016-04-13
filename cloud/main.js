@@ -706,18 +706,22 @@ function updateLiveScoresInDB(futureMatchesXML){
 }
 
 function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
+	console.log("in updateLiveGameIfNeeded() with matchID "+matchID);
 	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballMatchClass);
 	query.equalTo("matchId",matchId);
 	query.first({
 		success: function(match) {
+			console.log("1");
 			//match should exist in Parse:
 			if (match != undefined && match != null) {
+				console.log("found match in db");
 				var dbStatus = match.get("status");
 				var dbHomeGoals = match.get("homeGoals");
 				var dbAwayGoals = match.get("awayGoals");
 				
 				if ((dbStatus != gameStatus) || (dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
+					console.log("2");
 					match.set("status", gameStatus);
 					match.set("homeGoals", homeGoals);
 					match.set("awayGoals", awayGoals);
@@ -728,17 +732,19 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 							//yofi
 						},
 						error:function(match_err, error) {
-							response.error(error);
+							console.log("cxvx: "+error)
 						}
 					});
 				}
 
 				if ((dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
+					console.log("3");
 					console.log("goals have changed in gameID " + match_success.get("matchId")+": "+match_success.get("homeGoals")+"-"
 						+match_success.get("awayGoals"));
 				}
 
 				if (dbStatus != gameStatus){
+					console.log("7");
 					//send messages
 					sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus);				
 					//update statistics, delete matches in DB
