@@ -755,13 +755,13 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 			//match should exist in Parse:
 			if (match != undefined && match != null) {
 				console.log("found match in db");
-				var dbStatus = match.get("status");
+				var dbStatus = match.get("time");
 				var dbHomeGoals = match.get("homeGoals");
 				var dbAwayGoals = match.get("awayGoals");
 				
 				if ((dbStatus != gameStatus) || (dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
 					console.log("updating DB");
-					match.set("status", gameStatus);
+					match.set("time", gameStatus);
 					match.set("homeGoals", homeGoals);
 					match.set("awayGoals", awayGoals);
 					
@@ -847,7 +847,7 @@ function sendMessageToRelevantGroupsThatStatusChanged(match){
 				var awayTeamName = match.get("awayTeam")
 				var homeTeamGoals = match.get("homeGoals");
 				var awayTeamGoals = match.get("awayGoals");
-				var gameStatus = match.get("status");
+				var gameStatus = match.get("time");
 				
 				for(var i = 0; i < bets.length; i++) {
 					var groupLayerId = bets[i].get("layerGroupId");
