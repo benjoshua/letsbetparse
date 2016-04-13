@@ -730,8 +730,8 @@ function updateLiveScoresInDBAndNotify(liveScoresXml){
 					
 					//TODO: change according to XML!!
 					var gameStatus = result.match[i].time[0];
-					var homeGoals = parseInt(result.match[i].homeGoals[0]);
-					var awayGoals = parseInt(result.match[i].awayGoals[0]);
+					var homeGoals = parseInt(result.match[i].homegoals[0]);
+					var awayGoals = parseInt(result.match[i].awaygoals[0]);
 					console.log("gameID "+ matchId + ", score: "+homeGoals+"-"+awayGoals);
 					
 					updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
