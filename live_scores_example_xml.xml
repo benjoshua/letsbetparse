@@ -7,11 +7,11 @@
     <Round>25</Round>
     <HomeTeam>Crystal Palace</HomeTeam>
     <HomeTeam_Id>38</HomeTeam_Id>
-    <HomeGoals>1</HomeGoals>
+    <HomeGoals>0</HomeGoals>
     <AwayTeam>Everton</AwayTeam>
     <AwayTeam_Id>20</AwayTeam_Id>
-    <AwayGoals>3</AwayGoals>
-    <Time>Finished</Time>
+    <AwayGoals>0</AwayGoals>
+    <Time>Not Started</Time>
     <Location>San Mams</Location>
     <BetAtHome>2,20</BetAtHome>
     <BetAtDraw>3,35</BetAtDraw>
@@ -36,8 +36,8 @@
     <HomeGoals>0</HomeGoals>
     <AwayTeam>Barcelona</AwayTeam>
     <AwayTeam_Id>155</AwayTeam_Id>
-    <AwayGoals>6</AwayGoals>
-    <Time>Halftime</Time>
+    <AwayGoals>0</AwayGoals>
+    <Time>Not Started</Time>
     <Location>Stadio Alberto Picco</Location>
     <BetAtHome>2,10</BetAtHome>
     <BetAtDraw>2,85</BetAtDraw>
