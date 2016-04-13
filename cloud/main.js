@@ -854,7 +854,7 @@ function sendMessageToRelevantGroupsThatStatusChanged(match){
 					var groupLayerId = bets[i].get("layerGroupId");
 					console.log("about to notify group id "+ groupLayerId);
 					console.log("stat:"+gameStatus);
-					if (gameStatus == "'1"){
+					if (gameStatus == "1'"){
 						var message = homeTeamName+" vs "+awayTeamName+" - The bet has started";
 						sendAdminMsgToGroup(groupLayerId, message,{});
 					}
