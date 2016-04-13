@@ -58,7 +58,7 @@ var leaguesDic = {
 
 // ---------------------- background operations ------------------
 
-var liveUpdateMinutes = 2;
+var liveUpdateMinutes = 1;
 var liveUpdateInterval = liveUpdateMinutes * 60 * 1000;
 setInterval(function() {
 	updateLiveScores();
@@ -752,7 +752,6 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 	query.equalTo("matchId",matchId);
 	query.first({
 		success: function(match) {
-			console.log("1");
 			//match should exist in Parse:
 			if (match != undefined && match != null) {
 				console.log("found match in db");
@@ -775,7 +774,6 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 							}
 
 							if (dbStatus != gameStatus){
-								console.log("7");
 								//send messages
 								sendMessageToRelevantGroupsThatStatusChanged(match_success);				
 								//update statistics, delete matches in DB
@@ -834,7 +832,7 @@ function sendMessageToRelevantGroupsThatScoreChanged(match){
 
 //Find groups that opened a bet regarding given gameId, and notify them with the relevant change
 function sendMessageToRelevantGroupsThatStatusChanged(match){
-	console.log("in sendMessageToRelevantGroupsThatStatusChanged()");
+	//console.log("in sendMessageToRelevantGroupsThatStatusChanged()");
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass)
 	var matchId = match.get("matchId");
@@ -848,22 +846,20 @@ function sendMessageToRelevantGroupsThatStatusChanged(match){
 				var awayTeamName = match.get("awayTeam")
 				var homeTeamGoals = match.get("homeGoals");
 				var awayTeamGoals = match.get("awayGoals");
-				var gameStatus = match.get("time");
+				var gameTime = match.get("time");
 				
 				for(var i = 0; i < bets.length; i++) {
 					var groupLayerId = bets[i].get("layerGroupId");
-					console.log("about to notify group id "+ groupLayerId);
-					console.log("stat:"+gameStatus);
-					if (gameStatus == "1'"){
+					if (gameTime == "1'"){
 						var message = homeTeamName+" vs "+awayTeamName+" - The bet has started";
 						sendAdminMsgToGroup(groupLayerId, message,{});
 					}
-					else if (gameStatus == "Halftime"){
+					else if (gameTime == "Halftime"){
 						var message = homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+" - Half Time";
 						sendAdminMsgToGroup(groupLayerId, message,{});
 					}
 				}
-				if ((gameStatus == "Finished") || (gameStatus == "Finished AET") || (gameStatus == "Finished AP")){
+				if ((gameTime == "Finished") || (gameTime == "Finished AET") || (gameTime == "Finished AP")){
 					updateEndedMatch(match, bets);
 				}
 			} else {
