@@ -20,7 +20,7 @@ var fs = require('fs');
 
 
 //For not calling XMLSOCCER too many times, change to TRUE:
-var shouldUseXmlExamples = false;
+var shouldUseXmlExamples = true;
 
 
 
@@ -442,33 +442,11 @@ Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
 	});*/
 	
 	
-	updateComingGames();
-	//updateLiveScores();
+	//updateComingGames();
+	updateLiveScores();
 	
 	//response.success();
 });
-
-
-
-
-//Called eery 30 seconds
-function updateLiveScores() {
-	request({
-	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
-	    method: "POST",
-	    body: {
-	        sender: {name: "Admin"},
-	        parts: [{body: msg, mime_type: "text/plain"}],
-	        notification: {text: msg, data: dataDic},
-	    },
-	    json: true,
-	    headers: layerPlatformApiInfo.headers
-	    }, function(error, response, body) {
-	    	
-		});
-}
-
-
 
 
 
@@ -546,7 +524,7 @@ function updateComingGames() {
 	if (shouldUseXmlExamples){
 		console.log("using example xml");
 		
-		fs.readFile('./xml_example.xml', function(err, data) {
+		fs.readFile('./matches_example_xml.xml', function(err, data) {
 			updateComingGamesInDB(data);
 		});
 	}
@@ -658,23 +636,138 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 	});	
 }
 
-// ------------------------- getLBFootballMatches ----------------------------
-//Get all LBFootballMatches saved in the DB
-Parse.Cloud.define("getLBFootballMatches", function(request, response) {
-	var LBFootballGameMatchlass = Parse.Object.extend("LBFootballMatch");
-	var query = new Parse.Query(LBFootballGameMatchlass);
-	query.find({
-		success: function(matches) {
-			//console.log(matches);
-			if (matches.length == 0){
-				response.error("No matches found in DB");
+
+
+
+
+
+
+
+
+
+//Called every 20 seconds
+function updateLiveScores() {
+	//If we wanna use the xml example, just use this:
+	if (shouldUseXmlExamples){
+		console.log("using example xml");
+		//TODO: change to real xml example
+		
+		fs.readFile('./live_scores_example_xml.xml', function(err, data) {
+			updateLiveScoresInDB(data);
+		});
+	}
+	else{
+		
+		
+		//TODO: change
+		
+		
+		var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
+		var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
+		
+		var startDate = new Date();
+		var endDate = new Date();
+		endDate.setDate(endDate.getDate()+14);
+
+		var fullUrl = ""+xmlSoccerUrl + "GetLiveScore"+"?Apikey="+xmlSoccerApiKey;
+		console.log(fullUrl);
+		
+		request({
+			uri: fullUrl,
+			method: "GET",
+			json: true,
+			}, function(error, response, body) {
+				updateComingGamesInDB(body);
+		});
+	}
+}
+
+function updateLiveScoresInDB(futureMatchesXML){
+	console.log("updateComingGamesInDB");
+	var leaguesId = ["1","4","5","7","8","16","56"];
+	var leaguesDic = {
+		"English Premier League":1,
+		"Bundesliga":4,
+		"Serie A":5,
+		"Ligue 1":7,
+		"La Liga":8,
+		"Champions League":16,
+		"EURO 2016":56
+	};
+	
+	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
+		parser.parseString(futureMatchesXML, function (err, result) {
+			var resultArr = [];
+			for(var i = 0; i < result.match.length; i++) {
+				console.log("checking game number "+i);
+				var leagueName = result.match[i].league[0];
+				if (leagueName in leaguesDic){
+					var leagueId = leaguesDic[leagueName];
+					var matchId = result.match[i].id[0];
+					console.log("getting data for gameID "+ matchId + " from league "+leagueId);
+				}
+
+				/*var leagueName = result.match[i].league[0];
+				if (leagueName in leaguesDic){
+					var leagueId = leaguesDic[leagueName];
+					var matchId = result.match[i].id[0];
+					console.log("getting data for gameID "+ matchId + " from league "+leagueId);
+					var date = result.match[i].date[0];
+					var homeTeam = result.match[i].hometeam[0];
+					var homeTeamId = result.match[i].hometeam_id[0];
+					var awayTeam = result.match[i].awayteam[0];
+					var awayTeamId = result.match[i].awayteam_id[0];
+					var loc = result.match[i].location[0];
+					
+					
+					addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);*/
+				}
 			}
-			else{
-				response.success(matches);
+		});
+	console.log("finished updateComingGamesInDB");
+}
+
+function bla(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc){
+	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+	var query = new Parse.Query(LBFootballMatchClass);
+	query.equalTo("matchId",matchId);
+	query.first({
+		success: function(match) {
+			//If match already exists in Parse:
+			if (match != undefined && match != null) {
+				//console.log("matchId "+ matchId + " exists in DB already");
+			} else {
+				//New match
+				console.log("adding matchId "+ matchId + " to DB");
+				var match = new LBFootballMatchClass();
+				match.set("matchId",matchId);
+				//var d = new Date(date);
+				//console.log(d);
+				match.set("date", date);
+				match.set("leagueId",leagueId);
+				match.set("homeTeam",homeTeam);
+				match.set("homeTeamId",homeTeamId);
+				match.set("awayTeam",awayTeam);
+				match.set("awayTeamId",awayTeamId);
+				match.set("location",loc);
+				
+				match.set("status","didnt_start");
+				match.set("homeGoals",0);
+				match.set("guestGoals",0);
+				
+				match.save(null,{
+					success:function(match_success) { 
+						console.log("succeeded saving matchID " + match_success.get("matchId"));
+						//yofi
+					},
+					error:function(match_err, error) {
+						response.error(error);
+					}
+				});
 			}
 		},
 		error: function(error) {
-			response.error("getLBFootballMatches error: " + error);
+			response.error(error);
 		}
-	});
-});
+	});	
+}

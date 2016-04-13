@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XMLSOCCER.COM>
+  <Match>
+    <Id>360017</Id>
+    <Date>2016-04-09T22:00:00+00:00</Date>
+    <League>Mexican Primera League</League>
+    <Round>13</Round>
+    <HomeTeam>CF America</HomeTeam>
+    <HomeTeam_Id>623</HomeTeam_Id>
+    <AwayTeam>Tijuana</AwayTeam>
+    <AwayTeam_Id>632</AwayTeam_Id>
+    <Location>Estadio Azteca</Location>
+  </Match>
+  <Match>
+    <Id>361017</Id>
+    <Date>2016-04-09T21:30:00+00:00</Date>
+    <League>Major League Soccer</League>
+    <Round>1</Round>
+    <HomeTeam>DC United</HomeTeam>
+    <HomeTeam_Id>574</HomeTeam_Id>
+    <AwayTeam>Vancouver Whitecaps</AwayTeam>
+    <AwayTeam_Id>577</AwayTeam_Id>
+    <Location>RFK Stadium</Location>
+  </Match>
+  <Match>
+    <Id>355004</Id>
+    <Date>2016-04-09T20:05:00+00:00</Date>
+    <League>La Liga</League>
+    <Round>32</Round>
+    <HomeTeam>Betis</HomeTeam>
+    <HomeTeam_Id>138</HomeTeam_Id>
+    <AwayTeam>Levante</AwayTeam>
+    <AwayTeam_Id>148</AwayTeam_Id>
+    <Location>Benito Villamarín</Location>
+  </Match>
+  <Match>
+    <Id>361015</Id>
+    <Date>2016-04-09T20:00:00+00:00</Date>
+    <League>Major League Soccer</League>
+    <Round>1</Round>
+    <HomeTeam>New England Rev.</HomeTeam>
+    <HomeTeam_Id>589</HomeTeam_Id>
+    <AwayTeam>Toronto FC</AwayTeam>
+    <AwayTeam_Id>578</AwayTeam_Id>
+    <Location>Gillette Stadium</Location>
+  </Match>
+  <Match>
+    <Id>361016</Id>
+    <Date>2016-04-09T20:00:00+00:00</Date>
+    <League>Major League Soccer</League>
+    <Round>1</Round>
+    <HomeTeam>Montreal Impact</HomeTeam>
+    <HomeTeam_Id>580</HomeTeam_Id>
+    <AwayTeam>Columbus Crew</AwayTeam>
+    <AwayTeam_Id>582</AwayTeam_Id>
+    <Location>Saputo Stadium</Location>
+  </Match>
+  <Match>
+    <Id>353768</Id>
+    <Date>2016-04-09T19:45:00+00:00</Date>
+    <League>Primeira Liga</League>
+    <Round>29</Round>
+    <HomeTeam>Sporting Lisbon</HomeTeam>
+    <HomeTeam_Id>539</HomeTeam_Id>
+    <AwayTeam>Maritimo</AwayTeam>
+    <AwayTeam_Id>445</AwayTeam_Id>
+    <Location>Estádio José Alvalade</Location>
+  </Match>
+  <Match>
+    <Id>351494</Id>
+    <Date>2016-04-09T18:45:00+00:00</Date>
+    <League>Eredivisie</League>
+    <Round>30</Round>
+    <HomeTeam>PSV Eindhoven</HomeTeam>
+    <HomeTeam_Id>184</HomeTeam_Id>
+    <AwayTeam>Willem II</AwayTeam>
+    <AwayTeam_Id>243</AwayTeam_Id>
+    <Location>Philips Stadion</Location>
+  </Match>
+  <Match>
+    <Id>356552</Id>
+    <Date>2016-04-09T18:45:00+00:00</Date>
+    <League>Serie A</League>
+    <Round>32</Round>
+    <HomeTeam>Milan</HomeTeam>
+    <HomeTeam_Id>75</HomeTeam_Id>
+    <AwayTeam>Juventus</AwayTeam>
+    <AwayTeam_Id>87</AwayTeam_Id>
+    <Location>San Siro</Location>
+  </Match>
+  <Match>
+    <Id>358421</Id>
+    <Date>2016-04-09T18:30:00+00:00</Date>
+    <League>Lega Pro</League>
+    <Round>30</Round>
+    <HomeTeam>SPAL 2013</HomeTeam>
+    <HomeTeam_Id>1128</HomeTeam_Id>
+    <AwayTeam>Santarcangelo</AwayTeam>
+    <AwayTeam_Id>1131</AwayTeam_Id>
+    <Location>Stadio Paolo Mazza</Location>
+    <Group>B</Group>
+    <Group_Id>70</Group_Id>
+  </Match>
+  <Match>
+    <Id>358663</Id>
+    <Date>2016-04-09T18:30:00+00:00</Date>
+    <League>Lega Pro</League>
+    <Round>30</Round>
+    <HomeTeam>Catanzaro</HomeTeam>
+    <HomeTeam_Id>678</HomeTeam_Id>
+    <AwayTeam>Paganese</AwayTeam>
+    <AwayTeam_Id>1143</AwayTeam_Id>
+    <Location>Stadio Nicola Ceravolo</Location>
+    <Group>C</Group>
+    <Group_Id>71</Group_Id>
+  </Match>
+  <Match>
+    <Id>354999</Id>
+    <Date>2016-04-09T18:30:00+00:00</Date>
+    <League>La Liga</League>
+    <Round>32</Round>
+    <HomeTeam>Sociedad</HomeTeam>
+    <HomeTeam_Id>140</HomeTeam_Id>
+    <AwayTeam>Barcelona</AwayTeam>
+    <AwayTeam_Id>155</AwayTeam_Id>
+    <Location>Anoeta</Location>
+  </Match>
+  <Match>
+    <Id>355571</Id>
+    <Date>2016-04-09T18:15:00+00:00</Date>
+    <League>Adelante</League>
+    <Round>33</Round>
+    <HomeTeam>Leganes</HomeTeam>
+    <HomeTeam_Id>1166</HomeTeam_Id>
+    <AwayTeam>Valladolid</AwayTeam>
+    <AwayTeam_Id>257</AwayTeam_Id>
+    <Location>Butarque</Location>
+  </Match>
+  <Match>
+    <Id>351171</Id>
+    <Date>2016-04-09T18:00:00+00:00</Date>
+    <League>Ligue 1</League>
+    <Round>33</Round>
+    <HomeTeam>Caen</HomeTeam>
+    <HomeTeam_Id>121</HomeTeam_Id>
+    <AwayTeam>Lorient</AwayTeam>
+    <AwayTeam_Id>132</AwayTeam_Id>
+    <Location>Stade Michel d'Ornano</Location>
+  </Match>
+  <Match>
+    <Id>351173</Id>
+    <Date>2016-04-09T18:00:00+00:00</Date>
+    <League>Ligue 1</League>
+    <Round>33</Round>
+    <HomeTeam>Stade de Reims</HomeTeam>
+    <HomeTeam_Id>355</HomeTeam_Id>
+    <AwayTeam>Nantes</AwayTeam>
+    <AwayTeam_Id>277</AwayTeam_Id>
+    <Location>Stade Auguste Delaune</Location>
+  </Match>
+  <Match>
+    <Id>351175</Id>
+    <Date>2016-04-09T18:00:00+00:00</Date>
+    <League>Ligue 1</League>
+    <Round>33</Round>
+    <HomeTeam>Toulouse</HomeTeam>
+    <HomeTeam_Id>118</HomeTeam_Id>
+    <AwayTeam>Bastia</AwayTeam>
+    <AwayTeam_Id>353</AwayTeam_Id>
+    <Location>Stadium Municipal</Location>
+  </Match>
+  <AccountInformation>Data requested at 3/28/2016 6:19:29 PM from 79.180.3.95, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation>
+</XMLSOCCER.COM>
