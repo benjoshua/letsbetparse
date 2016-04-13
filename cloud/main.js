@@ -246,6 +246,7 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 //Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
 //in the same order it was received
 Parse.Cloud.define("createGroup", function(request, response) {
+	console.log("in createGroup()")
 	var groupLayerId = request.params.layerGroupId;
 	var groupAdminLayerId = request.params.groupAdminLayerId; 
 
@@ -257,15 +258,18 @@ Parse.Cloud.define("createGroup", function(request, response) {
 		success: function(group) {
 			//group already exists:
 			if (group != undefined && group != null) {
+				console.log("createGroup: errorGroupAlreadyExists");
 				response.error("errorGroupAlreadyExists");
 			} else {
 				//New Group
+				console.log("gonna create a new group");
 				var group = new LBGroupClass();
 				group.set("layerGroupId",groupLayerId);
 				group.set("groupAdminLayerId",groupAdminLayerId);
 				group.set("statistics",{});
 				group.save(null,{
 					success:function(group) { 
+						console.log("created new group in db");
 						var LBUserClass = Parse.Object.extend("LBUser");
 						var userQuery = new Parse.Query(LBUserClass);
 							
@@ -281,6 +285,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 						});
 					},
 					error:function(group, error) {
+						console.log("error creating new group in db");
 						response.error(error);
 					}
 				});
@@ -872,6 +877,7 @@ function performRelevantActionsInRelevantGroupsBecauseStatusChanged(match){
 
 //send notifications to relevant groups, delete match from db, update statistics in relevant groups
 function updateEndedMatch(match, bets){
+	console.log("in updateEndedMatch()");
 	var matchId = match.get("matchId")
 	var homeTeamName = match.get("homeTeam")
 	var awayTeamName = match.get("awayTeam")
@@ -890,6 +896,13 @@ function updateEndedMatch(match, bets){
 				if (group != undefined && group != null) {
 					var currentStatistics = group.get("statistics");
 					var groupUsersGuesses = bet.get("usersGuesses");
+					
+					//TODO: delete bets and update last bet
+					
+					
+					
+					
+					
 					var winnersArray = [];
 					for (var userId in groupUsersGuesses) {
 						userGuess = groupUsersGuesses[userId];
