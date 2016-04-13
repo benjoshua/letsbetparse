@@ -1,4 +1,4 @@
-
+// ---------------------- requires ------------------
 var jQuery;
 var request = require("request"); // used by platform API
 var deferred = require('deferred'); // used by platform API
@@ -18,11 +18,10 @@ var xml2js = require('xml2js');
 var parseString = require('xml2js').parseString;
 var fs = require('fs');
 
+// ---------------------- global variables ------------------
 
 //For not calling XMLSOCCER too many times, change to TRUE:
 var shouldUseXmlExamples = true;
-
-
 
 
 var layerPlatformApiInfo = {
@@ -44,6 +43,25 @@ var layerPlatformApiInfo = {
         newMessage: null
     }
 }
+
+
+// ---------------------- background operations ------------------
+
+var liveUpdateMinutes = 0.5;
+var liveUpdateInterval = liveUpdateMinutes * 60 * 1000;
+setInterval(function() {
+  console.log("iko");
+  // do your stuff here
+}, liveUpdateInterval);
+
+var dbGamesUpdateHours = 0.01;
+var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000;
+setInterval(function() {
+  console.log("piko");
+  // do your stuff here
+}, dbGamesUpdateInterval);
+
+
 
 
 //yyyy-mm-dd
