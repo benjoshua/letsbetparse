@@ -1,32 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <XMLSOCCER.COM>
- <Match>
+  <Match>
     <Id>350060</Id>
     <Date>2016-04-13T19:00:00+00:00</Date>
     <League>English Premier League</League>
-    <Round>32</Round>
+    <Round>25</Round>
     <HomeTeam>Crystal Palace</HomeTeam>
     <HomeTeam_Id>38</HomeTeam_Id>
+    <HomeGoals>1</HomeGoals>
     <AwayTeam>Everton</AwayTeam>
     <AwayTeam_Id>20</AwayTeam_Id>
-    <Location>Selhurst Park</Location>
-	<Time>match_ended</Time>
-	<Goals_Home>0</Goals_Home>
-	<Goals_Away>2</Goals_Away>
+    <AwayGoals>3</AwayGoals>
+    <Time>Finished</Time>
+    <Location>San Mams</Location>
+    <BetAtHome>2,20</BetAtHome>
+    <BetAtDraw>3,35</BetAtDraw>
+    <BetAtAway>3,15</BetAtAway>
+    <BetAtHomeLink>http://affiliates.bet-at-home.com/processing/clickthrgh.asp?btag=a_62598b_303</BetAtHomeLink>
+    <InterwettenHome>2,10</InterwettenHome>
+    <InterwettenDraw>3,30</InterwettenDraw>
+    <InterwettenAway>3,30</InterwettenAway>
+    <InterwettenLink>https://www.interwetten.com/en/sportsbook/e/9752883/</InterwettenLink>
+    <HomeTeamYellowCardDetails>84': Iker Muniain;45': Ander Iturraspe;38': Aymeric Laporte;</HomeTeamYellowCardDetails>
+    <AwayTeamYellowCardDetails>49': Asier Illarramendi;</AwayTeamYellowCardDetails>
+    <HomeTeamRedCardDetails/>
+    <AwayTeamRedCardDetails/>
   </Match>
   <Match>
-    <Id>361017</Id>
-    <Date>2016-04-09T21:30:00+00:00</Date>
-    <League>Major League Soccer</League>
-    <Round>1</Round>
-    <HomeTeam>DC United</HomeTeam>
-    <HomeTeam_Id>574</HomeTeam_Id>
-    <AwayTeam>Vancouver Whitecaps</AwayTeam>
-    <AwayTeam_Id>577</AwayTeam_Id>
-    <Location>RFK Stadium</Location>
-	<Time>About</Time>
-	<Goals_Home>0</Goals_Home>
-	<Goals_Away>0</Goals_Away>
+    <Id>362003</Id>
+    <Date>2016-04-13T18:45:00+00:00</Date>
+    <League>Champions League</League>
+    <Round>27</Round>
+    <HomeTeam>Ath Madrid</HomeTeam>
+    <HomeTeam_Id>145</HomeTeam_Id>
+    <HomeGoals>0</HomeGoals>
+    <AwayTeam>Barcelona</AwayTeam>
+    <AwayTeam_Id>155</AwayTeam_Id>
+    <AwayGoals>6</AwayGoals>
+    <Time>Halftime</Time>
+    <Location>Stadio Alberto Picco</Location>
+    <BetAtHome>2,10</BetAtHome>
+    <BetAtDraw>2,85</BetAtDraw>
+    <BetAtAway>3,50</BetAtAway>
+    <BetAtHomeLink>http://affiliates.bet-at-home.com/processing/clickthrgh.asp?btag=a_62598b_303</BetAtHomeLink>
+    <HomeTeamYellowCardDetails/>
+    <AwayTeamYellowCardDetails/>
+    <HomeTeamRedCardDetails/>
+    <AwayTeamRedCardDetails/>
   </Match>
-  <AccountInformation>Data requested at 3/28/2016 6:19:29 PM from 79.180.3.95, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation>
+  <AccountInformation>Data requested at 05-03-2013 20:33:42 from XX.XX.XX.XX, Username: Espectro. Your current supscription runs out on XX-XX-XXXX 11:01:25.</AccountInformation>
 </XMLSOCCER.COM>
