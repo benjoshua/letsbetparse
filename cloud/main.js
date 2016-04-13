@@ -246,7 +246,7 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 //Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
 //in the same order it was received
 Parse.Cloud.define("createGroup", function(request, response) {
-	console.log("in createGroup()")
+	console.log("in createGroup()");
 	var groupLayerId = request.params.layerGroupId;
 	var groupAdminLayerId = request.params.groupAdminLayerId; 
 
