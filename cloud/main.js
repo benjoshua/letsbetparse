@@ -706,7 +706,7 @@ function updateLiveScoresInDB(futureMatchesXML){
 }
 
 function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
-	console.log("in updateLiveGameIfNeeded() with matchID "+matchID);
+	console.log("in updateLiveGameIfNeeded() with matchID "+matchId);
 	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballMatchClass);
 	query.equalTo("matchId",matchId);
