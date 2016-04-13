@@ -545,7 +545,10 @@ Parse.Cloud.define("testPush", function(request, response) {
 //Called daily
 function updateComingGames() {
 	//If we wanna use the xml example, just use this:
-	if (shouldUseXmlExamples){
+	
+	//if (shouldUseXmlExamples){
+	if (false){
+
 		console.log("using example xml");
 		
 		fs.readFile('./matches_example_xml.xml', function(err, data) {
