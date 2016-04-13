@@ -446,6 +446,7 @@ Parse.Cloud.define("updateLiveScores", function(request, response) {
 
 
 function sendAdminMsgToGroup(groupLayerId, msg, dataDic) {
+	console.log("in sendAdminMsgToGroup() with msg: '"+msg+"'. sending to "+groupLayerId);
 	request({
 	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
 	    method: "POST",
@@ -783,8 +784,11 @@ function sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus){
 					
 	
 					console.log("about to notify group id "+ groupLayerId);
+					console.log("stat:"+gameStatus);
 					if (gameStatus == "match_ended"){
-						sendAdminMsgToGroup(homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". The winner is iko",{});
+						var message = homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". The winner is iko";
+						console.log("specficially: "+message);
+						sendAdminMsgToGroup(message,{});
 					}
 				}	
 			} else {
