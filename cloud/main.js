@@ -309,8 +309,8 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	var groupLayerId = request.params.layerGroupId;
 	var gameId = request.params.gameId;
 	var betAdminLayerId = request.params.betAdminLayerId;
-	var hostAdminGoalsBet = request.params.hostAdminGoalsBet;
-	var guestAdminGoalsBet = request.params.guestAdminGoalsBet;
+	var hostAdminGoalsBet = parseInt(request.params.hostAdminGoalsBet);
+	var guestAdminGoalsBet = parseInt(request.params.guestAdminGoalsBet);
 	var stakeType = request.params.stakeType;
 	var stakeDesc = request.params.stakeDesc;
 	
@@ -393,8 +393,8 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 	var gameApiId = request.params.gameApiId;
 	var groupLayerId = request.params.groupLayerId;
 	var userLayerId = request.params.userLayerId;
-	var goalsTeamHost = request.params.goalsTeamHost;
-	var goalsTeamGuest = request.params.goalsTeamGuest;
+	var goalsTeamHost = parseInt(request.params.goalsTeamHost);
+	var goalsTeamGuest = parseInt(request.params.goalsTeamGuest);
 	
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass);
