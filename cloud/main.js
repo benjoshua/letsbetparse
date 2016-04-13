@@ -61,7 +61,8 @@ var leaguesDic = {
 var liveUpdateMinutes = 0.5;
 var liveUpdateInterval = liveUpdateMinutes * 60 * 1000;
 setInterval(function() {
-  console.log("iko");
+	updateLiveScores();
+
   // do your stuff here
 }, liveUpdateInterval);
 
@@ -468,7 +469,7 @@ Parse.Cloud.define("updateComingGames", function(request, response) {
 
 // ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("updateLiveScores", function(request, response) {
-	updateLiveScores(response);
+	updateLiveScores();
 });
 
 
