@@ -808,8 +808,8 @@ function sendMessageToRelevantGroupsThatScoreChanged(match){
 	query.find({
 		success: function(bets) {
 			var groupLayerId = match.get("layerGroupId");
-			var homeTeamName = match.get("teamHostName")
-			var awayTeamName = match.get("teamGuestName")
+			var homeTeamName = match.get("homeTeam")
+			var awayTeamName = match.get("awayTeam")
 			var homeTeamGoals = match.get("homeGoals");
 			var awayTeamGoals = match.get("awayGoals");
 			//If bets for given game exist:
@@ -843,8 +843,8 @@ function sendMessageToRelevantGroupsThatStatusChanged(match){
 		success: function(bets) {
 			//If bets for given game exist:
 			if (bets != undefined && bets != null) {	
-				var homeTeamName = match.get("teamHostName")
-				var awayTeamName = match.get("teamGuestName")
+				var homeTeamName = match.get("homeTeam")
+				var awayTeamName = match.get("awayTeam")
 				var homeTeamGoals = match.get("homeGoals");
 				var awayTeamGoals = match.get("awayGoals");
 				var gameStatus = match.get("status");
@@ -879,8 +879,8 @@ function sendMessageToRelevantGroupsThatStatusChanged(match){
 //send notifications to relevant groups, delete match from db, update statistics in relevant groups
 function updateEndedMatch(match, bets){
 	var matchId = match.get("matchId")
-	var homeTeamName = match.get("teamHostName")
-	var awayTeamName = match.get("teamGuestName")
+	var homeTeamName = match.get("homeTeam")
+	var awayTeamName = match.get("awayTeam")
 	var homeTeamGoals = match.get("homeGoals");
 	var awayTeamGoals = match.get("awayGoals");
 	
