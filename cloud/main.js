@@ -629,7 +629,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				match.set("awayTeamId",awayTeamId);
 				match.set("location",loc);
 				
-				match.set("status","Not Started");
+				match.set("time","Not Started");
 				match.set("homeGoals",0);
 				match.set("awayGoals",0);
 				
@@ -727,8 +727,8 @@ function updateLiveScoresInDBAndNotify(liveScoresXml){
 					
 					//TODO: change according to XML!!
 					var gameStatus = result.match[i].time[0];
-					var homeGoals = parseInt(result.match[i].goals_home[0]);
-					var awayGoals = parseInt(result.match[i].goals_away[0]);
+					var homeGoals = parseInt(result.match[i].homeGoals[0]);
+					var awayGoals = parseInt(result.match[i].awayGoals[0]);
 					console.log("gameID "+ matchId + ", score: "+homeGoals+"-"+awayGoals);
 					
 					updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
