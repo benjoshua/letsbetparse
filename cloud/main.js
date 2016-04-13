@@ -775,11 +775,7 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 
 							if (dbStatus != gameStatus){
 								//send messages
-								sendMessageToRelevantGroupsThatStatusChanged(match_success);				
-								//update statistics, delete matches in DB
-								if (gameStatus == "match_ended"){
-									closeBetsForMatch(match_success);
-								}
+								performRelevantActionsInRelevantGroupsBecauseStatusChanged(match_success);				
 							}			
 						},
 						error:function(match_err, error) {
@@ -806,7 +802,7 @@ function sendMessageToRelevantGroupsThatScoreChanged(match){
 	query.equalTo("gameId",matchId);
 	query.find({
 		success: function(bets) {
-			var groupLayerId = match.get("layerGroupId");
+
 			var homeTeamName = match.get("homeTeam")
 			var awayTeamName = match.get("awayTeam")
 			var homeTeamGoals = match.get("homeGoals");
@@ -814,6 +810,7 @@ function sendMessageToRelevantGroupsThatScoreChanged(match){
 			//If bets for given game exist:
 			if (bets != undefined && bets != null) {	
 				for(var i = 0; i < bets.length; i++) {
+					var groupLayerId = bet[i].get("layerGroupId");
 					console.log("about to notify group id "+ groupLayerId+" that score changed");
 					var message = "GOAL! "+homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+".";
 					console.log("specficially: "+message);
@@ -831,8 +828,8 @@ function sendMessageToRelevantGroupsThatScoreChanged(match){
 }
 
 //Find groups that opened a bet regarding given gameId, and notify them with the relevant change
-function sendMessageToRelevantGroupsThatStatusChanged(match){
-	//console.log("in sendMessageToRelevantGroupsThatStatusChanged()");
+function performRelevantActionsInRelevantGroupsBecauseStatusChanged(match){
+	//console.log("in performRelevantActionsInRelevantGroupsBecauseStatusChanged()");
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass)
 	var matchId = match.get("matchId");
@@ -950,5 +947,6 @@ function updateEndedMatch(match, bets){
 			}
 		});
 	}
-
+	
+	match.destroy({});
 }
