@@ -767,7 +767,8 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals, piko)
 function sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus){
 	console.log("in sendMessageToRelevantGroupsThatStatusChanged()");
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
-	var query = new Parse.Query(LBFootballGameBetClass);
+	var query = new Parse.Query(LBFootballGameBetClass)
+	var matchId = match.get("matchId");
 	query.equalTo("gameId",matchId);
 	query.find({
 		success: function(bets) {
