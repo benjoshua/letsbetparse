@@ -615,7 +615,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				
 				match.save(null,{
 					success:function(match_success) { 
-						console.log("succeeded saving matchID " + match_success.get("matchId"));
+						console.log("succeeded saving matchId " + match_success.get("matchId"));
 						//yofi
 					},
 					error:function(match_err, error) {
@@ -706,7 +706,7 @@ function updateLiveScoresInDB(futureMatchesXML){
 }
 
 function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
-	console.log("in updateLiveGameIfNeeded() with matchID "+matchId);
+	console.log("in updateLiveGameIfNeeded() with matchId "+matchId);
 	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballMatchClass);
 	query.equalTo("matchId",matchId);
@@ -728,7 +728,7 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 					
 					match.save(null,{
 						success:function(match_success) { 
-							console.log("succeeded updating matchID " + match_success.get("matchId"));
+							console.log("succeeded updating matchId " + match_success.get("matchId"));
 							//yofi
 						},
 						error:function(match_err, error) {
@@ -786,7 +786,7 @@ function sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus){
 					}
 				}	
 			} else {
-				console.log("no bets exist for match "+matchID);
+				console.log("no bets exist for match "+matchId);
 				
 			}
 		},
