@@ -20,7 +20,7 @@ var fs = require('fs');
 
 
 //For not calling XMLSOCCER too many times, change to TRUE:
-var shouldUseXmlExamples = true;
+var shouldUseXmlExamples = false;
 
 
 
@@ -431,21 +431,15 @@ Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 
 });
 
+// ------------------------- testRepeatinFunctions ----------------------------
+Parse.Cloud.define("updateComingGames", function(request, response) {
+	updateComingGames();
+});
+
 
 // ------------------------- testRepeatinFunctions ----------------------------
-Parse.Cloud.define("testRepeatinFunctions", function(request, response) {
-	/*var body = "<XMLSOCCER.COM><Match><Id>360017</Id><Date>2016-04-09T22:00:00+00:00</Date><League>Mexican Primera League</League><Round>13</Round><HomeTeam>CF America</HomeTeam><HomeTeam_Id>623</HomeTeam_Id><AwayTeam>Tijuana</AwayTeam><AwayTeam_Id>632</AwayTeam_Id><Location>Estadio Azteca</Location></Match><Match><Id>361017</Id><Date>2016-04-09T21:30:00+00:00</Date><League>Major League Soccer</League><Round>1</Round><HomeTeam>DC United</HomeTeam><HomeTeam_Id>574</HomeTeam_Id><AwayTeam>Vancouver Whitecaps</AwayTeam><AwayTeam_Id>577</AwayTeam_Id><Location>RFK Stadium</Location></Match><AccountInformation>Data requested at 3/21/2016 4:44:19 PM from 62.219.35.63, Username: Letsbet. Your current supscription runs out on 3/21/2017 2:17:33 PM.</AccountInformation></XMLSOCCER.COM>";
-	parseString(body, function (err, result) {
-		console.log(result);
-		updateComingGames();
-		//response.success(result);
-	});*/
-	
-	
-	//updateComingGames();
+Parse.Cloud.define("updateLiveScores", function(request, response) {
 	updateLiveScores();
-	
-	//response.success();
 });
 
 
@@ -617,7 +611,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				
 				match.set("status","didnt_start");
 				match.set("homeGoals",0);
-				match.set("guestGoals",0);
+				match.set("awayGoals",0);
 				
 				match.save(null,{
 					success:function(match_success) { 
@@ -658,10 +652,7 @@ function updateLiveScores() {
 	}
 	else{
 		
-		
-		//TODO: change
-		
-		
+
 		var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
 		var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
 		
@@ -699,75 +690,106 @@ function updateLiveScoresInDB(futureMatchesXML){
 		parser.parseString(futureMatchesXML, function (err, result) {
 			var resultArr = [];
 			for(var i = 0; i < result.match.length; i++) {
-				console.log("checking game number "+i);
 				var leagueName = result.match[i].league[0];
 				if (leagueName in leaguesDic){
-					var leagueId = leaguesDic[leagueName];
 					var matchId = result.match[i].id[0];
-					console.log("getting data for gameID "+ matchId + " from league "+leagueId);
+					var gameStatus = result.match[i].time[0];
+					var homeGoals = result.match[i].goals_home[0];
+					var awayGoals = result.match[i].goals_away[0];					
+					console.log("gameID "+ matchId + ", score: "+homeGoals+"-"+awayGoals);
+					
+					updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
 				}
-
-				/*var leagueName = result.match[i].league[0];
-				if (leagueName in leaguesDic){
-					var leagueId = leaguesDic[leagueName];
-					var matchId = result.match[i].id[0];
-					console.log("getting data for gameID "+ matchId + " from league "+leagueId);
-					var date = result.match[i].date[0];
-					var homeTeam = result.match[i].hometeam[0];
-					var homeTeamId = result.match[i].hometeam_id[0];
-					var awayTeam = result.match[i].awayteam[0];
-					var awayTeamId = result.match[i].awayteam_id[0];
-					var loc = result.match[i].location[0];
-					
-					
-					addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
-				}*/
 			}
 		});
-	console.log("finished updateComingGamesInDB");
+	console.log("finished updateLiveScoresInDB()");
 }
 
-function bla(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc){
+function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballMatchClass);
 	query.equalTo("matchId",matchId);
 	query.first({
 		success: function(match) {
-			//If match already exists in Parse:
+			//match should exist in Parse:
 			if (match != undefined && match != null) {
-				//console.log("matchId "+ matchId + " exists in DB already");
-			} else {
-				//New match
-				console.log("adding matchId "+ matchId + " to DB");
-				var match = new LBFootballMatchClass();
-				match.set("matchId",matchId);
-				//var d = new Date(date);
-				//console.log(d);
-				match.set("date", date);
-				match.set("leagueId",leagueId);
-				match.set("homeTeam",homeTeam);
-				match.set("homeTeamId",homeTeamId);
-				match.set("awayTeam",awayTeam);
-				match.set("awayTeamId",awayTeamId);
-				match.set("location",loc);
+				var dbStatus = match.get("status");
+				var dbHomeGoals = match.get("homeGoals");
+				var dbAwayGoals = match.get("awayGoals");
 				
-				match.set("status","didnt_start");
-				match.set("homeGoals",0);
-				match.set("guestGoals",0);
-				
-				match.save(null,{
-					success:function(match_success) { 
-						console.log("succeeded saving matchID " + match_success.get("matchId"));
-						//yofi
-					},
-					error:function(match_err, error) {
-						response.error(error);
+				if ((dbStatus != gameStatus) || (dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
+					match.set("status", gameStatus);
+					match.set("homeGoals", homeGoals);
+					match.set("awayGoals", awayGoals);
+					
+					match.save(null,{
+						success:function(match_success) { 
+							console.log("succeeded updating matchID " + match_success.get("matchId"));
+							//yofi
+						},
+						error:function(match_err, error) {
+							response.error(error);
+						}
+					});
+				}
+
+				if ((dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
+					console.log("goals have changed in gameID " + match_success.get("matchId")+": "+match_success.get("homeGoals")+"-"
+						+match_success.get("awayGoals"));
+				}
+
+				if (dbStatus != gameStatus){
+					//send messages
+					sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus);				
+					//update statistics, delete matches in DB
+					if (gameStatus == "match_ended"){
+						closeBetsForMatch(match);
 					}
-				});
+				}			
+
+			} else {
+				console.log("error: trying to update a game that doesn't exist in DB");
 			}
 		},
 		error: function(error) {
 			response.error(error);
 		}
 	});	
+}
+
+//Find groups that opened a bet regarding given gameId
+function sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus){
+	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+	var query = new Parse.Query(LBFootballGameBetClass);
+	query.equalTo("gameId",matchId);
+	query.find({
+		success: function(bets) {
+			//If bets for given game exist:
+			if (bets != undefined && bets != null) {	
+				for(var i = 0; i < bets.length; i++) {
+					var groupLayerId = bets[i].get("layerGroupId");
+					var homeTeamName = bets[i].get("teamHostName")
+					var awayTeamName = bets[i].get("teamGuestName")
+					var homeTeamGoals = match.get("homeGoals");
+					var awayTeamGoals = match.get("awayGoals");
+					
+	
+					console.log("about to notify group id "+ groupLayerId)
+					if (gameStatus == "match_ended"){
+						sendAdminMsgToGroup(homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". The winner is iko",{});
+					}
+				
+			} else {
+				console.log("no bets exist for match "+matchID)
+				
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+}
+
+function closeBetsForMatch(match){
+	
 }

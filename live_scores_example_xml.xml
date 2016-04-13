@@ -10,7 +10,7 @@
     <AwayTeam>Everton</AwayTeam>
     <AwayTeam_Id>20</AwayTeam_Id>
     <Location>Selhurst Park</Location>
-	<Time>Ended</Time>
+	<Time>match_ended</Time>
 	<Goals_Home>0</Goals_Home>
 	<Goals_Away>2</Goals_Away>
   </Match>
