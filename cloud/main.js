@@ -774,12 +774,11 @@ function sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus){
 					var awayTeamGoals = match.get("awayGoals");
 					
 	
-					console.log("about to notify group id "+ groupLayerId)
+					console.log("about to notify group id "+ groupLayerId);
 					if (gameStatus == "match_ended"){
 						sendAdminMsgToGroup(homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". The winner is iko",{});
 					}
-				}
-				
+				}	
 			} else {
 				console.log("no bets exist for match "+matchID);
 				
