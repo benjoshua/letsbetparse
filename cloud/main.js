@@ -788,7 +788,7 @@ function sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus){
 					if (gameStatus == "match_ended"){
 						var message = homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". The winner is iko";
 						console.log("specficially: "+message);
-						sendAdminMsgToGroup(message,{});
+						sendAdminMsgToGroup(groupLayerId, message,{});
 					}
 				}	
 			} else {
