@@ -694,8 +694,8 @@ function updateLiveScoresInDB(futureMatchesXML, piko){
 				if (leagueName in leaguesDic){
 					var matchId = result.match[i].id[0];
 					var gameStatus = result.match[i].time[0];
-					var homeGoals = result.match[i].goals_home[0];
-					var awayGoals = result.match[i].goals_away[0];					
+					var homeGoals = parseInt(result.match[i].goals_home[0]);
+					var awayGoals = parseInt(result.match[i].goals_away[0]);
 					console.log("gameID "+ matchId + ", score: "+homeGoals+"-"+awayGoals);
 					
 					updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals, piko);
