@@ -810,7 +810,7 @@ function sendMessageToRelevantGroupsThatScoreChanged(match){
 			//If bets for given game exist:
 			if (bets != undefined && bets != null) {	
 				for(var i = 0; i < bets.length; i++) {
-					var groupLayerId = bet[i].get("layerGroupId");
+					var groupLayerId = bets[i].get("layerGroupId");
 					console.log("about to notify group id "+ groupLayerId+" that score changed");
 					var message = "GOAL! "+homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+".";
 					console.log("specficially: "+message);
