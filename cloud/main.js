@@ -720,8 +720,8 @@ function updateLiveScoresInDB(futureMatchesXML){
 					var loc = result.match[i].location[0];
 					
 					
-					addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);*/
-				}
+					addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
+				}*/
 			}
 		});
 	console.log("finished updateComingGamesInDB");
