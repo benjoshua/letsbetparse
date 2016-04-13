@@ -263,12 +263,12 @@ Parse.Cloud.define("createGroup", function(request, response) {
 			} else {
 				//New Group
 				console.log("gonna create a new group");
-				var group = new LBGroupClass();
-				group.set("layerGroupId",groupLayerId);
-				group.set("groupAdminLayerId",groupAdminLayerId);
-				group.set("statistics","");
-				group.save(null,{
-					success:function(group) { 
+				var newGroup = new LBGroupClass();
+				newGroup.set("layerGroupId",groupLayerId);
+				newGroup.set("groupAdminLayerId",groupAdminLayerId);
+				//newGroup.set("statistics","");
+				newGroup.save(null,{
+					success:function(newGroupSuccess) { 
 						console.log("created new group in db");
 						var LBUserClass = Parse.Object.extend("LBUser");
 						var userQuery = new Parse.Query(LBUserClass);
@@ -284,8 +284,8 @@ Parse.Cloud.define("createGroup", function(request, response) {
 							}
 						});
 					},
-					error:function(group, error) {
-						console.log("error creating new group in db");
+					error:function(newGroupError, error) {
+						console.log("error creating new group in db: "+error);
 						response.error(error);
 					}
 				});
