@@ -778,9 +778,10 @@ function sendMessageToRelevantGroupsThatStatusChanged(match,gameStatus){
 					if (gameStatus == "match_ended"){
 						sendAdminMsgToGroup(homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". The winner is iko",{});
 					}
+				}
 				
 			} else {
-				console.log("no bets exist for match "+matchID)
+				console.log("no bets exist for match "+matchID);
 				
 			}
 		},
