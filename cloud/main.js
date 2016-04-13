@@ -576,7 +576,7 @@ function updateComingGames() {
 	}
 }
 
-function updateComingGamesInDB(fuureMatchesXML){
+function updateComingGamesInDB(futureMatchesXML){
 	console.log("updateComingGamesInDB");
 	var leaguesId = ["1","4","5","7","8","16","56"];
 	var leaguesDic = {
@@ -590,7 +590,7 @@ function updateComingGamesInDB(fuureMatchesXML){
 	};
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
-		parser.parseString(fuureMatchesXML, function (err, result) {
+		parser.parseString(futureMatchesXML, function (err, result) {
 			var resultArr = [];
 			for(var i = 0; i < result.match.length; i++) {
 				var leagueName = result.match[i].league[0];
@@ -636,7 +636,11 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				match.set("awayTeam",awayTeam);
 				match.set("awayTeamId",awayTeamId);
 				match.set("location",loc);
-
+				
+				match.set("status","didnt_start");
+				match.set("homeGoals",0);
+				match.set("guestGoals",0);
+				
 				match.save(null,{
 					success:function(match_success) { 
 						console.log("succeeded saving matchID " + match_success.get("matchId"));
