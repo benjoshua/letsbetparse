@@ -58,7 +58,7 @@ var leaguesDic = {
 
 // ---------------------- background operations ------------------
 
-var liveUpdateMinutes = 0.5;
+var liveUpdateMinutes = 2;
 var liveUpdateInterval = liveUpdateMinutes * 60 * 1000;
 setInterval(function() {
 	updateLiveScores();
