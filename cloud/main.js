@@ -266,7 +266,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				var newGroup = new LBGroupClass();
 				newGroup.set("layerGroupId",groupLayerId);
 				newGroup.set("groupAdminLayerId",groupAdminLayerId);
-			newGroup.set("stats",{});
+				newGroup.set("stats","");
 				newGroup.save(null,{
 					success:function(newGroupSuccess) { 
 						console.log("created new group in db");
