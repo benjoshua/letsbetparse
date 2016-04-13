@@ -732,15 +732,14 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 							//yofi
 						},
 						error:function(match_err, error) {
-							console.log("cxvx: "+error)
+							console.log("error: "+error.toString());
 						}
 					});
 				}
 
 				if ((dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
 					console.log("3");
-					console.log("goals have changed in gameID " + match_success.get("matchId")+": "+match_success.get("homeGoals")+"-"
-						+match_success.get("awayGoals"));
+					
 				}
 
 				if (dbStatus != gameStatus){
