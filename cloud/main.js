@@ -953,30 +953,32 @@ function updateEndedMatch(match, bets){
 						userGuess = groupUsersGuesses[userId];
 						console.log("1: "+userId);
 						if ((currentStatistics[userId] != undefined) || (currentStatistics[userId] != null)){
+							console.log("stats undefined");
 							currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};	
 						}
 						userStatistics = currentStatistics[userId];
+						console.log("userStatistics: "+JSON.stringify(groupUsersGuesses, null, 4));
 						
-						var homeGuess = userGuess[homeGoals];
-						var awayGuess = userGuess[awayGoals];
+						var homeGuess = userGuess["homeGoals"];
+						var awayGuess = userGuess["awayGoals"];
 						//bullseye:
 						if ((homeGuess == homeTeamGoals) && (awayGuess == awayTeamGoals)){
 							console.log("bullseye");
 							winnersArray.push(userId);
-							userStatistics[bullseye] = userStatistics[bullseye]+1;
-							userStatistics[points] = userStatistics[points]+2;
+							userStatistics["bullseye"] = userStatistics["bullseye"]+1;
+							userStatistics["points"] = userStatistics["points"]+2;
 						}
 						//almost:
 						else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) ||
 								  ((homeTeamGoals == awayTeamGoals) && (homeGuess == awayGuess)) ||
 								  ((homeTeamGoals < awayTeamGoals) && (homeGuess < awayGuess)) ){
 							console.log("almost");							
-							userStatistics[almost] = userStatistics[almost]+1;
-							userStatistics[points] = userStatistics[points]+1;
+							userStatistics["almost"] = userStatistics["almost"]+1;
+							userStatistics["points"] = userStatistics["points"]+1;
 						}
 						//lost bet:
 						else{
-							userStatistics[lost] = userStatistics[lost]+1;
+							userStatistics["lost"] = userStatistics["lost"]+1;
 						}
 						currentStatistics[userId] = userStatistics;
 					}
