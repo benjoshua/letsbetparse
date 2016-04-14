@@ -918,11 +918,13 @@ function updateEndedMatch(match, bets){
 					
 					//TODO: delete previous last bet and update to current bet
 					var previousLastBetID = group.get("lastBetId");
+					console.log(previousLastBetID);
 					var previousLastBetType = group.get("lastBetType");
+					console.log(previousLastBetType);
 					if (previousLastBetType == "Football"){	
-						var query = new Parse.Query(LBFootballMatchClass);
-						query.equalTo("id", previousLastBetID);
-						query.first({
+						var queryBet = new Parse.Query(LBFootballGameBetClass);
+						queryBet.equalTo("_id", previousLastBetID);
+						queryBet.first({
 							success: function(betToDel) {
 								console.log("success");
 								if ((betToDel != undefined) && (betToDel != null)) {
