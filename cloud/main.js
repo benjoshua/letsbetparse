@@ -952,7 +952,7 @@ function updateEndedMatch(match, bets){
 					for (var userId in groupUsersGuesses) {
 						userGuess = groupUsersGuesses[userId];
 						console.log("1: "+userId);
-						if ((currentStatistics[userId] != undefined) || (currentStatistics[userId] != null)){
+						if ((currentStatistics[userId] == undefined) || (currentStatistics[userId] == null)){
 							console.log("stats undefined");
 							currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};	
 						}
