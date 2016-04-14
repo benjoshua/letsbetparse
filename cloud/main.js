@@ -269,6 +269,8 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				newGroup.set("statistics",stats);
 				newGroup.set("layerGroupId",groupLayerId);
 				newGroup.set("groupAdminLayerId",groupAdminLayerId);
+				newGroup.set("lastBetId","");
+				newGroup.set("lastBetType","");
 
 				
 				//var usersGuesses = {};
