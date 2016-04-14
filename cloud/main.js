@@ -1065,3 +1065,40 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 		}
 	});
 });
+
+Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
+	var betId = request.params.betId;
+	var userLayerId = request.params.userLayerId;
+	var userGuess = request.params.userGuess;
+	
+	var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
+	var query = new Parse.Query(LBCustomBetClass);
+	query.equalTo("betId",betId);
+	query.first({
+		success: function(bet) {
+			//If bet doesn't exist in DB:
+			if ((bet == undefined) || (bet != null)) {
+				response.error("custom bet now found in db");
+			}else{
+				//Add guess to bet
+				var usersGuesses = bet.get("usersGuesses");
+				if (userGuess in usersGuesses){
+					userGuesses[usersGuess].push(userLayerId);
+				}else{
+					userGuesses[usersGuess] = [userLayerId];
+				}
+				bet.save(null,{
+					success:function(bet_success) { 
+						response.success(true);
+					},
+					error:function(bet, error) {
+						response.error(error);
+					}
+				});
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
