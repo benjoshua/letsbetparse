@@ -282,12 +282,16 @@ Parse.Cloud.define("createGroup", function(request, response) {
 								response.success(true);
 							},
 							error:function(bet, error) {
+								str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
+								console.log(str); // Logs output to dev tools console.
 								response.error(error);
 							}
 						});
 					},
 					error:function(newGroupError, error) {
 						console.log("error creating new group in db: "+error);
+						str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
+						console.log(str); // Logs output to dev tools console.
 						response.error(error);
 					}
 				});
