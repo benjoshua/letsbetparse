@@ -1152,7 +1152,12 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 				if (bet.get("betAdminLayerId") != userLayerId){
 					response.error("this user isn't an admin, thus can't close the bet");
 				}else{
-					var winnersArray = bet.get("usersGuesses")[winningGuess];
+					usersGuesses = bet.get("usersGuesses");
+					if (!(winningGuess in usersGuesses)){
+						response.error("winning guess wasn't even a possibility");
+						return;
+					}
+					var winnersArray = usersGuesses[winningGuess];
 					var groupLayerId = bet.get("groupLayerId");
 					var betName = bet.get("betName");
 					var message = "" + betName + "was closed.";
@@ -1162,7 +1167,7 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 						message = message + "No one won the bet =(";
 					}				
 					sendAdminMsgToGroup(groupLayerId,message, {});
-					response.success(success);
+					response.success();
 				}
 			}
 		},
