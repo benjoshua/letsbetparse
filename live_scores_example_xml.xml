@@ -7,11 +7,11 @@
     <Round>25</Round>
     <HomeTeam>Atalanta</HomeTeam>
     <HomeTeam_Id>86</HomeTeam_Id>
-    <HomeGoals>0</HomeGoals>
+    <HomeGoals>2</HomeGoals>
     <AwayTeam>Roma</AwayTeam>
     <AwayTeam_Id>93</AwayTeam_Id>
     <AwayGoals>0</AwayGoals>
-    <Time>0'</Time>
+    <Time>Finished</Time>
     <Location>San Mams</Location>
     <BetAtHome>2,20</BetAtHome>
     <BetAtDraw>3,35</BetAtDraw>
