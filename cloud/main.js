@@ -1073,7 +1073,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 	
 	var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
 	var query = new Parse.Query(LBCustomBetClass);
-	query.equalTo("betId",betId);
+	query.equalTo("_id",betId);
 	query.first({
 		success: function(bet) {
 			//If bet doesn't exist in DB:
