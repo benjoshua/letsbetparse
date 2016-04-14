@@ -1134,3 +1134,40 @@ Parse.Cloud.define("getAllCustomBetsForGroup", function(request, response) {
 		}
 	});
 });
+
+Parse.Cloud.define("closeCustomBet", function(request, response) {
+	var betId = request.params.betId;
+	var userLayerId = request.params.userLayerId;
+	var winningGuess = request.params.winningGuess;
+
+	var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
+	var query = new Parse.Query(LBCustomBetClass);
+	query.equalTo("_id",betId);
+	query.first({
+		success: function(bet) {
+			//If bet doesn't exist in DB:
+			if ((bet == undefined) || (bet == null)) {
+				response.error("bet wasn't found");
+			}else{
+				if (bet.get("adminLayerId") != userLayerId){
+					response.error("this user isn't an admin, thus can't close the bet");
+				}else{
+					var winnersArray = bet.get("usersGuesses")[winningGuess];
+					var groupLayerId = bet.get("groupLayerId");
+					var betName = bet.get("betName");
+					var message = "" + betName + "was closed.";
+					if (winnersArray.length > 0){
+						message = message + "Someone won the bet!";
+					}else{
+						message = message + "No one won the bet =(";
+					}				
+					sendAdminMsgToGroup(groupLayerId,message, {});
+					response.success(success);
+				}
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
