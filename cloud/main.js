@@ -981,7 +981,7 @@ function updateEndedMatch(match, bets){
 						}
 						//lost bet:
 						else{
-							console.log("lost");
+							console.log("lost ");
 							userStatistics["lost"] = userStatistics["lost"]+1;
 						}
 						currentStatistics[userId] = userStatistics;
