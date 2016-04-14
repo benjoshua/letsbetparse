@@ -1055,7 +1055,6 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 	var usersGuesses = {};
 	usersGuesses[adminGuess] = [betAdminLayerId];
 	bet.set("usersGuesses",usersGuesses);
-	
 
 	bet.save(null,{
 		success:function(savedBet) { 
@@ -1065,4 +1064,4 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 			response.error(error);
 		}
 	});
-}
+});
