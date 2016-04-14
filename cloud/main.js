@@ -869,7 +869,7 @@ function performRelevantActionsInRelevantGroupsBecauseStatusChanged(match){
 				
 				for(var i = 0; i < bets.length; i++) {
 					var groupLayerId = bets[i].get("layerGroupId");
-					if (gameTime == "1'"){
+					if (gameTime == "0'"){
 						var message = homeTeamName+" vs "+awayTeamName+" - The bet has started";
 						sendAdminMsgToGroup(groupLayerId, message,{});
 					}
