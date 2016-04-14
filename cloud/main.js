@@ -21,7 +21,7 @@ var fs = require('fs');
 // ---------------------- global variables ------------------
 
 //For not calling XMLSOCCER too many times, change to TRUE:
-var shouldUseXmlExamples = true;
+var shouldUseXmlExamples = false;
 
 
 var layerPlatformApiInfo = {
@@ -59,7 +59,7 @@ var leaguesDic = {
 // ---------------------- background operations ------------------
 
 
-var liveUpdateMinutes = 0.5;
+var liveUpdateMinutes = 0.033; //22 seconds, to be on the safe side
 if (shouldUseXmlExamples == true){
 	liveUpdateMinutes = 10000;
 }
@@ -213,7 +213,7 @@ Parse.Cloud.define("changeUserNickname", function(request, response) {
 					}
 				});
 			} else {
-				response.error("User doesn't exist")
+				response.error("User doesn't exist");
 			}
 		},
 		error: function(error) {
@@ -1026,5 +1026,5 @@ function updateEndedMatch(match, bets){
 		});
 	}
 	
-	//match.destroy({});
+	match.destroy({});
 }
