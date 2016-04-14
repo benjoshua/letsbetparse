@@ -902,6 +902,7 @@ function updateEndedMatch(match, bets){
 	var awayTeamGoals = match.get("awayGoals");
 	
 	for(var i = 0; i < bets.length; i++) {
+		console.log("bets");
 		var bet = bets[i];
 		var groupLayerId = bet.get("layerGroupId");
 		var LBGroupClass = Parse.Object.extend("LBGroup");
@@ -911,6 +912,7 @@ function updateEndedMatch(match, bets){
 			success: function(group) {
 				//group exists:
 				if (group != undefined && group != null) {
+					console.log("groups");
 					var currentStatistics = group.get("statistics");
 					var groupUsersGuesses = bet.get("usersGuesses");
 					
@@ -979,6 +981,7 @@ function updateEndedMatch(match, bets){
 						}
 						//lost bet:
 						else{
+							console.log("lost");
 							userStatistics["lost"] = userStatistics["lost"]+1;
 						}
 						currentStatistics[userId] = userStatistics;
