@@ -1019,5 +1019,5 @@ function updateEndedMatch(match, bets){
 		});
 	}
 	
-	match.destroy({});
+	//match.destroy({});
 }
