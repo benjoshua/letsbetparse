@@ -938,7 +938,7 @@ function updateEndedMatch(match, bets){
 						//TODO: complete
 						
 					}else{
-						console.log("Unknown last bet type")
+						console.log("Unknown last bet type");
 					}
 					
 					
@@ -947,6 +947,7 @@ function updateEndedMatch(match, bets){
 					var winnersArray = [];
 					for (var userId in groupUsersGuesses) {
 						userGuess = groupUsersGuesses[userId];
+						console.log("1: "+userId);
 						if ((currentStatistics[userId] != undefined) || (currentStatistics[userId] != null)){
 							currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};	
 						}
@@ -956,6 +957,7 @@ function updateEndedMatch(match, bets){
 						var awayGuess = userGuess[awayGoals];
 						//bullseye:
 						if ((homeGuess == homeTeamGoals) && (awayGuess == awayTeamGoals)){
+							console.log("bullseye");
 							winnersArray.push(userId);
 							userStatistics[bullseye] = userStatistics[bullseye]+1;
 							userStatistics[points] = userStatistics[points]+2;
@@ -964,7 +966,7 @@ function updateEndedMatch(match, bets){
 						else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) ||
 								  ((homeTeamGoals == awayTeamGoals) && (homeGuess == awayGuess)) ||
 								  ((homeTeamGoals < awayTeamGoals) && (homeGuess < awayGuess)) ){
-							
+							console.log("almost");							
 							userStatistics[almost] = userStatistics[almost]+1;
 							userStatistics[points] = userStatistics[points]+1;
 						}
@@ -978,6 +980,8 @@ function updateEndedMatch(match, bets){
 					
 					group.set("lastBetId",bet.id);
 					group.set("lastBetType","Football");
+					console.log("8");
+
 					group.save(null,{
 						success:function(group) { 
 							console.log("saved statistics for group "+groupLayerId);
