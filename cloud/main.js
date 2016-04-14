@@ -924,7 +924,7 @@ function updateEndedMatch(match, bets){
 					if (previousLastBetType == "Football"){	
 						var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 						var queryBet = new Parse.Query(LBFootballGameBetClass);
-						queryBet.equalTo("id", previousLastBetID);
+						queryBet.equalTo("_id", previousLastBetID);
 						queryBet.first({
 							success: function(betToDel) {
 								console.log("success");
