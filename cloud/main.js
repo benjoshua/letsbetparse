@@ -967,6 +967,7 @@ function updateEndedMatch(match, bets){
 							winnersArray.push(userId);
 							userStatistics["bullseye"] = userStatistics["bullseye"]+1;
 							userStatistics["points"] = userStatistics["points"]+2;
+							console.log("5");
 						}
 						//almost:
 						else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) ||
@@ -982,6 +983,9 @@ function updateEndedMatch(match, bets){
 						}
 						currentStatistics[userId] = userStatistics;
 					}
+					
+					console.log("winners: "+JSON.stringify(winnersArray, null, 4));
+					
 					group.set("statistics",currentStatistics);
 					
 					group.set("lastBetId",bet.id);
