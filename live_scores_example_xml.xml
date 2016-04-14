@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <XMLSOCCER.COM>
   <Match>
-    <Id>356554</Id>
-    <Date>2016-04-17T10:30:00+00:00</Date>
-    <League>Serie A</League>
+    <Id>355009</Id>
+    <Date>2016-04-16T20:05:00+00:00	</Date>
+    <League>La Liga</League>
     <Round>25</Round>
-    <HomeTeam>Atalanta</HomeTeam>
-    <HomeTeam_Id>86</HomeTeam_Id>
+    <HomeTeam>Celta Vigo</HomeTeam>
+    <HomeTeam_Id>357</HomeTeam_Id>
     <HomeGoals>2</HomeGoals>
-    <AwayTeam>Roma</AwayTeam>
-    <AwayTeam_Id>93</AwayTeam_Id>
+    <AwayTeam>Betis</AwayTeam>
+    <AwayTeam_Id>138</AwayTeam_Id>
     <AwayGoals>0</AwayGoals>
     <Time>Finished</Time>
     <Location>San Mams</Location>

@@ -289,7 +289,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 								response.success(true);
 							},
 							error:function(bet, error) {
-								str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
+								var str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
 								console.log(str); // Logs output to dev tools console.
 								response.error(error);
 							}
@@ -297,7 +297,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 					},
 					error:function(newGroupError, error) {
 						console.log("error  creating new group in db: "+error);
-						str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
+						var str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
 						console.log(str); // Logs output to dev tools console.
 						response.error(error);
 					}
@@ -944,6 +944,10 @@ function updateEndedMatch(match, bets){
 					
 					
 					
+					var str = JSON.stringify(groupUsersGuesses, null, 4); // (Optional) beautiful indented output.
+					console.log("userGuesses: "+str); // Logs output to dev tools console.
+					
+					
 					var winnersArray = [];
 					for (var userId in groupUsersGuesses) {
 						userGuess = groupUsersGuesses[userId];
@@ -1009,5 +1013,5 @@ function updateEndedMatch(match, bets){
 		});
 	}
 	
-	match.destroy({});
+	//match.destroy({});
 }
