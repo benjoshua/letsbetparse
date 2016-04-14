@@ -1083,9 +1083,9 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				//Add guess to bet
 				var usersGuesses = bet.get("usersGuesses");
 				if (userGuess in usersGuesses){
-					userGuesses[usersGuess].push(userLayerId);
+					usersGuesses[userGuess].push(userLayerId);
 				}else{
-					userGuesses[usersGuess] = [userLayerId];
+					usersGuesses[userGuess] = [userLayerId];
 				}
 				bet.save(null,{
 					success:function(bet_success) { 
