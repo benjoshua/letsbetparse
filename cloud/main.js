@@ -1038,6 +1038,7 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 	var betName = request.params.betName;
 	var betDesc = request.params.betDesc;
 	var betAdminLayerId = request.params.betAdminLayerId;
+	var groupLayerId = request.params.groupLayerId;
 	var adminGuess = request.params.adminGuess;
 	var stakeType = request.params.stakeType;
 	var stakeDesc = request.params.stakeDesc;
@@ -1051,6 +1052,7 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 	bet.set("betAdminLayerId",betAdminLayerId);
 	bet.set("stakeType",stakeType);
 	bet.set("stakeDesc",stakeDesc);
+	bet.set("groupLayerId",groupLayerId);
 	bet.set("betPic",betPic);
 	var usersGuesses = {};
 	usersGuesses[adminGuess] = [betAdminLayerId];
@@ -1085,15 +1087,11 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				var usersGuesses = bet.get("usersGuesses");
 				//make sure user didn't guess already
 				for (var guess in usersGuesses){
-					console.log(guess);
-					console.log(usersGuesses[guess].indexOf(userLayerId));
 					if (usersGuesses[guess].indexOf(userLayerId) > -1){
-						console.log("2");
 						response.error("user already placed a guess");
 						return;
 					}
 				}
-				console.log("3");
 				
 				if (userGuess in usersGuesses){
 					usersGuesses[userGuess].push(userLayerId);
@@ -1108,6 +1106,27 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 						response.error(error);
 					}
 				});
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
+
+Parse.Cloud.define("getAllCustomBetsForGroup", function(request, response) {
+	var groupLayerId = request.params.groupLayerId;
+
+	var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
+	var query = new Parse.Query(LBCustomBetClass);
+	query.equalTo("groupLayerId",groupLayerId);
+	query.find({
+		success: function(bets) {
+			//If bet doesn't exist in DB:
+			if ((bets == undefined) || (bets == null)) {
+				response.error("no custom bets for group");
+			}else{
+				response.success(bets);
 			}
 		},
 		error: function(error) {
