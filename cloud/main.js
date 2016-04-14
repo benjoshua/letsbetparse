@@ -1081,7 +1081,16 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				response.error("custom bet now found in db");
 			}else{
 				//Add guess to bet
+				
 				var usersGuesses = bet.get("usersGuesses");
+				//make sure user didn't guess already
+				for (guess in usersGuesses){
+					if (usersGuesses[guess].contains(userLayerId)){
+						response.error("user already placed a guess");
+						return;
+					}
+				}
+				
 				if (userGuess in usersGuesses){
 					usersGuesses[userGuess].push(userLayerId);
 				}else{
