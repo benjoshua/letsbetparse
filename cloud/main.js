@@ -923,9 +923,10 @@ function updateEndedMatch(match, bets){
 						var query = new Parse.Query(LBFootballMatchClass);
 						query.equalTo("_id", previousLastBetID);
 						query.first({
-							success: function(bet) {
-								if (bet != undefined && bet != null) {
-									bet.destroy({});
+							success: function(betToDel) {
+								console.log("success");
+								if ((betToDel != undefined) && (betToDel != null)) {
+									betToDel.destroy({});
 								}
 								else{
 									console.log("last bet not found in bets DB");
