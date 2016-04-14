@@ -59,7 +59,7 @@ var leaguesDic = {
 // ---------------------- background operations ------------------
 
 
-var liveUpdateMinutes = 0.033; //22 seconds, to be on the safe side
+var liveUpdateMinutes = 0.5; //30 seconds, to be on the safe side
 if (shouldUseXmlExamples == true){
 	liveUpdateMinutes = 10000;
 }
@@ -747,20 +747,22 @@ function updateLiveScoresInDBAndNotify(liveScoresXml){
 			if ((result.match != undefined) && (result.match != null)) {
 				console.log("length: "+result.match.length);
 				console.log("match: "+result.match);
-				console.log("json match: "+JSON.stringify(result.match, null, 4));
+				console.log("json match: "+JSON.stringify(result.match));
 				console.log("xml: "+liveScoresXml);
 				for(var i = 0; i < result.match.length; i++) {
-					var leagueName = result.match[i].league[0];
-					if (leagueName in leaguesDic){
-						var matchId = result.match[i].id[0];
-						
-						//TODO: change according to XML!!
-						var gameStatus = result.match[i].time[0];
-						var homeGoals = parseInt(result.match[i].homegoals[0]);
-						var awayGoals = parseInt(result.match[i].awaygoals[0]);
-						console.log("gameID "+ matchId + ", score: "+homeGoals+"-"+awayGoals);
-						
-						updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
+					if (result.match[i] != undefined){
+						var leagueName = result.match[i].league[0];
+						if (leagueName in leaguesDic){
+							var matchId = result.match[i].id[0];
+							
+							//TODO: change according to XML!!
+							var gameStatus = result.match[i].time[0];
+							var homeGoals = parseInt(result.match[i].homegoals[0]);
+							var awayGoals = parseInt(result.match[i].awaygoals[0]);
+							console.log("gameID "+ matchId + ", score: "+homeGoals+"-"+awayGoals);
+							
+							updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
+						}
 					}
 				}
 			}
