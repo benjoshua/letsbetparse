@@ -733,7 +733,7 @@ function updateLiveScoresInDBAndNotify(liveScoresXml){
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(liveScoresXml, function (err, result) {
 			var resultArr = [];
-			if (result != undefined && result != null) {
+			if (result.match != undefined && result.match != null) {
 				for(var i = 0; i < result.match.length; i++) {
 					var leagueName = result.match[i].league[0];
 					if (leagueName in leaguesDic){
