@@ -1077,7 +1077,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 	query.first({
 		success: function(bet) {
 			//If bet doesn't exist in DB:
-			if ((bet == undefined) || (bet != null)) {
+			if ((bet == undefined) || (bet == null)) {
 				response.error("custom bet now found in db");
 			}else{
 				//Add guess to bet
