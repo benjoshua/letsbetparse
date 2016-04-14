@@ -748,6 +748,7 @@ function updateLiveScoresInDBAndNotify(liveScoresXml){
 				console.log("length: "+result.match.length);
 				console.log("match: "+result.match);
 				console.log("json match: "+JSON.stringify(result.match, null, 4));
+				console.log("xml: "+liveScoresXml);
 				for(var i = 0; i < result.match.length; i++) {
 					var leagueName = result.match[i].league[0];
 					if (leagueName in leaguesDic){
