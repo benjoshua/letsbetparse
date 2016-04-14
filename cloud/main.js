@@ -957,7 +957,7 @@ function updateEndedMatch(match, bets){
 							currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};	
 						}
 						userStatistics = currentStatistics[userId];
-						console.log("userStatistics: "+JSON.stringify(groupUsersGuesses, null, 4));
+						console.log("userStatistics: "+JSON.stringify(userStatistics, null, 4));
 						
 						var homeGuess = userGuess["homeGoals"];
 						var awayGuess = userGuess["awayGoals"];
