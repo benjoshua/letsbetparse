@@ -264,9 +264,11 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				//New Group
 				console.log("gonna create a new group");
 				var newGroup = new LBGroupClass();
+				var stats = {};
+				stats[groupAdminLayerId] = {"bullseye":0,"almost":0,"lost":0,"points":0};
 				newGroup.set("layerGroupId",groupLayerId);
 				newGroup.set("groupAdminLayerId",groupAdminLayerId);
-				newGroup.set("stats","");
+				newGroup.set("stats",stats);
 				newGroup.save(null,{
 					success:function(newGroupSuccess) { 
 						console.log("created new group in db");
@@ -593,21 +595,23 @@ function updateComingGamesInDB(futureMatchesXML){
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(futureMatchesXML, function (err, result) {
 			var resultArr = [];
-			for(var i = 0; i < result.match.length; i++) {
-				var leagueName = result.match[i].league[0];
-				if (leagueName in leaguesDic){
-					var leagueId = leaguesDic[leagueName];
-					var matchId = result.match[i].id[0];
-					console.log("getting data for gameID "+ matchId + " from league "+leagueId);
-					var date = result.match[i].date[0];
-					var homeTeam = result.match[i].hometeam[0];
-					var homeTeamId = result.match[i].hometeam_id[0];
-					var awayTeam = result.match[i].awayteam[0];
-					var awayTeamId = result.match[i].awayteam_id[0];
-					var loc = result.match[i].location[0];
-					
-					
-					addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
+			if (result.match != undefined && result.match != null) {
+				for(var i = 0; i < result.match.length; i++) {
+					var leagueName = result.match[i].league[0];
+					if (leagueName in leaguesDic){
+						var leagueId = leaguesDic[leagueName];
+						var matchId = result.match[i].id[0];
+						console.log("getting data for gameID "+ matchId + " from league "+leagueId);
+						var date = result.match[i].date[0];
+						var homeTeam = result.match[i].hometeam[0];
+						var homeTeamId = result.match[i].hometeam_id[0];
+						var awayTeam = result.match[i].awayteam[0];
+						var awayTeamId = result.match[i].awayteam_id[0];
+						var loc = result.match[i].location[0];
+						
+						
+						addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
+					}
 				}
 			}
 		});
@@ -729,18 +733,20 @@ function updateLiveScoresInDBAndNotify(liveScoresXml){
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(liveScoresXml, function (err, result) {
 			var resultArr = [];
-			for(var i = 0; i < result.match.length; i++) {
-				var leagueName = result.match[i].league[0];
-				if (leagueName in leaguesDic){
-					var matchId = result.match[i].id[0];
-					
-					//TODO: change according to XML!!
-					var gameStatus = result.match[i].time[0];
-					var homeGoals = parseInt(result.match[i].homegoals[0]);
-					var awayGoals = parseInt(result.match[i].awaygoals[0]);
-					console.log("gameID "+ matchId + ", score: "+homeGoals+"-"+awayGoals);
-					
-					updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
+			if (result != undefined && result != null) {
+				for(var i = 0; i < result.match.length; i++) {
+					var leagueName = result.match[i].league[0];
+					if (leagueName in leaguesDic){
+						var matchId = result.match[i].id[0];
+						
+						//TODO: change according to XML!!
+						var gameStatus = result.match[i].time[0];
+						var homeGoals = parseInt(result.match[i].homegoals[0]);
+						var awayGoals = parseInt(result.match[i].awaygoals[0]);
+						console.log("gameID "+ matchId + ", score: "+homeGoals+"-"+awayGoals);
+						
+						updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
+					}
 				}
 			}
 		});
