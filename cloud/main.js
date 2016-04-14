@@ -264,16 +264,16 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				//New Group
 				console.log("gonna create a new group");
 				var newGroup = new LBGroupClass();
-				//var stats = {};
-				//stats[groupAdminLayerId] = {"bullseye":0,"almost":0,"lost":0,"points":0};
-				//newGroup.set("stats",stats);
+				var stats = {};
+				stats[groupAdminLayerId] = {"bullseye":0,"almost":0,"lost":0,"points":0};
+				newGroup.set("statistics",stats);
 				newGroup.set("layerGroupId",groupLayerId);
 				newGroup.set("groupAdminLayerId",groupAdminLayerId);
 
 				
-				var usersGuesses = {};
-				usersGuesses[betAdminLayerId] = {"homeGoals": hostAdminGoalsBet, "awayGoals": guestAdminGoalsBet};
-				newGroup.set("usersGuesses",usersGuesses);
+				//var usersGuesses = {};
+				//usersGuesses[betAdminLayerId] = {"homeGoals": hostAdminGoalsBet, "awayGoals": guestAdminGoalsBet};
+				//newGroup.set("usersGuesses",usersGuesses);
 				
 				newGroup.save(null,{
 					success:function(newGroupSuccess) { 
