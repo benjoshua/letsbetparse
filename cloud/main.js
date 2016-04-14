@@ -21,7 +21,7 @@ var fs = require('fs');
 // ---------------------- global variables ------------------
 
 //For not calling XMLSOCCER too many times, change to TRUE:
-var shouldUseXmlExamples = false;
+var shouldUseXmlExamples = true;
 
 
 var layerPlatformApiInfo = {
@@ -58,7 +58,11 @@ var leaguesDic = {
 
 // ---------------------- background operations ------------------
 
-var liveUpdateMinutes = 1;
+
+var liveUpdateMinutes = 0.5;
+if (shouldUseXmlExamples == true){
+	liveUpdateMinutes = 10000;
+}
 var liveUpdateInterval = liveUpdateMinutes * 60 * 1000;
 setInterval(function() {
 	updateLiveScores();
@@ -271,11 +275,6 @@ Parse.Cloud.define("createGroup", function(request, response) {
 				newGroup.set("groupAdminLayerId",groupAdminLayerId);
 				newGroup.set("lastBetId","");
 				newGroup.set("lastBetType","");
-
-				
-				//var usersGuesses = {};
-				//usersGuesses[betAdminLayerId] = {"homeGoals": hostAdminGoalsBet, "awayGoals": guestAdminGoalsBet};
-				//newGroup.set("usersGuesses",usersGuesses);
 				
 				newGroup.save(null,{
 					success:function(newGroupSuccess) { 
@@ -915,8 +914,32 @@ function updateEndedMatch(match, bets){
 					var currentStatistics = group.get("statistics");
 					var groupUsersGuesses = bet.get("usersGuesses");
 					
-					//TODO: delete bets and update last bet
-					
+					//TODO: delete previous last bet and update to current bet
+					var previousLastBetID = group.get("lastBetId");
+					var previousLastBetType = group.get("lastBetType");
+					if (previousLastBetType == "Football"){	
+						var query = new Parse.Query(LBFootballMatchClass);
+						query.equalTo("id", previousLastBetID);
+						query.first({
+							success: function(bet) {
+								if (bet != undefined && bet != null) {
+									bet.destroy({});
+								}
+								else{
+									console.log("last bet not found in bets DB");
+								}
+							},error:function(bet, error) {
+								console.log("updateEndedMatch: error finding bet: "+error.message);
+							}
+						});
+					}
+					else if (previousLastBetType == "Custom"){
+						
+						//TODO: complete
+						
+					}else{
+						console.log("Unknown last bet type")
+					}
 					
 					
 					
@@ -952,6 +975,9 @@ function updateEndedMatch(match, bets){
 						currentStatistics[userId] = userStatistics;
 					}
 					group.set("statistics",currentStatistics);
+					
+					group.set("lastBetId",bet.id);
+					group.set("lastBetType","Football");
 					group.save(null,{
 						success:function(group) { 
 							console.log("saved statistics for group "+groupLayerId);

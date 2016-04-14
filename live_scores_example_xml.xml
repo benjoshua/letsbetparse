@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <XMLSOCCER.COM>
   <Match>
-    <Id>350060</Id>
-    <Date>2016-04-13T19:00:00+00:00</Date>
-    <League>English Premier League</League>
+    <Id>356554</Id>
+    <Date>2016-04-17T10:30:00+00:00</Date>
+    <League>Serie A</League>
     <Round>25</Round>
-    <HomeTeam>Crystal Palace</HomeTeam>
-    <HomeTeam_Id>38</HomeTeam_Id>
+    <HomeTeam>Atalanta</HomeTeam>
+    <HomeTeam_Id>86</HomeTeam_Id>
     <HomeGoals>0</HomeGoals>
-    <AwayTeam>Everton</AwayTeam>
-    <AwayTeam_Id>20</AwayTeam_Id>
+    <AwayTeam>Roma</AwayTeam>
+    <AwayTeam_Id>93</AwayTeam_Id>
     <AwayGoals>0</AwayGoals>
-    <Time>'1</Time>
+    <Time>Not Started</Time>
     <Location>San Mams</Location>
     <BetAtHome>2,20</BetAtHome>
     <BetAtDraw>3,35</BetAtDraw>
@@ -23,28 +23,6 @@
     <InterwettenLink>https://www.interwetten.com/en/sportsbook/e/9752883/</InterwettenLink>
     <HomeTeamYellowCardDetails>84': Iker Muniain;45': Ander Iturraspe;38': Aymeric Laporte;</HomeTeamYellowCardDetails>
     <AwayTeamYellowCardDetails>49': Asier Illarramendi;</AwayTeamYellowCardDetails>
-    <HomeTeamRedCardDetails/>
-    <AwayTeamRedCardDetails/>
-  </Match>
-  <Match>
-    <Id>362003</Id>
-    <Date>2016-04-13T18:45:00+00:00</Date>
-    <League>Champions League</League>
-    <Round>27</Round>
-    <HomeTeam>Ath Madrid</HomeTeam>
-    <HomeTeam_Id>145</HomeTeam_Id>
-    <HomeGoals>0</HomeGoals>
-    <AwayTeam>Barcelona</AwayTeam>
-    <AwayTeam_Id>155</AwayTeam_Id>
-    <AwayGoals>0</AwayGoals>
-    <Time>Not Started</Time>
-    <Location>Stadio Alberto Picco</Location>
-    <BetAtHome>2,10</BetAtHome>
-    <BetAtDraw>2,85</BetAtDraw>
-    <BetAtAway>3,50</BetAtAway>
-    <BetAtHomeLink>http://affiliates.bet-at-home.com/processing/clickthrgh.asp?btag=a_62598b_303</BetAtHomeLink>
-    <HomeTeamYellowCardDetails/>
-    <AwayTeamYellowCardDetails/>
     <HomeTeamRedCardDetails/>
     <AwayTeamRedCardDetails/>
   </Match>
