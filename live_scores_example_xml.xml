@@ -26,5 +26,31 @@
     <HomeTeamRedCardDetails/>
     <AwayTeamRedCardDetails/>
   </Match>
+    <Match>
+    <Id>351186</Id>
+    <Date>2016-04-17T19:00:00+00:00</Date>
+    <League>Ligue 1</League>
+    <Round>25</Round>
+    <HomeTeam>Monaco</HomeTeam>
+    <HomeTeam_Id>239</HomeTeam_Id>
+    <HomeGoals>1</HomeGoals>
+    <AwayTeam>Marseille</AwayTeam>
+    <AwayTeam_Id>123</AwayTeam_Id>
+    <AwayGoals>1</AwayGoals>
+    <Time>Finished</Time>
+    <Location>San Mams</Location>
+    <BetAtHome>2,20</BetAtHome>
+    <BetAtDraw>3,35</BetAtDraw>
+    <BetAtAway>3,15</BetAtAway>
+    <BetAtHomeLink>http://affiliates.bet-at-home.com/processing/clickthrgh.asp?btag=a_62598b_303</BetAtHomeLink>
+    <InterwettenHome>2,10</InterwettenHome>
+    <InterwettenDraw>3,30</InterwettenDraw>
+    <InterwettenAway>3,30</InterwettenAway>
+    <InterwettenLink>https://www.interwetten.com/en/sportsbook/e/9752883/</InterwettenLink>
+    <HomeTeamYellowCardDetails>84': Iker Muniain;45': Ander Iturraspe;38': Aymeric Laporte;</HomeTeamYellowCardDetails>
+    <AwayTeamYellowCardDetails>49': Asier Illarramendi;</AwayTeamYellowCardDetails>
+    <HomeTeamRedCardDetails/>
+    <AwayTeamRedCardDetails/>
+  </Match>
   <AccountInformation>Data requested at 05-03-2013 20:33:42 from XX.XX.XX.XX, Username: Espectro. Your current supscription runs out on XX-XX-XXXX 11:01:25.</AccountInformation>
 </XMLSOCCER.COM>
