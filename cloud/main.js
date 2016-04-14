@@ -1149,7 +1149,7 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 			if ((bet == undefined) || (bet == null)) {
 				response.error("bet wasn't found");
 			}else{
-				if (bet.get("adminLayerId") != userLayerId){
+				if (bet.get("betAdminLayerId") != userLayerId){
 					response.error("this user isn't an admin, thus can't close the bet");
 				}else{
 					var winnersArray = bet.get("usersGuesses")[winningGuess];
