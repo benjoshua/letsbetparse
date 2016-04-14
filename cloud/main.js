@@ -1032,3 +1032,37 @@ function updateEndedMatch(match, bets){
 	
 	match.destroy({});
 }
+
+
+Parse.Cloud.define("openNewCustomBet", function(request, response) {
+	var betName = request.params.betName;
+	var betDesc = request.params.betDesc;
+	var betAdminLayerId = request.params.betAdminLayerId;
+	var adminGuess = request.params.adminGuess;
+	var stakeType = request.params.stakeType;
+	var stakeDesc = request.params.stakeDesc;
+	var betPic = request.params.betPic;
+
+	//New bet
+	var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
+	var bet = new LBCustomBetClass();
+	bet.set("betName",betName);
+	bet.set("betDesc",betDesc);
+	bet.set("betAdminLayerId",betAdminLayerId);
+	bet.set("stakeType",stakeType);
+	bet.set("stakeDesc",stakeDesc);
+	bet.set("betPic",betPic);
+	var usersGuesses = {};
+	usersGuesses[adminGuess] = [betAdminLayerId];
+	bet.set("usersGuesses",usersGuesses);
+	
+
+	bet.save(null,{
+		success:function(savedBet) { 
+			response.success(true);
+		},
+		error:function(betErr, error) {
+			response.error(error);
+		}
+	});
+}
