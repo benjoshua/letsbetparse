@@ -1060,25 +1060,25 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 
 	bet.save(null,{
 		success:function(savedBet) { 
-			console.log("openNewCustomBet: saved bet");
+			//console.log("openNewCustomBet: saved bet");
 			var LBUserClass = Parse.Object.extend("LBUser");
 			var userQuery = new Parse.Query(LBUserClass);
 			userQuery.equalTo("layerIdentityToken", betAdminLayerId);
 			userQuery.first({
 				success: function(user) {
-					console.log("openNewCustomBet: found user");
+					//console.log("openNewCustomBet: found user");
 					var data = {
 						"betType": "customBet",
 						"betId" : savedBet.get("_id"),
 						"betName" : savedBet.get("betName")
 					}
-					console.log("openNewCustomBet: succeeded with data");
+					//console.log("openNewCustomBet: succeeded with data");
 
 					var message = "" + user.get("name") +  " opened a new bet! ("+savedBet.get("betName")+")";
-					console.log("openNewCustomBet: gonna send "+message);
+					//console.log("openNewCustomBet: gonna send "+message);
 					sendAdminMsgToGroup(groupLayerId, message ,data);
 					//sendAdminMsgToGroup(groupLayerId,message, {});
-					console.log("openNewCustomBet: returning success");
+					//console.log("openNewCustomBet: returning success");
 					response.success(true);
 				},
 				error:function(userErr, error) {
