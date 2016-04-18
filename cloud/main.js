@@ -1069,7 +1069,8 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 					console.log("openNewCustomBet: found user");
 					var data = {
 						"betType": "customBet",
-						"betId" : savedBet.get("betName")
+						"betId" : savedBet.get("_id"),
+						"betName" : savedBet.get("betName")
 					}
 					console.log("openNewCustomBet: succeeded with data");
 
