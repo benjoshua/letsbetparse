@@ -66,11 +66,9 @@ if (shouldUseXmlExamples == true){
 var liveUpdateInterval = liveUpdateMinutes * 60 * 1000;
 setInterval(function() {
 	updateLiveScores();
-
-  // do your stuff here
 }, liveUpdateInterval);
 
-var dbGamesUpdateHours = 24;
+var dbGamesUpdateHours = 1;
 var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000;
 setInterval(function() {
   updateComingGames();
