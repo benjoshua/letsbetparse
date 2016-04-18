@@ -1060,11 +1060,30 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 
 	bet.save(null,{
 		success:function(savedBet) { 
-			response.success(true);
-		},
-		error:function(betErr, error) {
+		
+			var LBUserClass = Parse.Object.extend("LBUser");
+			var userQuery = new Parse.Query(LBUserClass);
+			userQuery.equalTo("layerIdentityToken", betAdminLayerId);
+			userQuery.first({
+				success: function(user) {
+					/*var data = {
+						"betType": "customBet"
+						"betId" : savedBet.get("id");
+					}*/
+
+					var message = "" + user.get("name") +  " opened a new bet!";
+					//sendAdminMsgToGroup(groupLayerId, message ,data);
+					sendAdminMsgToGroup(groupLayerId,message, {});
+					response.success(true);
+				},
+				error:function(betErr, error) {
+					response.error(error);
+				}
+			});
+		}, error:function(betErr, error) {
 			response.error(error);
 		}
+			
 	});
 });
 
