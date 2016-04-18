@@ -1067,12 +1067,13 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 			userQuery.first({
 				success: function(user) {
 					console.log("openNewCustomBet: found user");
-					/*var data = {
-						"betType": "customBet"
-						"betId" : savedBet.get("id");
-					}*/
+					var data = {
+						"betType": "customBet",
+						"betId" : savedBet.get("betName")
+					}
+					console.log("openNewCustomBet: succeeded with data");
 
-					var message = "" + user.get("name") +  " opened a new bet!";
+					var message = "" + user.get("name") +  " opened a new bet! ("+savedBet.get("betName")+")";
 					console.log("openNewCustomBet: gonna send "+message);
 					//sendAdminMsgToGroup(groupLayerId, message ,data);
 					sendAdminMsgToGroup(groupLayerId,message, {});
