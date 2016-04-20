@@ -1201,3 +1201,25 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 		}
 	});
 });
+
+Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
+	var groupLayerId = request.params.groupLayerId;
+
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.equalTo("layerGroupId",groupLayerId);
+	query.first({
+		success: function(group) {
+			//If bet doesn't exist in DB:
+			if ((group == undefined) || (group == null)) {
+				response.error("group wasn't found");
+			}else{
+				var stats = group.get("statistics");
+				response.success(stats);
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
