@@ -1215,6 +1215,7 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 				response.error("group wasn't found");
 			}else{
 				var stats = group.get("statistics");
+				console.log("returning: "+stats);
 				response.success(stats);
 			}
 		},
