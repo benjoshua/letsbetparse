@@ -503,7 +503,7 @@ function sendAdminMsgToGroup(groupLayerId, msg, dataDic) {
 	    method: "POST",
 	    body: {
 	        sender: {name: "Admin"},
-	        parts: [{body: msg, mime_type: "text/plain"},{body: dataDic, mime_type: "dic/data"}],
+	        parts: [{body: msg, mime_type: "text/plain"}],
 	        notification: {text: msg, data: dataDic},
 	    },
 	    json: true,
