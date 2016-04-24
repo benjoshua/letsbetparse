@@ -376,6 +376,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 								success: function(user) {
 
 									var data = {
+										"msgType" : "FootballBet",
 										"betId" : savedBet.id,
 										"gameId" : gameId,
 										"betAdminLayerId" : betAdminLayerId,
