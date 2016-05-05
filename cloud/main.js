@@ -691,6 +691,7 @@ Parse.Cloud.define("getLBFootballMatches", function(request, response) {
 				response.error("No matches found in DB");
 			}
 			else{
+				console.log("we have matches, returning them");
 				response.success(matches);
 			}
 		},
