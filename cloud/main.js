@@ -682,7 +682,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 // ------------------------- getLBFootballMatches ----------------------------
 //Get all LBFootballMatches saved in the DB
 Parse.Cloud.define("getLBFootballMatches", function(request, response) {
-	var LBFootballGameMatchlass = Parse.Object.extend("LBFootballMatch");
+	var LBFootballGameMatchClass = Parse.Object.extend("LBFootballMatch");
 	var query = new Parse.Query(LBFootballGameMatchClass);
 	query.find({
 		success: function(matches) {
