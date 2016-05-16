@@ -193,6 +193,7 @@ Parse.Cloud.define("authenticatePhoneNumberAndSendToken", function(request, resp
 //Function for changing the nickname ma nizma.
 Parse.Cloud.define("changeUserNickname", function(request, response) {
 	var nickname = request.params.nickname;
+	var picture = request.params.picture;
 	var layerIdentityToken = request.params.layerIdentityToken;
 
 	var LBUserClass = Parse.Object.extend("LBUser");
@@ -203,6 +204,7 @@ Parse.Cloud.define("changeUserNickname", function(request, response) {
 			//If user exists in Parse:
 			if (user != undefined && user != null) {
 				user.set("name",nickname);
+				user.set("picture", picture);
 				user.save(null,{
 					success:function(user) { 
 						response.success(true);
@@ -526,13 +528,25 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 	var query = new Parse.Query(LBFootballGameBetClass);
 	query.equalTo("layerGroupId",groupLayerId);
 	query.find({
-		success: function(bets) {
-			if (bets.length == 0){
-				response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
-			}
-			else{
-				response.success(bets);
-			}
+		success: function(footballBets) {
+			
+			var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
+			var custom_query = new Parse.Query(LBCustomBetClass);
+			custom_query.equalTo("layerGroupId",groupLayerId);
+			custom_query.find({
+				success: function(customBets) {
+					var allBets = footballBets.concat(customBets);
+					if (allBets.length == 0){
+						response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
+					}
+					else{
+						response.success(allBets);
+					}
+				},
+				error: function(error) {
+					response.error(error);
+				}
+			});
 		},
 		error: function(error) {
 			response.error(error);
@@ -1009,6 +1023,11 @@ function updateEndedMatch(match, bets){
 					console.log("8");
 
 					group.save(null,{
+						
+						
+						//TODO: send right msg + data{}
+						
+						
 						success:function(group) { 
 							console.log("saved statistics for group "+groupLayerId);
 							var message = homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". ";
@@ -1167,6 +1186,9 @@ Parse.Cloud.define("getAllCustomBetsForGroup", function(request, response) {
 });
 
 Parse.Cloud.define("closeCustomBet", function(request, response) {
+	
+	//TODO: finish admin msg
+	
 	var betId = request.params.betId;
 	var userLayerId = request.params.userLayerId;
 	var winningGuess = request.params.winningGuess;
@@ -1230,4 +1252,49 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 			response.error(error);
 		}
 	});
+});
+
+//WinStats and Percentages
+Parse.Cloud.define("getStatsForUser", function(request, response) {
+	var userLayerId = request.params.userLayerId;
+
+});
+
+//WinStats and Percentages
+Parse.Cloud.define("getAllOpenBetsForGroup", function(request, response) {
+	var groupLayerId = request.params.groupLayerId;
+
+});
+
+//all stats, sorted?
+Parse.Cloud.define("getStatsForGroup", function(request, response) {
+	var groupLayerId = request.params.groupLayerId;
+
+});
+
+//last bet
+Parse.Cloud.define("getLastBetForGroup", function(request, response) {
+	var groupLayerId = request.params.groupLayerId;
+
+});
+
+//for given array of userLayerId, get objects (nickname & picture)
+//every time app is opened
+Parse.Cloud.define("getUserObjectsForUserLayerIds", function(request, response) {
+	var userLayerIdsArray = request.params.userLayerIdsArray;
+
+});
+
+//for given array of groupLayerId, get pictures
+//every time app is opened
+Parse.Cloud.define("getGroupPicturesForGroupLayerIds", function(request, response) {
+	var groupLayerIdsArray = request.params.groupLayerIdsArray;
+
+});
+
+//for given array of groupLayerId, get pictures
+//every time app is opened
+Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, response) {
+	var picture = request.params.picture;
+
 });
