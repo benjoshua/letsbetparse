@@ -1281,6 +1281,23 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 						response.error("winning guess wasn't even a possibility");
 						return;
 					}
+					
+					for (var guess in usersGuesses) {
+						if (usersGuesses.hasOwnProperty(guess)) {
+							var usersArray = usersGuesses[guess];
+							//Someone guessed right
+							if (winningGuess === guess){
+								for (var i = 0; i < usersArray.length; i++) {
+									updateWinStatForUser(usersArray[i]);
+								}
+							}else{
+								for (var i = 0; i < usersArray.length; i++) {
+									updateBetsParticipatedStatForUser(usersArray[i]);
+								}
+							}
+						}
+					}
+					
 					var winnersArray = usersGuesses[winningGuess];
 					var groupLayerId = bet.get("groupLayerId");
 					var betName = bet.get("betName");
