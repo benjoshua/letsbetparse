@@ -1361,8 +1361,8 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 						console.log("6");
 						if (stats.hasOwnProperty(userId)) {
 							console.log("7");
-							var usersStats = stats[userId];
-							console.log("usersStats: "+JSON.stringify(usersStats, null, 4));
+							var userStats = stats[userId];
+							console.log("userStats: "+JSON.stringify(userStats, null, 4));
 							var userPoints = userStats["points"]; 
 							console.log("userPoints: "+JSON.stringify(userPoints, null, 4));
 
