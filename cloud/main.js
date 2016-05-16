@@ -1064,6 +1064,7 @@ function updateEndedMatch(match, bets){
 
 //Will update betsParticipated in user stats
 function updateBetsParticipatedStatForUser(userLayerId){
+	console.log("updateBetsParticipatedStatForUser");
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("layerIdentityToken",userLayerId);
@@ -1071,9 +1072,7 @@ function updateBetsParticipatedStatForUser(userLayerId){
 		success: function(user) {
 			//If user exists in Parse:
 			if (user != undefined && user != null) {
-				
-							//user.set("betsWon",0);
-
+				console.log("34");
 				var amountOfBetsParticipated = user.get("betsParticipated");
 				amountOfBetsParticipated = amountOfBetsParticipated + 1;
 				user.set("betsParticipated",amountOfBetsParticipated);
@@ -1096,6 +1095,7 @@ function updateBetsParticipatedStatForUser(userLayerId){
 
 //Will updateboth betsWon AND betsParticipated in user stats
 function updateWinStatForUser(userId){
+	console.log("updateWinStatForUser");
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("layerIdentityToken",userLayerId);
@@ -1103,6 +1103,7 @@ function updateWinStatForUser(userId){
 		success: function(user) {
 			//If user exists in Parse:
 			if (user != undefined && user != null) {
+				console.log("1");
 				var amountOfBetsWon = user.get("betsWon");
 				amountOfBetsWon = amountOfBetsWon + 1;
 				user.set("betsWon",amountOfBetsWon);
