@@ -60,7 +60,7 @@ var leaguesDic = {
 
 
 var liveUpdateMinutes = 0.5; //30 seconds, to be on the safe side
-if (shouldUseXmlExamples == true ){
+if (shouldUseXmlExamples == true){
 	liveUpdateMinutes = 10000;
 }
 var liveUpdateInterval = liveUpdateMinutes * 60 * 1000;
