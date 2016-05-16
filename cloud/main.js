@@ -1346,10 +1346,11 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 			}else{
 				console.log("4");
 				var stats = group.get("statistics");
-				
+				console.log("5");
+				console.log("stats: "+JSON.stringify(stats, null, 4));
 				var result = [];
 				//Sorting, bitch:
-				for (i = 0; i < Object.keys[stats].length; i++) {
+				for (var i = 0; i < Object.keys[stats].length; i++) {
 					console.log("5");
 					var bestUserIdSoFar = "";
 					var bestPointsSoFar = -1;
