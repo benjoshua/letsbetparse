@@ -1086,7 +1086,6 @@ function updateBetsParticipatedStatForUser(userLayerId){
 				});
 			} else {
 				console.log("Tried to update user stat but couldn't find user");
-		}
 			}
 		},
 		error: function(error) {
