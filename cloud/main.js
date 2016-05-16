@@ -59,9 +59,9 @@ var leaguesDic = {
 // ---------------------- background operations ------------------
 
 
-var liveUpdateMinutes = 0.5; //30 seconds, to be on the safe side
+var liveUpdateMinutes = 0.51; //30 seconds, to be on the safe side
 if (shouldUseXmlExamples == true){
-	liveUpdateMinutes = 10000;
+	liveUpdateMinutes = 10005;
 }
 var liveUpdateInterval = liveUpdateMinutes * 60 * 1000;
 setInterval(function() {
