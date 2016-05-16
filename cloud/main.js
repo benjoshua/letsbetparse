@@ -1259,6 +1259,8 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 	
 	//TODO: finish admin msg
 	
+	console.log("closeCustomBet");
+	
 	var betId = request.params.betId;
 	var userLayerId = request.params.userLayerId;
 	var winningGuess = request.params.winningGuess;
@@ -1268,13 +1270,17 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 	query.equalTo("_id",betId);
 	query.first({
 		success: function(bet) {
+			console.log("1");
 			//If bet doesn't exist in DB:
 			if ((bet == undefined) || (bet == null)) {
+				console.log("1");
 				response.error("bet wasn't found");
 			}else{
 				if (bet.get("betAdminLayerId") != userLayerId){
+					console.log("3");
 					response.error("this user isn't an admin, thus can't close the bet");
 				}else{
+					console.log("4");
 					usersGuesses = bet.get("usersGuesses");
 					if (!(winningGuess in usersGuesses)){
 						response.error("winning guess wasn't even a possibility");
@@ -1283,14 +1289,19 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 					
 					for (var guess in usersGuesses) {
 						if (usersGuesses.hasOwnProperty(guess)) {
+							console.log("5");
 							var usersArray = usersGuesses[guess];
 							//Someone guessed right
 							if (winningGuess === guess){
+								console.log("6");
 								for (var i = 0; i < usersArray.length; i++) {
+									console.log("9");
 									updateWinStatForUser(usersArray[i]);
 								}
 							}else{
+								console.log("7");
 								for (var i = 0; i < usersArray.length; i++) {
+									console.log("8");
 									updateBetsParticipatedStatForUser(usersArray[i]);
 								}
 							}
