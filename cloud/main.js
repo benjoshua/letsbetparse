@@ -532,7 +532,7 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 			
 			var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
 			var custom_query = new Parse.Query(LBCustomBetClass);
-			custom_query.equalTo("layerGroupId",groupLayerId);
+			custom_query.equalTo("groupLayerId",groupLayerId);
 			custom_query.find({
 				success: function(customBets) {
 					var allBets = footballBets.concat(customBets);
