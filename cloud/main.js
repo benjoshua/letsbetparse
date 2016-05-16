@@ -1118,7 +1118,6 @@ function updateWinStatForUser(userId){
 				});
 			} else {
 				console.log("Tried to update user stat but couldn't find user");
-		}
 			}
 		},
 		error: function(error) {
