@@ -1094,7 +1094,7 @@ function updateBetsParticipatedStatForUser(userLayerId){
 } 
 
 //Will updateboth betsWon AND betsParticipated in user stats
-function updateWinStatForUser(userId){
+function updateWinStatForUser(userLayerId){
 	console.log("updateWinStatForUser");
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
