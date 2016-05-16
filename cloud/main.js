@@ -1330,31 +1330,38 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 });
 
 Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
+	console.log("1");
 	var groupLayerId = request.params.groupLayerId;
 
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
+	console.log("2");
 	query.equalTo("layerGroupId",groupLayerId);
 	query.first({
 		success: function(group) {
 			//If bet doesn't exist in DB:
 			if ((group == undefined) || (group == null)) {
+				console.log("3");
 				response.error("group wasn't found");
 			}else{
+				console.log("4");
 				var stats = group.get("statistics");
 				
 				var result = [];
 				//Sorting, bitch:
 				for (i = 0; i < Object.keys[stats].length; i++) {
+					console.log("5");
 					var bestUserIdSoFar = "";
 					var bestPointsSoFar = -1;
 					
 					for (var userId in stats) {
+						console.log("6");
 						if (stats.hasOwnProperty(userId)) {
-							
+							console.log("7");
 							var usersStats = stats[userId];
 							var userPoints = userStats["points"]; 
 							if (userPoints > bestPointsSoFar){
+								console.log("8");
 								bestUserIdSoFar = userId;
 								bestPointsSoFar = userPoints;
 							}
@@ -1362,7 +1369,9 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 						}
 					}
 					result.push(stats[userId]);
+					console.log("pushed");
 					stats[userId] = undefined;
+					console.log("undef");
 				}		
 				// -- boom
 				
