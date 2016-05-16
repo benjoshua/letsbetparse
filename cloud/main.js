@@ -1342,8 +1342,32 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 				response.error("group wasn't found");
 			}else{
 				var stats = group.get("statistics");
-				console.log("returning: "+JSON.stringify(stats, null, 4));
-				response.success(stats);
+				
+				var result = [];
+				//Sorting, bitch:
+				for (i = 0; i < Object.keys[stats].length; i++) {
+					var bestUserIdSoFar = "";
+					var bestPointsSoFar = -1;
+					
+					for (var userId in stats) {
+						if (stats.hasOwnProperty(userId)) {
+							
+							var usersStats = stats[userId];
+							var userPoints = userStats["points"]; 
+							if (userPoints > bestPointsSoFar){
+								bestUserIdSoFar = userId;
+								bestPointsSoFar = userPoints;
+							}
+							
+						}
+					}
+					result.push(stats[userId]);
+					stats[userId] = undefined;
+				}		
+				// -- boom
+				
+				console.log("returning: "+JSON.stringify(result, null, 4));
+				response.success(result);
 			}
 		},
 		error: function(error) {
