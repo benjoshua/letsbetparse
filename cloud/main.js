@@ -998,7 +998,7 @@ function updateEndedMatch(match, bets){
 							winnersArray.push(userId);
 							userStatistics["bullseye"] = userStatistics["bullseye"]+1;
 							userStatistics["points"] = userStatistics["points"]+2;
-							console.log("5");
+							console.log("5555");
 							updateWinStatForUser(userId); //Will update both betsWon and betsParticipated
 						}
 						//almost:
@@ -1346,11 +1346,11 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 			}else{
 				console.log("4");
 				var stats = group.get("statistics");
-				console.log("5");
+				console.log("4.5");
 				console.log("stats: "+JSON.stringify(stats, null, 4));
 				var result = [];
 				//Sorting, bitch:
-				var len = Object.keys[stats].length;
+				var len = Object.keys(stats).length;
 				console.log("array len: "+len);
 				for (var i = 0; i < len; i++) {
 					console.log("5");
@@ -1371,6 +1371,7 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 							
 						}
 					}
+					console.log("finished inner loop");
 					result.push(stats[userId]);
 					console.log("pushed");
 					stats[userId] = undefined;
