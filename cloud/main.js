@@ -59,9 +59,9 @@ var leaguesDic = {
 // ---------------------- background operations ------------------
 
 
-var liveUpdateMinutes = 0.51; //30 seconds, to be on the safe side
+var liveUpdateMinutes = 0.5; //30 seconds, to be on the safe side
 if (shouldUseXmlExamples == true){
-	liveUpdateMinutes = 10005;
+	liveUpdateMinutes = 10000;
 }
 var liveUpdateInterval = liveUpdateMinutes * 60 * 1000;
 setInterval(function() {
@@ -113,6 +113,8 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 			user.set("phoneNumber",phoneNumber);
 			user.set("loginCode",code);
 			user.set("name","");
+			user.set("betsWon",0);
+			user.set("betsParticipated",0);
 			user.set("layerIdentityToken",generateUuid());
 			saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
 			}
@@ -997,6 +999,7 @@ function updateEndedMatch(match, bets){
 							userStatistics["bullseye"] = userStatistics["bullseye"]+1;
 							userStatistics["points"] = userStatistics["points"]+2;
 							console.log("5");
+							updateWinStatForUser(userId); //Will update both betsWon and betsParticipated
 						}
 						//almost:
 						else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) ||
@@ -1005,11 +1008,13 @@ function updateEndedMatch(match, bets){
 							console.log("almost");							
 							userStatistics["almost"] = userStatistics["almost"]+1;
 							userStatistics["points"] = userStatistics["points"]+1;
+							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
 						}
 						//lost bet:
 						else{
 							console.log("lost ");
 							userStatistics["lost"] = userStatistics["lost"]+1;
+							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
 						}
 						currentStatistics[userId] = userStatistics;
 					}
@@ -1056,6 +1061,72 @@ function updateEndedMatch(match, bets){
 	
 	match.destroy({});
 }
+
+//Will update betsParticipated in user stats
+function updateBetsParticipatedStatForUser(userLayerId){
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.equalTo("layerIdentityToken",userLayerId);
+	query.first({
+		success: function(user) {
+			//If user exists in Parse:
+			if (user != undefined && user != null) {
+				
+							//user.set("betsWon",0);
+
+				var amountOfBetsParticipated = user.get("betsParticipated");
+				amountOfBetsParticipated = amountOfBetsParticipated + 1;
+				user.set("betsParticipated",amountOfBetsParticipated);
+				user.save(null,{
+					success:function(user) { 
+						console.log("succeeded saveing betsParticipated");
+					}, error:function(user, error) {
+						console.log("failed saveing betsParticipated");
+					}
+				});
+			} else {
+				console.log("Tried to update user stat but couldn't find user");
+		}
+			}
+		},
+		error: function(error) {
+			console.log("Tried to update user stat but failed performing query");
+		}
+	});
+} 
+
+//Will updateboth betsWon AND betsParticipated in user stats
+function updateWinStatForUser(userId){
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.equalTo("layerIdentityToken",userLayerId);
+	query.first({
+		success: function(user) {
+			//If user exists in Parse:
+			if (user != undefined && user != null) {
+				var amountOfBetsWon = user.get("betsWon");
+				amountOfBetsWon = amountOfBetsWon + 1;
+				user.set("betsWon",amountOfBetsWon);
+				var amountOfBetsParticipated = user.get("betsParticipated");
+				amountOfBetsParticipated = amountOfBetsParticipated + 1;
+				user.set("betsParticipated",amountOfBetsParticipated);
+				user.save(null,{
+					success:function(user) { 
+						console.log("succeeded saveing betsParticipated and betsWon");
+					}, error:function(user, error) {
+						console.log("failed saveing betsParticipated and betsWon");
+					}
+				});
+			} else {
+				console.log("Tried to update user stat but couldn't find user");
+		}
+			}
+		},
+		error: function(error) {
+			console.log("Tried to update user stat but failed performing query");
+		}
+	});
+} 
 
 
 Parse.Cloud.define("openNewCustomBet", function(request, response) {
@@ -1257,14 +1328,27 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 //WinStats and Percentages
 Parse.Cloud.define("getStatsForUser", function(request, response) {
 	var userLayerId = request.params.userLayerId;
+	
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.equalTo("layerIdentityToken", userLayerId);
+	query.select("betsWon", "betsParticipated");
+	query.first({
+		success: function(userStats) {
+			//If user exists in Parse:
+			if (userStats != undefined && userStats != null) {
+				response.success(userStats);
+			} else {
+				response.error("getStatsForUser: User doesn't exist");
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
 
 });
 
-//WinStats and Percentages
-Parse.Cloud.define("getAllOpenBetsForGroup", function(request, response) {
-	var groupLayerId = request.params.groupLayerId;
-
-});
 
 //all stats, sorted?
 Parse.Cloud.define("getStatsForGroup", function(request, response) {
