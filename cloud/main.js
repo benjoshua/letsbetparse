@@ -233,7 +233,7 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.containedIn("phoneNumber",phoneNumbersArray);
-	query.select("name", "phoneNumber", "layerIdentityToken");
+	query.select("name", "phoneNumber", "layerIdentityToken", "picture");
 	query.find({
 		success: function(users) {
 
