@@ -1421,12 +1421,48 @@ Parse.Cloud.define("getUserObjectsForUserLayerIds", function(request, response) 
 //every time app is opened
 Parse.Cloud.define("getGroupPicturesForGroupLayerIds", function(request, response) {
 	var groupLayerIdsArray = request.params.groupLayerIdsArray;
+	var picture = request.params.picture;
+
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.containedIn("layerGroupId",groupLayerIdsArray);
+	query.select("layerIdentityToken", "picture");
+	query.find({
+		success: function(results) {
+			response.success(results);
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
 
 });
 
 //for given array of groupLayerId, get pictures
 //every time app is opened
 Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, response) {
-	var picture = request.params.picture;
+	
+		var groupLayerId = request.params.groupLayerId;
+		var picture = request.params.picture;
+
+		var LBGroupClass = Parse.Object.extend("LBGroup");
+		var query = new Parse.Query(LBGroupClass);
+		query.equalTo("layerIdentityToken",groupLayerId);
+		query.first({
+			success: function(group) {
+				group.set("picture", picture);
+				group.save(null,{
+					success:function(groupSuccess) { 
+						response.success("success: picture changed");	
+					},
+					error:function(groupError, error) {
+						response.error(error);
+					}
+				});
+			},
+			error: function(error) {
+				response.error(error);
+			}
+		});
 
 });
