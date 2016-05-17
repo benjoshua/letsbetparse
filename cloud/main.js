@@ -537,7 +537,7 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 			custom_query.equalTo("groupLayerId",groupLayerId);
 			custom_query.find({
 				success: function(customBets) {
-					var allBets = footballBets.concat(customBets);
+					var allBets = footballBets;//.concat(customBets);
 					if (allBets.length == 0){
 						response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
 					}
@@ -1402,15 +1402,11 @@ Parse.Cloud.define("getStatsForUser", function(request, response) {
 });
 
 
-//all stats, sorted?
-Parse.Cloud.define("getStatsForGroup", function(request, response) {
-	var groupLayerId = request.params.groupLayerId;
-
-});
 
 //last bet
 Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
+	//TODO:tom
 
 });
 
