@@ -1375,9 +1375,9 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 						}
 					}
 					console.log("finished inner loop");
-					result.push(stats[userId]);
+					result.push(stats[bestUserIdSoFar]);
 					console.log("pushed");
-					stats[userId] = undefined;
+					stats[bestUserIdSoFar] = undefined;
 					console.log("undef");
 				}		
 				// -- boom
