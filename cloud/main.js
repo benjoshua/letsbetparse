@@ -1332,58 +1332,42 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 	console.log("1");
 	var groupLayerId = request.params.groupLayerId;
-
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
-	console.log("2");
 	query.equalTo("layerGroupId",groupLayerId);
 	query.first({
 		success: function(group) {
 			//If bet doesn't exist in DB:
 			if ((group == undefined) || (group == null)) {
-				console.log("3");
 				response.error("group wasn't found");
 			}else{
-				console.log("4");
 				var stats = group.get("statistics");
-				console.log("4.5");
-				console.log("stats: "+JSON.stringify(stats, null, 4));
+				//console.log("stats: "+JSON.stringify(stats, null, 4));
 				var result = [];
 				//Sorting, bitch:
 				var len = Object.keys(stats).length;
-				console.log("array len: "+len);
 				for (var i = 0; i < len; i++) {
 					console.log("5");
 					var bestUserIdSoFar = "";
 					var bestPointsSoFar = -1;
-					
 					for (var userId in stats) {
-						console.log("6");
 						if ((stats.hasOwnProperty(userId)) && (stats[userId] != undefined)) {
-							console.log("7");
 							var userStats = stats[userId];
-							console.log("userStats: "+JSON.stringify(userStats, null, 4));
 							var userPoints = userStats["points"]; 
-							console.log("userPoints: "+JSON.stringify(userPoints, null, 4));
-
 							if (userPoints > bestPointsSoFar){
-								console.log("8");
 								bestUserIdSoFar = userId;
 								bestPointsSoFar = userPoints;
 							}
 							
 						}
 					}
-					console.log("finished inner loop");
 					stats[bestUserIdSoFar]["userId"] = bestUserIdSoFar;
 					result.push(stats[bestUserIdSoFar]);
-					console.log("pushed");
 					stats[bestUserIdSoFar] = undefined;
-					console.log("undef");
 				}		
 				// -- boom
 				
-				console.log("returning: "+JSON.stringify(result, null, 4));
+				//console.log("returning: "+JSON.stringify(result, null, 4));
 				response.success(result);
 			}
 		},
