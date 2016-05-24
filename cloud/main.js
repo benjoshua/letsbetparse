@@ -1485,7 +1485,7 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 				console.log("3");
 				var lastBetId = group.id;
 				var lastBetType = group.get("lastBetType");
-				console.log("3.5");
+				console.log("lastBetType: "+lastBetType);
 				var LBBetClass;
 				if (lastBetType == "Football"){
 					console.log("4");
