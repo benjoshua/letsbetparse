@@ -385,7 +385,13 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 										//
 										group.set("lastBetType","Football");
 										var iko = savedBet.get("_id");
-										console.log("bet id: "+iko);
+										var piko = savedBet.get("id");
+										var ido = savedBet.id;
+										var lindo = savedBet._id;
+										console.log("bet id iko: "+iko);
+										console.log("bet id piko: "+piko);
+										console.log("bet id ido: "+ido);
+										console.log("bet id lindo: "+lindo);
 										group.set("lastBetId", iko);
 										group.save(null,{
 											success:function(groupSuccess) { 
