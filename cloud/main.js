@@ -578,7 +578,7 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 			custom_query.equalTo("groupLayerId",groupLayerId);
 			custom_query.find({
 				success: function(customBets) {
-					var allBets = footballBets; //.concat(customBets);
+					var allBets = footballBets.concat(customBets);
 					if (allBets.length == 0){
 						response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
 					}
