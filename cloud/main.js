@@ -252,7 +252,6 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 //Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
 //in the same order it was received
 Parse.Cloud.define("createGroup", function(request, response) {
-	console.log("in createGroup()");
 	var groupLayerId = request.params.layerGroupId;
 	var groupAdminLayerId = request.params.groupAdminLayerId; 
 
@@ -740,7 +739,6 @@ Parse.Cloud.define("getLBFootballMatches", function(request, response) {
 				response.error("No matches found in DB");
 			}
 			else{
-				console.log("we have matches, returning them");
 				response.success(matches);
 			}
 		},
@@ -780,7 +778,7 @@ function updateLiveScores() {
 		endDate.setDate(endDate.getDate()+14);
 
 		var fullUrl = ""+xmlSoccerUrl + "GetLiveScore"+"?Apikey="+xmlSoccerApiKey;
-		console.log(fullUrl);
+		//console.log(fullUrl);
 		
 		request({
 			uri: fullUrl,
@@ -818,7 +816,7 @@ function updateLiveScoresInDBAndNotify(liveScoresXml){
 				}
 			}
 		});
-	console.log("finished updateLiveScoresInDB()");
+	//console.log("finished updateLiveScoresInDB()");
 }
 
 
@@ -959,7 +957,6 @@ function updateEndedMatch(match, bets){
 	var awayTeamGoals = match.get("awayGoals");
 	
 	for(var i = 0; i < bets.length; i++) {
-		console.log("bets");
 		var bet = bets[i];
 		var groupLayerId = bet.get("layerGroupId");
 		var LBGroupClass = Parse.Object.extend("LBGroup");
@@ -969,7 +966,6 @@ function updateEndedMatch(match, bets){
 			success: function(group) {
 				//group exists:
 				if (group != undefined && group != null) {
-					console.log("groups");
 					var currentStatistics = group.get("statistics");
 					var groupUsersGuesses = bet.get("usersGuesses");
 					
@@ -984,7 +980,6 @@ function updateEndedMatch(match, bets){
 						queryBet.equalTo("_id", previousLastBetID);
 						queryBet.first({
 							success: function(betToDel) {
-								console.log("success");
 								if ((betToDel != undefined) && (betToDel != null)) {
 									betToDel.destroy({});
 								}
@@ -1014,7 +1009,6 @@ function updateEndedMatch(match, bets){
 					var winnersArray = [];
 					for (var userId in groupUsersGuesses) {
 						userGuess = groupUsersGuesses[userId];
-						console.log("1: "+userId);
 						if ((currentStatistics[userId] == undefined) || (currentStatistics[userId] == null)){
 							console.log("stats undefined");
 							currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};	
@@ -1026,25 +1020,24 @@ function updateEndedMatch(match, bets){
 						var awayGuess = userGuess["awayGoals"];
 						//bullseye:
 						if ((homeGuess == homeTeamGoals) && (awayGuess == awayTeamGoals)){
-							console.log("bullseye");
+							//console.log("bullseye");
 							winnersArray.push(userId);
 							userStatistics["bullseye"] = userStatistics["bullseye"]+1;
 							userStatistics["points"] = userStatistics["points"]+2;
-							console.log("5555");
 							updateWinStatForUser(userId); //Will update both betsWon and betsParticipated
 						}
 						//almost:
 						else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) ||
 								  ((homeTeamGoals == awayTeamGoals) && (homeGuess == awayGuess)) ||
 								  ((homeTeamGoals < awayTeamGoals) && (homeGuess < awayGuess)) ){
-							console.log("almost");							
+							//console.log("almost");							
 							userStatistics["almost"] = userStatistics["almost"]+1;
 							userStatistics["points"] = userStatistics["points"]+1;
 							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
 						}
 						//lost bet:
 						else{
-							console.log("lost ");
+							//console.log("lost ");
 							userStatistics["lost"] = userStatistics["lost"]+1;
 							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
 						}
@@ -1057,7 +1050,6 @@ function updateEndedMatch(match, bets){
 					
 					group.set("lastBetId",bet.id);
 					group.set("lastBetType","Football");
-					console.log("8");
 
 					group.save(null,{
 						
@@ -1126,7 +1118,6 @@ function updateBetsParticipatedStatForUser(userLayerId){
 
 //Will updateboth betsWon AND betsParticipated in user stats
 function updateWinStatForUser(userLayerId){
-	console.log("updateWinStatForUser");
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("layerIdentityToken",userLayerId);
@@ -1134,7 +1125,6 @@ function updateWinStatForUser(userLayerId){
 		success: function(user) {
 			//If user exists in Parse:
 			if (user != undefined && user != null) {
-				console.log("1");
 				var amountOfBetsWon = user.get("betsWon");
 				amountOfBetsWon = amountOfBetsWon + 1;
 				user.set("betsWon",amountOfBetsWon);
@@ -1322,7 +1312,6 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 	
 	//TODO: finish admin msg
 	
-	console.log("closeCustomBet");
 	
 	var betId = request.params.betId;
 	var userLayerId = request.params.userLayerId;
@@ -1357,7 +1346,6 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 								}
 							}else{
 								for (var i = 0; i < usersArray.length; i++) {
-									console.log("8");
 									updateBetsParticipatedStatForUser(usersArray[i]);
 								}
 							}
@@ -1386,7 +1374,6 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 });
 
 Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
-	console.log("1");
 	var groupLayerId = request.params.groupLayerId;
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
@@ -1403,7 +1390,6 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 				//Sorting, bitch:
 				var len = Object.keys(stats).length;
 				for (var i = 0; i < len; i++) {
-					console.log("5");
 					var bestUserIdSoFar = "";
 					var bestPointsSoFar = -1;
 					for (var userId in stats) {
