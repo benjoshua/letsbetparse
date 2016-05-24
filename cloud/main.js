@@ -1495,7 +1495,10 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 //every time app is opened
 Parse.Cloud.define("getUserObjectsForUserLayerIds", function(request, response) {
 	var userLayerIdsArray = request.params.userLayerIdsArray;
-
+	
+	//TODO: finish
+	
+	
 });
 
 //for given array of groupLayerId, get pictures
