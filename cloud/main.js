@@ -340,110 +340,108 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	query.equalTo("gameId",gameId);
 
 	query.first({
-		success: function(bet) {
-			//If bet for group already exists in Parse:
-			if (bet != undefined && bet != null) {
+		success: function(query_bet) {
+			//If bet for this match in this group already exists in Parse:
+			if (query_bet != undefined && query_bet != null) {
 				response.error("errorBetAlreadyExists");
 			} else {
-				//Get all the relevant data about the match
-				/**var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+				//Get all the relevant data about the match from DB
+				var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
 				var footballQuery = new Parse.Query(LBFootballMatchClass);
 				footballQuery.equalTo("matchId",gameId);
 				footballQuery.first({
-					success: function(bet) {
-						//If bet for group already exists in Parse:
+					success: function(match) {
+						if ((match != undefined) && (match != null)) {
+							var teamHostName = match.get("homeTeam");
+							var teamGuestName = match.get("awayTeam");
+							var teamHostId = match.get("homeTeamId");
+							var teamGuestId = match.get("awayTeamId");
+
+							//Create the new bet
+							var bet = new LBFootballGameBetClass();
+							bet.set("layerGroupId",groupLayerId);
+							bet.set("gameId",gameId);
+							bet.set("betAdminLayerId",betAdminLayerId);
+							var usersGuesses = {};
+							usersGuesses[betAdminLayerId] = {"homeGoals": hostAdminGoalsBet, "awayGoals": guestAdminGoalsBet};
+							bet.set("usersGuesses",usersGuesses);
+							bet.set("stakeType",stakeType);
+							bet.set("stakeDesc",stakeDesc);
+							//from the data we extracted earlier regarding the match
+							bet.set("teamHostName",teamHostName);
+							bet.set("teamHostId",teamHostId);
+							bet.set("teamGuestName",teamGuestName);
+							bet.set("teamGuestId",teamGuestId);
+							
+							bet.save(null,{
+								success:function(savedBet) { 
+										//Save last bet in group
+										var LBGroupClass = Parse.Object.extend("LBGroup");
+										var group_query = new Parse.Query(LBGroupClass);
+										group_query.equalTo("layerGroupId",groupLayerId);
+										group_query.first({
+											success: function(group) {
+												//If group doesn't exist in Parse:
+												if (group == undefined || group == null) {
+													response.error("errorGroupDoesntExist");
+												} else {
+													group.set("lastBetType","Football");
+													group.set("lastBetId", savedBet.id);
+													group.save(null,{
+														success:function(groupSuccess) { 
+															logOk("updated lastBet in group in db");
+														},
+														error:function(groupError, error) {
+															logError("error updating last bet in group: "+error);
+															var str = JSON.stringify(error, null, 4);
+															logError(str);
+														}
+													});
+												}
+											},
+											error:function(group, error) {
+												response.error("failed fetching group for updating last bet");
+											}
+										});
+								
+										//send message to group that the given admin has opened a new bet
+										var LBUserClass = Parse.Object.extend("LBUser");
+										var userQuery = new Parse.Query(LBUserClass);
+										
+										userQuery.equalTo("layerIdentityToken", betAdminLayerId);
+										userQuery.first({
+											success: function(user) {
+
+												var data = {
+													"msgType" : "FootballBet",
+													"betId" : savedBet.id,
+													"gameId" : gameId,
+													"betAdminLayerId" : betAdminLayerId,
+													"teamHomeName" : teamHostName,
+													"teamAwayName" : teamGuestName
+												}
+
+												sendAdminMsgToGroup(groupLayerId, "" + user.get("name") +  " opened a new bet!",data);
+												response.success(true);
+											},
+											error:function(savedBet, error) {
+												response.error("q");
+											}
+										});
+								},
+								error:function(bet, error) {
+									response.error("W");
+								}
+							});
+						} else {
+							response.error("match wasn't found in DB: " + error);
+						}
 					},
 					error: function(error) {
 						response.error(error);
 					}
-				});*/
-				
-				//New bet
-				var bet = new LBFootballGameBetClass();
-				bet.set("layerGroupId",groupLayerId);
-				bet.set("gameId",gameId);
-				bet.set("betAdminLayerId",betAdminLayerId);
-				var usersGuesses = {};
-				usersGuesses[betAdminLayerId] = {"homeGoals": hostAdminGoalsBet, "awayGoals": guestAdminGoalsBet};
-				bet.set("usersGuesses",usersGuesses);
-				bet.set("stakeType",stakeType);
-				bet.set("stakeDesc",stakeDesc);
-				
-				//TODO: maybe delete, cause we can get this information from our API
-				bet.set("teamHostName",teamHostName);
-				bet.set("teamHostId",teamHostId);
-				bet.set("teamGuestName",teamGuestName);
-				bet.set("teamGuestId",teamGuestId);
-				
-				
-				
-				bet.save(null,{
-					success:function(savedBet) { 
-							//Save last bet in group
-							var LBGroupClass = Parse.Object.extend("LBGroup");
-							var group_query = new Parse.Query(LBGroupClass);
-							group_query.equalTo("layerGroupId",groupLayerId);
-							group_query.first({
-								success: function(group) {
-									//If group doesn't exist in Parse:
-									if (group == undefined || group == null) {
-										response.error("errorGroupDoesntExist");
-									} else {
-										//
-										group.set("lastBetType","Football");
-										group.set("lastBetId", savedBet.id);
-										group.save(null,{
-											success:function(groupSuccess) { 
-												console.log("updated lastBet in group in db");
-											},
-											error:function(groupError, error) {
-												console.log("error updating last bet in group: "+error);
-												var str = JSON.stringify(error, null, 4);
-												console.log(str);
-											}
-										});
-									}
-								},
-								error:function(group, error) {
-									response.error("failed fetching group for updating last bet");
-								}
-							});
-					
-					
-							//send message to group that the given admin has opened a new bet
-							var LBUserClass = Parse.Object.extend("LBUser");
-							var userQuery = new Parse.Query(LBUserClass);
-							
-							userQuery.equalTo("layerIdentityToken", betAdminLayerId);
-							userQuery.first({
-								success: function(user) {
-
-									var data = {
-										"msgType" : "FootballBet",
-										"betId" : savedBet.id,
-										"gameId" : gameId,
-										"betAdminLayerId" : betAdminLayerId,
-										"teamHomeName" : teamHostName,
-										"teamAwayName" : teamGuestName
-									}
-
-									sendAdminMsgToGroup(groupLayerId, "" + user.get("name") +  " opened a new bet!",data);
-									response.success(true);
-								},
-								error:function(savedBet, error) {
-									response.error("q");
-								}
-							});
-
-
-
-						
-					},
-					error:function(bet, error) {
-						response.error("W");
-					}
 				});
-			}
+				
 		},
 		error: function(error) {
 			response.error("E");
