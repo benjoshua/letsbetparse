@@ -792,7 +792,7 @@ function updateLiveScores() {
 
 //Gets liveScoreXml and calls a function that updates db and notifies relevant groups
 function updateLiveScoresInDBAndNotify(liveScoresXml){
-	console.log("in updateLiveScoresInDBAndNotify()");
+	console.log("Updating scores...");
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(liveScoresXml, function (err, result) {
