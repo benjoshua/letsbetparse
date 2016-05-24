@@ -1485,13 +1485,14 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 				console.log("3");
 				var lastBetId = group.id;
 				var lastBetType = group.get("lastBetType");
-				
-				if (lastBetType === "Football"){
+				console.log("3.5");
+				var LBBetClass;
+				if (lastBetType == "Football"){
 					console.log("4");
-					var LBBetClass = Parse.Object.extend("LBFootballGameBet");
-				}else if (lastBetType === "Custom"){
+					LBBetClass = Parse.Object.extend("LBFootballGameBet");
+				}else if (lastBetType == "Custom"){
 					console.log("5");
-					var LBBetClass = Parse.Object.extend("LBCustomBet");
+					LBBetClass = Parse.Object.extend("LBCustomBet");
 				}else{
 					console.log("6");
 					response.error("Unknown last bet type in group");
