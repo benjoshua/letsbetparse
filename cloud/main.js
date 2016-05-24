@@ -1467,7 +1467,7 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 	var query = new Parse.Query(LBGroupClass);
 	console.log("1");
 	query.equalTo("layerGroupId",groupLayerId);
-	query.find({
+	query.first({
 		success: function(group) {
 			//If group doesn't exist in DB:
 			if ((group == undefined) || (group == null)) {
@@ -1493,7 +1493,7 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 				}
 				var betQuery = new Parse.Query(LBBetClass);
 				console.log("7");
-				betQuery.equalTo("_id",lastBetId);
+				betQuery.equalTo("_id",iko);
 				betQuery.find({
 					success: function(lastBet) {
 						if ((group != undefined) && (group != null)) {
