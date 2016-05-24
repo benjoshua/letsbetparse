@@ -358,6 +358,8 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 							var teamGuestName = match.get("awayTeam");
 							var teamHostId = match.get("homeTeamId");
 							var teamGuestId = match.get("awayTeamId");
+							
+							log("Got relevant data about match from DB");
 
 							//Create the new bet
 							var bet = new LBFootballGameBetClass();
