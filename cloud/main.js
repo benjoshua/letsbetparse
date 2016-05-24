@@ -18,7 +18,7 @@ var xml2js = require('xml2js');
 var parseString = require('xml2js').parseString;
 var fs = require('fs');
 
-console.log('\x1b[36m%s\x1b[0m', "Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko");  //cyan
+
 
 // ---------------------- global variables ------------------
 
@@ -802,7 +802,7 @@ function updateLiveScores() {
 
 //Gets liveScoreXml and calls a function that updates db and notifies relevant groups
 function updateLiveScoresInDBAndNotify(liveScoresXml){
-	logG("Updating scores");
+	logB("Updating scores");
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(liveScoresXml, function (err, result) {
@@ -1563,16 +1563,19 @@ Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, respon
 
 
 
-var colors = require("colors");
+
+
+var colors = {"Black":"\x1b[30m", "Red":"\x1b[31m", "Green":"\x1b[32m", "Yellow":"\x1b[33m", "Blue":"\x1b[34m", "Magenta":"\x1b[35m", "Cyan":"\x1b[36m", "White":"\x1b[37m"}
 function logG(msg) {
-	console.log(colors.green(msg))
+	console.log(colors["Green"], msg); 
 }
 function logY(msg) {
-	console.log(colors.yellow(msg))
+	console.log(colors["Yellow"], msg); 
 }
 function logR(msg) {
-	console.log(colors.red(msg))
+	console.log(colors["Red"], msg); 
 }
-function logRainbow(msg) {
-	console.log(colors.rainbow(msg))
+function logB(msg) {
+	console.log(colors["Blue"], msg); 
 }
+
