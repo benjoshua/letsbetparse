@@ -18,6 +18,8 @@ var xml2js = require('xml2js');
 var parseString = require('xml2js').parseString;
 var fs = require('fs');
 
+
+
 // ---------------------- global variables ------------------
 
 //For not calling XMLSOCCER too many times, change to TRUE:
@@ -574,7 +576,7 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 			custom_query.equalTo("groupLayerId",groupLayerId);
 			custom_query.find({
 				success: function(customBets) {
-					var allBets = footballBets.concat(customBets);
+					var allBets = footballBets; //.concat(customBets);
 					if (allBets.length == 0){
 						response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
 					}
@@ -798,7 +800,7 @@ function updateLiveScores() {
 
 //Gets liveScoreXml and calls a function that updates db and notifies relevant groups
 function updateLiveScoresInDBAndNotify(liveScoresXml){
-	console.log("Iko is currently updating scores");
+	logOk("Updating scores");
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(liveScoresXml, function (err, result) {
@@ -1559,16 +1561,19 @@ Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, respon
 
 
 
-var colors = require("colors");
-function logG(msg) {
-	console.log(colors.green(msg))
+
+
+var colors = {"Black":"\x1b[30m", "Red":"\x1b[31m", "Green":"\x1b[32m", "Yellow":"\x1b[33m", "Blue":"\x1b[34m", "Magenta":"\x1b[35m", "Cyan":"\x1b[36m", "White":"\x1b[37m"}
+function logOk(msg) {
+	console.log(colors["Green"], msg); 
 }
-function logY(msg) {
-	console.log(colors.yellow(msg))
+function logWarning(msg) {
+	console.log(colors["Yellow"], msg); 
 }
-function logR(msg) {
-	console.log(colors.red(msg))
+function logError(msg) {
+	console.log(colors["Red"], msg); 
 }
-function logRainbow(msg) {
-	console.log(colors.rainbow(msg))
+function log(msg) {
+	console.log(colors["Magenta"], msg); 
 }
+
