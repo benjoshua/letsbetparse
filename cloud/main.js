@@ -18,6 +18,8 @@ var xml2js = require('xml2js');
 var parseString = require('xml2js').parseString;
 var fs = require('fs');
 
+console.log('\x1b[36m%s\x1b[0m', "Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko Iko");  //cyan
+
 // ---------------------- global variables ------------------
 
 //For not calling XMLSOCCER too many times, change to TRUE:
