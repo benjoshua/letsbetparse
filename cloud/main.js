@@ -445,7 +445,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 						response.error(error);
 					}
 				});
-				
+			}
 		},
 		error: function(error) {
 			response.error("E");
