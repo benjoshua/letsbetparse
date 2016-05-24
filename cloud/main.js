@@ -334,12 +334,6 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	var stakeDesc = request.params.stakeDesc;
 	
 	
-	//TODO: maybe delete, cause we can get this information from our API
-	var teamHostName =  request.params.teamHostName;
-	var teamGuestName =  request.params.teamGuestName;
-	var betDueDateLong =  request.params.betDueDateLong;
-	
-	
 	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 	var query = new Parse.Query(LBFootballGameBetClass);
 	query.equalTo("layerGroupId",groupLayerId);
@@ -351,6 +345,19 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 			if (bet != undefined && bet != null) {
 				response.error("errorBetAlreadyExists");
 			} else {
+				//Get all the relevant data about the match
+				/**var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+				var footballQuery = new Parse.Query(LBFootballMatchClass);
+				footballQuery.equalTo("matchId",gameId);
+				footballQuery.first({
+					success: function(bet) {
+						//If bet for group already exists in Parse:
+					},
+					error: function(error) {
+						response.error(error);
+					}
+				});*/
+				
 				//New bet
 				var bet = new LBFootballGameBetClass();
 				bet.set("layerGroupId",groupLayerId);
@@ -364,8 +371,9 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				
 				//TODO: maybe delete, cause we can get this information from our API
 				bet.set("teamHostName",teamHostName);
+				bet.set("teamHostId",teamHostId);
 				bet.set("teamGuestName",teamGuestName);
-				bet.set("betDueDateLong",betDueDateLong);
+				bet.set("teamGuestId",teamGuestId);
 				
 				
 				
