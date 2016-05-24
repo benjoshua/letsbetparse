@@ -1466,3 +1466,19 @@ Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, respon
 		});
 
 });
+
+
+
+var colors = require("colors");
+function logG(msg) {
+	console.log(colors.green(msg))
+}
+function logY(msg) {
+	console.log(colors.yellow(msg))
+}
+function logR(msg) {
+	console.log(colors.red(msg))
+}
+function logRainbow(msg) {
+	console.log(colors.rainbow(msg))
+}
