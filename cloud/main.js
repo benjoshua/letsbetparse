@@ -395,7 +395,8 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 												console.log(str); // Logs output to dev tools console.
 											}
 										});
-									},
+									}
+								},
 								error:function(group, error) {
 									response.error("failed fetching group");
 								}
