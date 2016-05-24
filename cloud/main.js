@@ -372,6 +372,37 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				
 				bet.save(null,{
 					success:function(savedBet) { 
+							//Save last bet in group
+							var LBGroupClass = Parse.Object.extend("LBGroup");
+							var group_query = new Parse.Query(LBGroupClass);
+							group_query.equalTo("layerGroupId",groupLayerId);
+							group_query.first({
+								success: function(group) {
+									//If group doesn't exist in Parse:
+									if (group == undefined || group == null) {
+										response.error("errorGroupDoesntExist");
+									} else {
+										//
+										group.set("lastBetType","Football");
+										group.set("lastBetId", savedBet.get("_id"));
+										group.save(null,{
+											success:function(groupSuccess) { 
+												console.log("updated lastBet in group in db");
+											},
+											error:function(groupError, error) {
+												console.log("error updating last bet in group: "+error);
+												var str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
+												console.log(str); // Logs output to dev tools console.
+											}
+										});
+									},
+								error:function(group, error) {
+									response.error("failed fetching group");
+								}
+							});
+					
+					
+							//send message to group that the given admin has opened a new bet
 							var LBUserClass = Parse.Object.extend("LBUser");
 							var userQuery = new Parse.Query(LBUserClass);
 							
