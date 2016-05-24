@@ -1483,7 +1483,7 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 				response.error("group wasn't found");
 			}else{
 				console.log("3");
-				var lastBetId = group.id;
+				var lastBetId = group.get("lastBetId");
 				console.log("lastBetId: "+lastBetId);
 				var lastBetType = group.get("lastBetType");
 				console.log("lastBetType: "+lastBetType);
