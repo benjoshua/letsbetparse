@@ -1459,53 +1459,40 @@ Parse.Cloud.define("getStatsForUser", function(request, response) {
 
 
 
-//last bet
+//Get last bet (whether it's football or custom bet)
 Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
 	
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
-	console.log("1");
 	query.equalTo("layerGroupId",groupLayerId);
 	query.first({
 		success: function(group) {
 			//If group doesn't exist in DB:
 			if ((group == undefined) || (group == null)) {
-				console.log("2");
 				response.error("group wasn't found");
 			}else{
-				console.log("3333");
-				console.log(JSON.stringify(group, null, 4));
-				var iko = group.get("lastBetId");
-				console.log("lastBetId: "+iko);
+				var lastBetId = group.get("lastBetId");
 				var lastBetType = group.get("lastBetType");
-				console.log("lastBetType: "+lastBetType);
 				var LBBetClass;
 				if (lastBetType === "Football"){
-					console.log("4");
 					LBBetClass = Parse.Object.extend("LBFootballGameBet");
 				}else if (lastBetType === "Custom"){
-					console.log("5");
 					LBBetClass = Parse.Object.extend("LBCustomBet");
 				}else{
-					console.log("6");
 					response.error("Unknown last bet type in group");
 				}
 				var betQuery = new Parse.Query(LBBetClass);
-				console.log("7");
-				betQuery.equalTo("_id",iko);
-				betQuery.find({
+				betQuery.equalTo("_id",lastBetId);
+				betQuery.first({
 					success: function(lastBet) {
 						if ((group != undefined) && (group != null)) {
-							console.log("8");
 							response.success(lastBet);
 						}else{
-							console.log("9");
 							response.error("last bet wasn't found");
 						}
 					},
 					error: function(error) {
-						console.log("10");
 						response.error("error fetching last bet: "+error);
 					}
 				});
