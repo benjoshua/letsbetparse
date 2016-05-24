@@ -9,6 +9,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "colors": "^1.1.2",
     "deferred": "^0.7.2",
     "express": "~4.2.x",
     "jquery": "^2.2.2",
