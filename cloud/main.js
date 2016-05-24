@@ -576,7 +576,7 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 			custom_query.equalTo("groupLayerId",groupLayerId);
 			custom_query.find({
 				success: function(customBets) {
-					var allBets = footballBets.concat(customBets);
+					var allBets = footballBets; //.concat(customBets);
 					if (allBets.length == 0){
 						response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
 					}
@@ -800,7 +800,7 @@ function updateLiveScores() {
 
 //Gets liveScoreXml and calls a function that updates db and notifies relevant groups
 function updateLiveScoresInDBAndNotify(liveScoresXml){
-	logRainbow("Updating scores");
+	logG("Updating scores");
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(liveScoresXml, function (err, result) {
