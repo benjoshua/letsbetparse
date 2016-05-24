@@ -391,14 +391,14 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 											},
 											error:function(groupError, error) {
 												console.log("error updating last bet in group: "+error);
-												var str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
-												console.log(str); // Logs output to dev tools console.
+												var str = JSON.stringify(error, null, 4);
+												console.log(str);
 											}
 										});
 									}
 								},
 								error:function(group, error) {
-									response.error("failed fetching group");
+									response.error("failed fetching group for updating last bet");
 								}
 							});
 					
@@ -1186,7 +1186,39 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 
 	bet.save(null,{
 		success:function(savedBet) { 
-			//console.log("openNewCustomBet: saved bet");
+			//Save last bet in group
+			var LBGroupClass = Parse.Object.extend("LBGroup");
+			var group_query = new Parse.Query(LBGroupClass);
+			group_query.equalTo("layerGroupId",groupLayerId);
+			group_query.first({
+				success: function(group) {
+					//If group doesn't exist in Parse:
+					if (group == undefined || group == null) {
+						response.error("errorGroupDoesntExist");
+					} else {
+						//
+						group.set("lastBetType","Custom");
+						group.set("lastBetId", savedBet.id);
+						group.save(null,{
+							success:function(groupSuccess) { 
+								console.log("updated lastBet in group in db");
+							},
+							error:function(groupError, error) {
+								console.log("error updating last bet in group: "+error);
+								var str = JSON.stringify(error, null, 4);
+								console.log(str);
+							}
+						});
+					}
+				},
+				error:function(group, error) {
+					response.error("failed fetching group for updating last bet");
+				}
+			});
+		
+		
+		
+			//send admin msg to group
 			var LBUserClass = Parse.Object.extend("LBUser");
 			var userQuery = new Parse.Query(LBUserClass);
 			userQuery.equalTo("layerIdentityToken", betAdminLayerId);
@@ -1195,7 +1227,7 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 					//console.log("openNewCustomBet: found user");
 					var data = {
 						"betType": "customBet",
-						"betId" : savedBet._id,
+						"betId" : savedBet.id,
 						"betName" : savedBet.get("betName")
 					}
 					//console.log("openNewCustomBet: succeeded with data");
