@@ -252,7 +252,6 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 //Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
 //in the same order it was received
 Parse.Cloud.define("createGroup", function(request, response) {
-	console.log("in createGroup()");
 	var groupLayerId = request.params.layerGroupId;
 	var groupAdminLayerId = request.params.groupAdminLayerId; 
 
@@ -372,6 +371,38 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 				
 				bet.save(null,{
 					success:function(savedBet) { 
+							//Save last bet in group
+							var LBGroupClass = Parse.Object.extend("LBGroup");
+							var group_query = new Parse.Query(LBGroupClass);
+							group_query.equalTo("layerGroupId",groupLayerId);
+							group_query.first({
+								success: function(group) {
+									//If group doesn't exist in Parse:
+									if (group == undefined || group == null) {
+										response.error("errorGroupDoesntExist");
+									} else {
+										//
+										group.set("lastBetType","Football");
+										group.set("lastBetId", savedBet.id);
+										group.save(null,{
+											success:function(groupSuccess) { 
+												console.log("updated lastBet in group in db");
+											},
+											error:function(groupError, error) {
+												console.log("error updating last bet in group: "+error);
+												var str = JSON.stringify(error, null, 4);
+												console.log(str);
+											}
+										});
+									}
+								},
+								error:function(group, error) {
+									response.error("failed fetching group for updating last bet");
+								}
+							});
+					
+					
+							//send message to group that the given admin has opened a new bet
 							var LBUserClass = Parse.Object.extend("LBUser");
 							var userQuery = new Parse.Query(LBUserClass);
 							
@@ -537,7 +568,7 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 			custom_query.equalTo("groupLayerId",groupLayerId);
 			custom_query.find({
 				success: function(customBets) {
-					var allBets = footballBets;//.concat(customBets);
+					var allBets = footballBets.concat(customBets);
 					if (allBets.length == 0){
 						response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
 					}
@@ -708,7 +739,6 @@ Parse.Cloud.define("getLBFootballMatches", function(request, response) {
 				response.error("No matches found in DB");
 			}
 			else{
-				console.log("we have matches, returning them");
 				response.success(matches);
 			}
 		},
@@ -748,7 +778,7 @@ function updateLiveScores() {
 		endDate.setDate(endDate.getDate()+14);
 
 		var fullUrl = ""+xmlSoccerUrl + "GetLiveScore"+"?Apikey="+xmlSoccerApiKey;
-		console.log(fullUrl);
+		//console.log(fullUrl);
 		
 		request({
 			uri: fullUrl,
@@ -762,7 +792,7 @@ function updateLiveScores() {
 
 //Gets liveScoreXml and calls a function that updates db and notifies relevant groups
 function updateLiveScoresInDBAndNotify(liveScoresXml){
-	console.log("in updateLiveScoresInDBAndNotify()");
+	console.log("Iko is currently updating scores");
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(liveScoresXml, function (err, result) {
@@ -786,7 +816,7 @@ function updateLiveScoresInDBAndNotify(liveScoresXml){
 				}
 			}
 		});
-	console.log("finished updateLiveScoresInDB()");
+	//console.log("finished updateLiveScoresInDB()");
 }
 
 
@@ -927,7 +957,6 @@ function updateEndedMatch(match, bets){
 	var awayTeamGoals = match.get("awayGoals");
 	
 	for(var i = 0; i < bets.length; i++) {
-		console.log("bets");
 		var bet = bets[i];
 		var groupLayerId = bet.get("layerGroupId");
 		var LBGroupClass = Parse.Object.extend("LBGroup");
@@ -937,7 +966,6 @@ function updateEndedMatch(match, bets){
 			success: function(group) {
 				//group exists:
 				if (group != undefined && group != null) {
-					console.log("groups");
 					var currentStatistics = group.get("statistics");
 					var groupUsersGuesses = bet.get("usersGuesses");
 					
@@ -952,7 +980,6 @@ function updateEndedMatch(match, bets){
 						queryBet.equalTo("_id", previousLastBetID);
 						queryBet.first({
 							success: function(betToDel) {
-								console.log("success");
 								if ((betToDel != undefined) && (betToDel != null)) {
 									betToDel.destroy({});
 								}
@@ -982,7 +1009,6 @@ function updateEndedMatch(match, bets){
 					var winnersArray = [];
 					for (var userId in groupUsersGuesses) {
 						userGuess = groupUsersGuesses[userId];
-						console.log("1: "+userId);
 						if ((currentStatistics[userId] == undefined) || (currentStatistics[userId] == null)){
 							console.log("stats undefined");
 							currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};	
@@ -994,25 +1020,24 @@ function updateEndedMatch(match, bets){
 						var awayGuess = userGuess["awayGoals"];
 						//bullseye:
 						if ((homeGuess == homeTeamGoals) && (awayGuess == awayTeamGoals)){
-							console.log("bullseye");
+							//console.log("bullseye");
 							winnersArray.push(userId);
 							userStatistics["bullseye"] = userStatistics["bullseye"]+1;
 							userStatistics["points"] = userStatistics["points"]+2;
-							console.log("5555");
 							updateWinStatForUser(userId); //Will update both betsWon and betsParticipated
 						}
 						//almost:
 						else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) ||
 								  ((homeTeamGoals == awayTeamGoals) && (homeGuess == awayGuess)) ||
 								  ((homeTeamGoals < awayTeamGoals) && (homeGuess < awayGuess)) ){
-							console.log("almost");							
+							//console.log("almost");							
 							userStatistics["almost"] = userStatistics["almost"]+1;
 							userStatistics["points"] = userStatistics["points"]+1;
 							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
 						}
 						//lost bet:
 						else{
-							console.log("lost ");
+							//console.log("lost ");
 							userStatistics["lost"] = userStatistics["lost"]+1;
 							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
 						}
@@ -1025,7 +1050,6 @@ function updateEndedMatch(match, bets){
 					
 					group.set("lastBetId",bet.id);
 					group.set("lastBetType","Football");
-					console.log("8");
 
 					group.save(null,{
 						
@@ -1072,7 +1096,6 @@ function updateBetsParticipatedStatForUser(userLayerId){
 		success: function(user) {
 			//If user exists in Parse:
 			if (user != undefined && user != null) {
-				console.log("34");
 				var amountOfBetsParticipated = user.get("betsParticipated");
 				amountOfBetsParticipated = amountOfBetsParticipated + 1;
 				user.set("betsParticipated",amountOfBetsParticipated);
@@ -1095,7 +1118,6 @@ function updateBetsParticipatedStatForUser(userLayerId){
 
 //Will updateboth betsWon AND betsParticipated in user stats
 function updateWinStatForUser(userLayerId){
-	console.log("updateWinStatForUser");
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("layerIdentityToken",userLayerId);
@@ -1103,7 +1125,6 @@ function updateWinStatForUser(userLayerId){
 		success: function(user) {
 			//If user exists in Parse:
 			if (user != undefined && user != null) {
-				console.log("1");
 				var amountOfBetsWon = user.get("betsWon");
 				amountOfBetsWon = amountOfBetsWon + 1;
 				user.set("betsWon",amountOfBetsWon);
@@ -1154,7 +1175,39 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 
 	bet.save(null,{
 		success:function(savedBet) { 
-			//console.log("openNewCustomBet: saved bet");
+			//Save last bet in group
+			var LBGroupClass = Parse.Object.extend("LBGroup");
+			var group_query = new Parse.Query(LBGroupClass);
+			group_query.equalTo("layerGroupId",groupLayerId);
+			group_query.first({
+				success: function(group) {
+					//If group doesn't exist in Parse:
+					if (group == undefined || group == null) {
+						response.error("errorGroupDoesntExist");
+					} else {
+						//
+						group.set("lastBetType","Custom");
+						group.set("lastBetId", savedBet.id);
+						group.save(null,{
+							success:function(groupSuccess) { 
+								console.log("updated lastBet in group in db");
+							},
+							error:function(groupError, error) {
+								console.log("error updating last bet in group: "+error);
+								var str = JSON.stringify(error, null, 4);
+								console.log(str);
+							}
+						});
+					}
+				},
+				error:function(group, error) {
+					response.error("failed fetching group for updating last bet");
+				}
+			});
+		
+		
+		
+			//send admin msg to group
 			var LBUserClass = Parse.Object.extend("LBUser");
 			var userQuery = new Parse.Query(LBUserClass);
 			userQuery.equalTo("layerIdentityToken", betAdminLayerId);
@@ -1163,7 +1216,7 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 					//console.log("openNewCustomBet: found user");
 					var data = {
 						"betType": "customBet",
-						"betId" : savedBet.get("_id"),
+						"betId" : savedBet.id,
 						"betName" : savedBet.get("betName")
 					}
 					//console.log("openNewCustomBet: succeeded with data");
@@ -1259,7 +1312,6 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 	
 	//TODO: finish admin msg
 	
-	console.log("closeCustomBet");
 	
 	var betId = request.params.betId;
 	var userLayerId = request.params.userLayerId;
@@ -1270,17 +1322,14 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 	query.equalTo("_id",betId);
 	query.first({
 		success: function(bet) {
-			console.log("1");
 			//If bet doesn't exist in DB:
 			if ((bet == undefined) || (bet == null)) {
-				console.log("1");
 				response.error("bet wasn't found");
 			}else{
 				if (bet.get("betAdminLayerId") != userLayerId){
-					console.log("3");
+					
 					response.error("this user isn't an admin, thus can't close the bet");
 				}else{
-					console.log("4");
 					usersGuesses = bet.get("usersGuesses");
 					if (!(winningGuess in usersGuesses)){
 						response.error("winning guess wasn't even a possibility");
@@ -1289,19 +1338,14 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 					
 					for (var guess in usersGuesses) {
 						if (usersGuesses.hasOwnProperty(guess)) {
-							console.log("5");
 							var usersArray = usersGuesses[guess];
 							//Someone guessed right
 							if (winningGuess === guess){
-								console.log("6");
 								for (var i = 0; i < usersArray.length; i++) {
-									console.log("9");
 									updateWinStatForUser(usersArray[i]);
 								}
 							}else{
-								console.log("7");
 								for (var i = 0; i < usersArray.length; i++) {
-									console.log("8");
 									updateBetsParticipatedStatForUser(usersArray[i]);
 								}
 							}
@@ -1330,14 +1374,13 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 });
 
 Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
-	console.log("1");
 	var groupLayerId = request.params.groupLayerId;
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
 	query.equalTo("layerGroupId",groupLayerId);
 	query.first({
 		success: function(group) {
-			//If bet doesn't exist in DB:
+			//If group doesn't exist in DB:
 			if ((group == undefined) || (group == null)) {
 				response.error("group wasn't found");
 			}else{
@@ -1347,7 +1390,6 @@ Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 				//Sorting, bitch:
 				var len = Object.keys(stats).length;
 				for (var i = 0; i < len; i++) {
-					console.log("5");
 					var bestUserIdSoFar = "";
 					var bestPointsSoFar = -1;
 					for (var userId in stats) {
@@ -1403,10 +1445,49 @@ Parse.Cloud.define("getStatsForUser", function(request, response) {
 
 
 
-//last bet
+//Get last bet (whether it's football or custom bet)
 Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
-	//TODO:tom
+	
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.equalTo("layerGroupId",groupLayerId);
+	query.first({
+		success: function(group) {
+			//If group doesn't exist in DB:
+			if ((group == undefined) || (group == null)) {
+				response.error("group wasn't found");
+			}else{
+				var lastBetId = group.get("lastBetId");
+				var lastBetType = group.get("lastBetType");
+				var LBBetClass;
+				if (lastBetType === "Football"){
+					LBBetClass = Parse.Object.extend("LBFootballGameBet");
+				}else if (lastBetType === "Custom"){
+					LBBetClass = Parse.Object.extend("LBCustomBet");
+				}else{
+					response.error("Unknown last bet type in group");
+				}
+				var betQuery = new Parse.Query(LBBetClass);
+				betQuery.equalTo("_id",lastBetId);
+				betQuery.first({
+					success: function(lastBet) {
+						if ((group != undefined) && (group != null)) {
+							response.success(lastBet);
+						}else{
+							response.error("last bet wasn't found");
+						}
+					},
+					error: function(error) {
+						response.error("error fetching last bet: "+error);
+					}
+				});
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
 
 });
 
@@ -1414,7 +1495,10 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 //every time app is opened
 Parse.Cloud.define("getUserObjectsForUserLayerIds", function(request, response) {
 	var userLayerIdsArray = request.params.userLayerIdsArray;
-
+	
+	//TODO: finish
+	
+	
 });
 
 //for given array of groupLayerId, get pictures
