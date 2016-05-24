@@ -802,7 +802,7 @@ function updateLiveScores() {
 
 //Gets liveScoreXml and calls a function that updates db and notifies relevant groups
 function updateLiveScoresInDBAndNotify(liveScoresXml){
-	logB("Updating scores");
+	logOk("Updating scores");
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(liveScoresXml, function (err, result) {
@@ -1566,16 +1566,16 @@ Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, respon
 
 
 var colors = {"Black":"\x1b[30m", "Red":"\x1b[31m", "Green":"\x1b[32m", "Yellow":"\x1b[33m", "Blue":"\x1b[34m", "Magenta":"\x1b[35m", "Cyan":"\x1b[36m", "White":"\x1b[37m"}
-function logG(msg) {
+function logOk(msg) {
 	console.log(colors["Green"], msg); 
 }
-function logY(msg) {
+function logWarning(msg) {
 	console.log(colors["Yellow"], msg); 
 }
-function logR(msg) {
+function logError(msg) {
 	console.log(colors["Red"], msg); 
 }
-function logB(msg) {
-	console.log(colors["Blue"], msg); 
+function log(msg) {
+	console.log(colors["Magenta"], msg); 
 }
 
