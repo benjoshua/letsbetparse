@@ -384,15 +384,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 									} else {
 										//
 										group.set("lastBetType","Football");
-										var iko = savedBet.get("_id");
-										var piko = savedBet.get("id");
-										var ido = savedBet.id;
-										var lindo = savedBet._id;
-										console.log("bet id iko: "+iko);
-										console.log("bet id piko: "+piko);
-										console.log("bet id ido: "+ido);
-										console.log("bet id lindo: "+lindo);
-										group.set("lastBetId", iko);
+										group.set("lastBetId", savedBet.id);
 										group.save(null,{
 											success:function(groupSuccess) { 
 												console.log("updated lastBet in group in db");
@@ -1203,7 +1195,7 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 					//console.log("openNewCustomBet: found user");
 					var data = {
 						"betType": "customBet",
-						"betId" : savedBet.get("_id"),
+						"betId" : savedBet._id,
 						"betName" : savedBet.get("betName")
 					}
 					//console.log("openNewCustomBet: succeeded with data");
