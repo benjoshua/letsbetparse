@@ -1283,6 +1283,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				}
 				bet.save(null,{
 					success:function(bet_success) { 
+						sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to custom bet "+ betId, {});
 						response.success(true);
 					},
 					error:function(bet, error) {
