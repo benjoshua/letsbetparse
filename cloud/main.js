@@ -1255,9 +1255,9 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 	var betId = request.params.betId;
 	var userLayerId = request.params.userLayerId;
 	var userGuess = request.params.userGuess;
-	log(JSON.stringify(betId, null, 4));
-	log(JSON.stringify(userLayerId, null, 4));
-	log(JSON.stringify(userGuess, null, 4));
+	console.log(JSON.stringify(betId, null, 4));
+	console.log(JSON.stringify(userLayerId, null, 4));
+	console.log(JSON.stringify(userGuess, null, 4));
 	
 	var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
 	var query = new Parse.Query(LBCustomBetClass);
@@ -1271,11 +1271,11 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				//Add guess to bet
 				
 				var usersGuesses = bet.get("usersGuesses");
-				log(JSON.stringify(usersGuesses, null, 4));
+				console.log(JSON.stringify(usersGuesses, null, 4));
 				//make sure user didn't guess already
 				for (var guess in usersGuesses){
 					if (usersGuesses[guess].indexOf(userLayerId) > -1){
-						log(usersGuesses[guess].indexOf(userLayerId));
+						console.log(usersGuesses[guess].indexOf(userLayerId));
 						response.error("user already placed a guess");
 						return;
 					}
