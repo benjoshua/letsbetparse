@@ -1341,6 +1341,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 	var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
 	var query = new Parse.Query(LBCustomBetClass);
 	query.equalTo("_id",betId);
+	log("yoav 1")
 	query.first({
 		success: function(bet) {
 			//If bet doesn't exist in DB:
@@ -1348,7 +1349,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				response.error("custom bet not found in db");
 			}else{
 				//Add guess to bet
-				
+				log("yoav 2")
 				var usersGuesses = bet.get("usersGuesses");
 				
 				log("these are the guesses before trying to add anything:");
@@ -1372,6 +1373,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				}
 				bet.save(null,{
 					success:function(bet_success) { 
+						log("yoav 3")
 						logOk("succeeded adding guess to custom bet "+betId)
 						
 						var newUsersGuesses = bet_success.get("usersGuesses");
@@ -1382,6 +1384,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 						response.success(true);
 					},
 					error:function(bet, error) {
+						log("yoav 4")
 						logError("failed adding guess to custom bet "+betId)
 						response.error(error);
 					}
