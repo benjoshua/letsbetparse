@@ -1244,6 +1244,7 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 	var stakeDesc = request.params.stakeDesc;
 	var betPic = request.params.betPic;
 
+
 	//New bet
 	var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
 	var bet = new LBCustomBetClass();
@@ -1254,8 +1255,8 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 	bet.set("stakeDesc",stakeDesc);
 	bet.set("groupLayerId",groupLayerId);
 	bet.set("betPic",betPic);
+
 	var usersGuesses = {};
-	usersGuesses[adminGuess] = [betAdminLayerId];
 	bet.set("usersGuesses",usersGuesses);
 
 	bet.save(null,{
@@ -1818,5 +1819,8 @@ function logError(msg) {
 }
 function log(msg) {
 	console.log(colors["Magenta"], msg); 
+}
+function logError(msg) {
+	console.log(colors["Red"], msg); 
 }
 
