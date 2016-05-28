@@ -1373,7 +1373,7 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 						message = message + "No one won the bet =(";
 					}				
 					sendAdminMsgToGroup(groupLayerId,message, {});
-					bet.destroy({});
+					//bet.destroy({});
 					response.success();
 				}
 			}
