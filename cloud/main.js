@@ -1819,12 +1819,12 @@ Parse.Cloud.define("getUserObjectsForUserLayerIds", function(request, response) 
 //every time app is opened
 Parse.Cloud.define("getGroupPicturesForGroupLayerIds", function(request, response) {
 	var groupLayerIdsArray = request.params.groupLayerIdsArray;
-	var picture = request.params.picture;
+
 
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
 	query.containedIn("layerGroupId",groupLayerIdsArray);
-	query.select("layerIdentityToken", "picture");
+	query.select("layerGroupId", "picture");
 	query.find({
 		success: function(results) {
 			response.success(results);
@@ -1833,7 +1833,6 @@ Parse.Cloud.define("getGroupPicturesForGroupLayerIds", function(request, respons
 			response.error(error);
 		}
 	});
-
 });
 
 //for given array of groupLayerId, get pictures
