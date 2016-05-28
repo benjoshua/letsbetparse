@@ -1865,7 +1865,7 @@ Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, respon
 
 });
 
-log("*** Server Up ***")
+
 
 
 
