@@ -1768,7 +1768,18 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 Parse.Cloud.define("getUserObjectsForUserLayerIds", function(request, response) {
 	var userLayerIdsArray = request.params.userLayerIdsArray;
 	
-	//TODO: finish
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.containedIn("layerIdentityToken",userLayerIdsArray);
+	query.select("name", "phoneNumber", "layerIdentityToken", "picture");
+	query.find({
+		success: function(users) {
+			response.success(users);
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
 	
 	
 });
