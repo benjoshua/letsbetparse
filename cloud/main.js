@@ -1422,14 +1422,17 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 		success: function(bet) {
 			//If bet doesn't exist in DB:
 			if ((bet == undefined) || (bet == null)) {
+				logError("custom bet wasn't found");
 				response.error("bet wasn't found");
 			}else{
 				if (bet.get("betAdminLayerId") != userLayerId){
+					logError(userLayerId+" isn't an admin, thus can't close the bet");
 					response.error("this user isn't an admin, thus can't close the bet");
 				}else{
 					//Update stats according to guesses
 					usersGuesses = bet.get("usersGuesses");
 					if (!(winningGuess in usersGuesses)){
+						logWarning("winning guess wasn't even a possibility");
 						response.error("winning guess wasn't even a possibility");
 						return;
 					}
@@ -1439,10 +1442,12 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 							//Someone guessed right
 							if (winningGuess === guess){
 								for (var i = 0; i < usersArray.length; i++) {
+									log("user guessed right");
 									updateWinStatForUser(usersArray[i]);
 								}
 							}else{
 								for (var i = 0; i < usersArray.length; i++) {
+									log("user guessed wrong");
 									updateBetsParticipatedStatForUser(usersArray[i]);
 								}
 							}
@@ -1453,6 +1458,7 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 					var groupLayerId = bet.get("groupLayerId");
 					
 					//Delete last bet
+					log("trying to delete last bet in group (for custom bet)");
 					deleteLastBetOfGroup(groupLayerId);
 					//Update last bet
 					log("trying to update last bet in group (for custom bet)");
@@ -1467,8 +1473,10 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 							}else{
 								group.set("lastBetId",bet.id);
 								group.set("lastBetType","Custom");
+								log("trying to save last bet details");
 								group.save(null,{
 									success:function(group) { 
+										logOk("succeeded saving last bet details");
 										var betName = bet.get("betName");
 										var message = "" + betName + "was closed.";
 										if (winnersArray.length > 0){
@@ -1481,12 +1489,13 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 										response.success();
 									},
 									error:function(group, error) {
-										console.log("updateEndedMatch: error saving guesses: "+error);
+										logError("failed saving last bet: "+error);
 									}
 								});
 							}
 						},
 						error: function(error) {
+							logError("closeCustomBet baa: "+error);
 							response.error(error);
 						}
 					});
@@ -1494,6 +1503,7 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 			}
 		},
 		error: function(error) {
+			logError("closeCustomBet baaaaa: "+error);
 			response.error(error);
 		}
 	});
