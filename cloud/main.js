@@ -1282,7 +1282,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				}
 				
 				if (userGuess in usersGuesses){
-					log(pushed guess to userGuesses);
+					log("pushed guess to userGuesses");
 					usersGuesses[userGuess].push(userLayerId);
 				}else{
 					usersGuesses[userGuess] = [userLayerId];
