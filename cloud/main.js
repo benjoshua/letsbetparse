@@ -1129,6 +1129,7 @@ function deleteLastBetOfGroup(groupLayerId){
 		success: function(group) {
 			//group exists:
 			if (group != undefined && group != null) {
+				log("in group "+groupLayerId);
 
 				var betId = group.get("lastBetId");
 				var betType = group.get("lastBetType");
@@ -1349,26 +1350,34 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				//Add guess to bet
 				
 				var usersGuesses = bet.get("usersGuesses");
+				
+				log("these are the guesses before trying to add anything:");
 				log(JSON.stringify(usersGuesses, null, 4));
 				//make sure user didn't guess already
 				for (var guess in usersGuesses){
 					if (usersGuesses[guess].indexOf(userLayerId) > -1){
 						log(usersGuesses[guess].indexOf(userLayerId));
+						logWarning("user already placed a guess");
 						response.error("user already placed a guess");
 						return;
 					}
 				}
 				
 				if (userGuess in usersGuesses){
-					log("pushed guess to userGuesses");
+					logOk("pushed guess to userGuesses");
 					usersGuesses[userGuess].push(userLayerId);
 				}else{
-					log("created new guess");
+					logOk("created new guess");
 					usersGuesses[userGuess] = [userLayerId];
 				}
 				bet.save(null,{
 					success:function(bet_success) { 
 						logOk("succeeded adding guess to custom bet "+betId)
+						
+						var newUsersGuesses = bet_success.get("usersGuesses");
+						log("these are the guesses before trying to add anything:");
+						log(JSON.stringify(newUsersGuesses, null, 4));
+						
 						sendAdminMsgToGroup(groupLayerId, "" + userLayerId + " added a guess to custom bet "+ betId, {});
 						response.success(true);
 					},
