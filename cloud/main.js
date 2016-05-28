@@ -570,34 +570,62 @@ Parse.Cloud.define("AdminMsg", function(request, response) {
 // -------------------------getGroupOpenBets----------------------------
 Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 	var groupLayerId = request.params.layerGroupId;
-	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
-	var query = new Parse.Query(LBFootballGameBetClass);
-	query.equalTo("layerGroupId",groupLayerId);
-	query.find({
-		success: function(footballBets) {
-			
-			var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
-			var custom_query = new Parse.Query(LBCustomBetClass);
-			custom_query.equalTo("groupLayerId",groupLayerId);
-			custom_query.find({
-				success: function(customBets) {
-					var allBets = footballBets.concat(customBets);
-					if (allBets.length == 0){
-						response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var group_query = new Parse.Query(LBGroupClass);
+	group_query.equalTo("layerGroupId",groupLayerId);
+	group_query.first({
+		success: function(group) {
+			//group exists:
+			if (group != undefined && group != null) {
+				//First we find group's last bet, which isn't relevant to return cause it's been closed already
+				var lastBetId = group.get("lastBetId");
+				
+				var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+				var query = new Parse.Query(LBFootballGameBetClass);
+				query.equalTo("layerGroupId",groupLayerId);
+				query.notEqualTo("_id",lastBetId);
+				query.find({
+					success: function(footballBets) {
+						
+						var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
+						var custom_query = new Parse.Query(LBCustomBetClass);
+						custom_query.equalTo("groupLayerId",groupLayerId);
+						custom_query.notEqualTo("_id",lastBetId);
+						custom_query.find({
+							success: function(customBets) {
+								var allBets = footballBets.concat(customBets);
+								if (allBets.length == 0){
+									response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
+								}
+								else{
+									response.success(allBets);
+								}
+							},
+							error: function(error) {
+								response.error(error);
+							}
+						});
+					},
+					error: function(error) {
+						response.error(error);
 					}
-					else{
-						response.success(allBets);
-					}
-				},
-				error: function(error) {
-					response.error(error);
-				}
-			});
+				});
+				
+				
+			} else {
+				logWarning("getGroupOpenBets error: group doesn't exist");
+			}
 		},
 		error: function(error) {
 			response.error(error);
 		}
 	});
+	
+	
+	
+	
+	
+	
 });
 
 
