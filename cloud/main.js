@@ -379,6 +379,9 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 							
 							bet.save(null,{
 								success:function(savedBet) { 
+								
+								
+								/**
 										//Save last bet in group
 										var LBGroupClass = Parse.Object.extend("LBGroup");
 										var group_query = new Parse.Query(LBGroupClass);
@@ -406,7 +409,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 											error:function(group, error) {
 												response.error("failed fetching group for updating last bet");
 											}
-										});
+										});*/
 								
 										//send message to group that the given admin has opened a new bet
 										var LBUserClass = Parse.Object.extend("LBUser");
@@ -976,14 +979,20 @@ function updateEndedMatch(match, bets){
 			success: function(group) {
 				//group exists:
 				if (group != undefined && group != null) {
+					
+					
+					
 					var currentStatistics = group.get("statistics");
 					var groupUsersGuesses = bet.get("usersGuesses");
 					
-					//TODO: delete previous last bet and update to current bet
+
+					
+					
+					/**
 					var previousLastBetID = group.get("lastBetId");
-					console.log(previousLastBetID);
+					log("previousLastBetID: "+previousLastBetID);
 					var previousLastBetType = group.get("lastBetType");
-					console.log(previousLastBetType);
+					log("previousLastBetType: "+previousLastBetType);
 					if (previousLastBetType == "Football"){	
 						var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 						var queryBet = new Parse.Query(LBFootballGameBetClass);
@@ -994,28 +1003,42 @@ function updateEndedMatch(match, bets){
 									betToDel.destroy({});
 								}
 								else{
-									console.log("last bet not found in bets DB");
+									logWarning("last bet not found in bets DB");
 								}
 							},error:function(bet, error) {
-								console.log("updateEndedMatch: error finding bet: "+error.message);
+								logError("updateEndedMatch: error finding bet: "+error.message);
 							}
 						});
 					}
 					else if (previousLastBetType == "Custom"){
-						
-						//TODO: complete
+						var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
+						var queryBet = new Parse.Query(LBCustomBetClass);
+						queryBet.equalTo("_id", previousLastBetID);
+						queryBet.first({
+							success: function(betToDel) {
+								if ((betToDel != undefined) && (betToDel != null)) {
+									logOk("deleted last bet of group from DB");
+									betToDel.destroy({});
+								}
+								else{
+									logError("last custom bet not found in bets DB");
+								}
+							},error:function(bet, error) {
+								logError("updateEndedMatch: error finding bet: "+error.message);
+							}
+						});
 						
 					}else{
-						console.log("Unknown last bet type");
+						logWarning("Unknown last bet type");
 					}
-					
+					*/
 					
 					
 					
 					var str = JSON.stringify(groupUsersGuesses, null, 4); // (Optional) beautiful indented output.
 					console.log("userGuesses: "+str); // Logs output to dev tools console.
 					
-					
+					//update statistics
 					var winnersArray = [];
 					for (var userId in groupUsersGuesses) {
 						userGuess = groupUsersGuesses[userId];
@@ -1058,15 +1081,16 @@ function updateEndedMatch(match, bets){
 					
 					group.set("statistics",currentStatistics);
 					
+					
+					//Delete last group's bet
+					deleteLastBetOfGroup(groupLayerId);
+					
+					//Update last bet in group
 					group.set("lastBetId",bet.id);
 					group.set("lastBetType","Football");
 
 					group.save(null,{
-						
-						
 						//TODO: send right msg + data{}
-						
-						
 						success:function(group) { 
 							console.log("saved statistics for group "+groupLayerId);
 							var message = homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". ";
@@ -1094,6 +1118,57 @@ function updateEndedMatch(match, bets){
 	}
 	
 	match.destroy({});
+}
+
+//delete group's last bet from DB, given a groupLayerId
+function deleteLastBetOfGroup(groupLayerId){
+	log("deleteLastBetOfGroup of group "+groupLayerId);
+	var query = new Parse.Query(LBGroupClass);
+	query.equalTo("layerGroupId",groupLayerId);
+	query.first({
+		success: function(group) {
+			//group exists:
+			if (group != undefined && group != null) {
+
+				var betId = group.get("lastBetId");
+				var betType = group.get("lastBetType");
+				
+				var LBBetClass;
+				if (betType === "Football"){
+					LBBetClass = Parse.Object.extend("LBFootballGameBet");
+				}else if (betType === "Custom"){
+					LBBetClass = Parse.Object.extend("LBCustomBet");
+				}else{
+					logWarning("Unknown last bet type in group");
+				}
+				var betQuery = new Parse.Query(LBBetClass);
+				betQuery.equalTo("_id",betId);
+				betQuery.first({
+					success: function(betToDel) {
+						if ((betToDel != undefined) && (betToDel != null)) {
+							logOk("deleted "+betType+" bet "+betId+" from DB");
+							betToDel.destroy({});
+						}else{
+							logError(betType+" bet "+betId+" was not found in bets DB");
+						}
+					},
+					error: function(error) {
+						logError("error fetching bet: "+error);
+					}
+				});
+				
+			} else {
+				logError("deleteLastBetOfGroup error: group doesn't exist");
+			}
+		},
+		error: function(error) {
+			logError("deleteLastBetOfGroup error: "+error);
+		}
+	});
+	
+	
+	
+	
 }
 
 //Will update betsParticipated in user stats
@@ -1185,6 +1260,8 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 
 	bet.save(null,{
 		success:function(savedBet) { 
+		
+		/**
 			//Save last bet in group
 			var LBGroupClass = Parse.Object.extend("LBGroup");
 			var group_query = new Parse.Query(LBGroupClass);
@@ -1213,7 +1290,7 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 				error:function(group, error) {
 					response.error("failed fetching group for updating last bet");
 				}
-			});
+			});*/
 		
 		
 		
@@ -1347,15 +1424,14 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 				response.error("bet wasn't found");
 			}else{
 				if (bet.get("betAdminLayerId") != userLayerId){
-					
 					response.error("this user isn't an admin, thus can't close the bet");
 				}else{
+					//Update stats according to guesses
 					usersGuesses = bet.get("usersGuesses");
 					if (!(winningGuess in usersGuesses)){
 						response.error("winning guess wasn't even a possibility");
 						return;
 					}
-					
 					for (var guess in usersGuesses) {
 						if (usersGuesses.hasOwnProperty(guess)) {
 							var usersArray = usersGuesses[guess];
@@ -1374,16 +1450,45 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 					
 					var winnersArray = usersGuesses[winningGuess];
 					var groupLayerId = bet.get("groupLayerId");
-					var betName = bet.get("betName");
-					var message = "" + betName + "was closed.";
-					if (winnersArray.length > 0){
-						message = message + "Someone won the bet!";
-					}else{
-						message = message + "No one won the bet =(";
-					}				
-					sendAdminMsgToGroup(groupLayerId,message, {});
-					//bet.destroy({});
-					response.success();
+					
+					//Delete last bet
+					deleteLastBetOfGroup(groupLayerId);
+					//Update last bet
+					log("trying to update last bet in group (for custom bet)");
+					var LBGroupClass = Parse.Object.extend("LBGroup");
+					var query = new Parse.Query(LBGroupClass);
+					query.equalTo("layerGroupId",groupLayerId);
+					query.first({
+						success: function(group) {
+							//If group doesn't exist in DB:
+							if ((group == undefined) || (group == null)) {
+								response.error("trying to update last bet: group wasn't found");
+							}else{
+								group.set("lastBetId",bet.id);
+								group.set("lastBetType","Custom");
+								group.save(null,{
+									success:function(group) { 
+										var betName = bet.get("betName");
+										var message = "" + betName + "was closed.";
+										if (winnersArray.length > 0){
+											message = message + "Someone won the bet!";
+										}else{
+											message = message + "No one won the bet =(";
+										}				
+										sendAdminMsgToGroup(groupLayerId,message, {});
+										//updateLastCustomBetOfGroup(betId, groupLayerId);
+										response.success();
+									},
+									error:function(group, error) {
+										console.log("updateEndedMatch: error saving guesses: "+error);
+									}
+								});
+							}
+						},
+						error: function(error) {
+							response.error(error);
+						}
+					});
 				}
 			}
 		},
@@ -1392,6 +1497,132 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 		}
 	});
 });
+
+
+/**
+function updateLastCustomBetOfGroup(betId, groupLayerId){
+	//var s4s
+
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.equalTo("layerGroupId",groupLayerId);
+	query.first({
+		success: function(group) {
+			if (group != undefined && group != null) {
+				//delete previous last bet and update to current bet
+				var previousLastBetID = group.get("lastBetId");
+				log("previous lastBetId: "+previousLastBetID);
+				var previousLastBetType = group.get("lastBetType");
+				console.log(previousLastBetType);
+				if (previousLastBetType == "Custom"){	
+					var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+					var queryBet = new Parse.Query(LBFootballGameBetClass);
+					queryBet.equalTo("_id", previousLastBetID);
+					queryBet.first({
+						success: function(betToDel) {
+							if ((betToDel != undefined) && (betToDel != null)) {
+								betToDel.destroy({});
+							}
+							else{
+								console.log("last bet not found in bets DB");
+							}
+						},error:function(bet, error) {
+							console.log("updateEndedMatch: error finding bet: "+error.message);
+						}
+					});
+				}
+				else if (previousLastBetType == "Custom"){
+					logWarning("got custom bet for some reason");
+					return;
+					
+				}else{
+					logWarning("Unknown last bet type");
+					return;
+				}
+				
+				
+				
+				
+				var str = JSON.stringify(groupUsersGuesses, null, 4); // (Optional) beautiful indented output.
+				console.log("userGuesses: "+str); // Logs output to dev tools console.
+				
+				//update statistics
+				var winnersArray = [];
+				for (var userId in groupUsersGuesses) {
+					userGuess = groupUsersGuesses[userId];
+					if ((currentStatistics[userId] == undefined) || (currentStatistics[userId] == null)){
+						console.log("stats undefined");
+						currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};	
+					}
+					userStatistics = currentStatistics[userId];
+					console.log("userStatistics: "+JSON.stringify(userStatistics, null, 4));
+					
+					var homeGuess = userGuess["homeGoals"];
+					var awayGuess = userGuess["awayGoals"];
+					//bullseye:
+					if ((homeGuess == homeTeamGoals) && (awayGuess == awayTeamGoals)){
+						//console.log("bullseye");
+						winnersArray.push(userId);
+						userStatistics["bullseye"] = userStatistics["bullseye"]+1;
+						userStatistics["points"] = userStatistics["points"]+2;
+						updateWinStatForUser(userId); //Will update both betsWon and betsParticipated
+					}
+					//almost:
+					else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) ||
+							  ((homeTeamGoals == awayTeamGoals) && (homeGuess == awayGuess)) ||
+							  ((homeTeamGoals < awayTeamGoals) && (homeGuess < awayGuess)) ){
+						//console.log("almost");							
+						userStatistics["almost"] = userStatistics["almost"]+1;
+						userStatistics["points"] = userStatistics["points"]+1;
+						updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
+					}
+					//lost bet:
+					else{
+						//console.log("lost ");
+						userStatistics["lost"] = userStatistics["lost"]+1;
+						updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
+					}
+					currentStatistics[userId] = userStatistics;
+				}
+				
+				console.log("winners: "+JSON.stringify(winnersArray, null, 4));
+				
+				group.set("statistics",currentStatistics);
+				
+				group.set("lastBetId",bet.id);
+				group.set("lastBetType","Football");
+
+				group.save(null,{
+					
+					
+					//TODO: send right msg + data{}
+					
+					
+					success:function(group) { 
+						console.log("saved statistics for group "+groupLayerId);
+						var message = homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". ";
+						if (winnersArray.length > 0){
+							message = message + "Someone won the bet!";
+						}else{
+							message = message + "No one won the bet =(";
+						}
+						
+						console.log("gonna send them this message: "+message);
+						sendAdminMsgToGroup(groupLayerId, message,{});
+					},
+					error:function(group, error) {
+						console.log("updateEndedMatch: error saving guesses: "+error);
+					}
+				});
+			} else {
+				console.log("updateEndedMatch error: group doesn't exist");
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+}*/
 
 Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
