@@ -1125,9 +1125,11 @@ function deleteLastBetOfGroup(groupLayerId){
 	log("deleteLastBetOfGroup of group "+groupLayerId);
 	var query = new Parse.Query(LBGroupClass);
 	query.equalTo("layerGroupId",groupLayerId);
+	log("test 1");
 	query.first({
 		success: function(group) {
 			//group exists:
+			log("test 2");
 			if (group != undefined && group != null) {
 				log("in group "+groupLayerId);
 
@@ -1187,9 +1189,9 @@ function updateBetsParticipatedStatForUser(userLayerId){
 				user.set("betsParticipated",amountOfBetsParticipated);
 				user.save(null,{
 					success:function(user) { 
-						console.log("succeeded saveing betsParticipated");
+						console.log("succeeded saving betsParticipated");
 					}, error:function(user, error) {
-						console.log("failed saveing betsParticipated");
+						console.log("failed saving betsParticipated");
 					}
 				});
 			} else {
