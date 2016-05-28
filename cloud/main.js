@@ -1350,7 +1350,6 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				response.error("custom bet not found in db");
 			}else{
 				//Add guess to bet
-				
 				var usersGuesses = bet.get("usersGuesses");
 				
 				log("these are the guesses before trying to add anything:");
@@ -1374,16 +1373,18 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 				}
 				bet.save(null,{
 					success:function(bet_success) { 
+
 						logOk("succeeded adding guess to custom bet "+betId)
 						
 						var newUsersGuesses = bet_success.get("usersGuesses");
-						log("these are the guesses before trying to add anything:");
+						log("these are the guesses after adding new guess:");
 						log(JSON.stringify(newUsersGuesses, null, 4));
 						
-						sendAdminMsgToGroup(groupLayerId, "" + userLayerId + " added a guess to custom bet "+ betId, {});
+						sendAdminMsgToGroup(bet.get("groupLayerId"), "" + userLayerId + " added a guess to custom bet "+ betId, {});
 						response.success(true);
 					},
 					error:function(bet, error) {
+
 						logError("failed adding guess to custom bet "+betId)
 						response.error(error);
 					}
