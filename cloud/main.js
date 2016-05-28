@@ -1256,6 +1256,9 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 	var betId = request.params.betId;
 	var userLayerId = request.params.userLayerId;
 	var userGuess = request.params.userGuess;
+	log(JSON.stringify(betId, null, 4));
+	log(JSON.stringify(userLayerId, null, 4));
+	log(JSON.stringify(userGuess, null, 4));
 	
 	var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
 	var query = new Parse.Query(LBCustomBetClass);
@@ -1264,29 +1267,36 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 		success: function(bet) {
 			//If bet doesn't exist in DB:
 			if ((bet == undefined) || (bet == null)) {
-				response.error("custom bet now found in db");
+				response.error("custom bet not found in db");
 			}else{
 				//Add guess to bet
 				
 				var usersGuesses = bet.get("usersGuesses");
+				log(JSON.stringify(usersGuesses, null, 4));
 				//make sure user didn't guess already
 				for (var guess in usersGuesses){
 					if (usersGuesses[guess].indexOf(userLayerId) > -1){
+						log(usersGuesses[guess].indexOf(userLayerId));
 						response.error("user already placed a guess");
 						return;
 					}
 				}
 				
 				if (userGuess in usersGuesses){
+					log("pushed guess to userGuesses");
 					usersGuesses[userGuess].push(userLayerId);
 				}else{
+					log("created new guess");
 					usersGuesses[userGuess] = [userLayerId];
 				}
 				bet.save(null,{
 					success:function(bet_success) { 
+						logOk("succeeded adding guess to custom bet "+betId)
+						sendAdminMsgToGroup(groupLayerId, "" + userLayerId + " added a guess to custom bet "+ betId, {});
 						response.success(true);
 					},
 					error:function(bet, error) {
+						logError("failed adding guess to custom bet "+betId)
 						response.error(error);
 					}
 				});
@@ -1373,7 +1383,7 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 						message = message + "No one won the bet =(";
 					}				
 					sendAdminMsgToGroup(groupLayerId,message, {});
-					bet.destroy({});
+					//bet.destroy({});
 					response.success();
 				}
 			}
