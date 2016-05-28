@@ -1123,6 +1123,7 @@ function updateEndedMatch(match, bets){
 //delete group's last bet from DB, given a groupLayerId
 function deleteLastBetOfGroup(groupLayerId){
 	log("deleteLastBetOfGroup of group "+groupLayerId);
+	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
 	query.equalTo("layerGroupId",groupLayerId);
 	log("test 1");
