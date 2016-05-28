@@ -1853,6 +1853,7 @@ Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, respon
 				group.set("picture", picture);
 				group.save(null,{
 					success:function(groupSuccess) { 
+						sendAdminMsgToGroup(groupLayerId, "Group info changed", {});
 						response.success("success: picture changed");	
 					},
 					error:function(groupError, error) {
