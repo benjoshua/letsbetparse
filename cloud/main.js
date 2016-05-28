@@ -1680,6 +1680,7 @@ function updateLastCustomBetOfGroup(betId, groupLayerId){
 
 Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
+
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
 	query.equalTo("layerGroupId",groupLayerId);
@@ -1846,7 +1847,7 @@ Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, respon
 
 		var LBGroupClass = Parse.Object.extend("LBGroup");
 		var query = new Parse.Query(LBGroupClass);
-		query.equalTo("layerIdentityToken",groupLayerId);
+		query.equalTo("layerGroupId",groupLayerId);
 		query.first({
 			success: function(group) {
 				group.set("picture", picture);
