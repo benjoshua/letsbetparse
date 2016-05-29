@@ -1346,7 +1346,6 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 					var message = "" + user.get("name") +  " opened a new bet! ("+savedBet.get("betName")+")";
 					//console.log("openNewCustomBet: gonna send "+message);
 					sendAdminMsgToGroup(groupLayerId, message ,data);
-					sendAdminMsgToGroup(groupLayerId, " " ,{});
 					//sendAdminMsgToGroup(groupLayerId,message, {});
 					//console.log("openNewCustomBet: returning success");
 					response.success(true);
