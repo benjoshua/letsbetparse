@@ -1411,7 +1411,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 						log("these are the guesses after adding new guess:");
 						log(JSON.stringify(newUsersGuesses, null, 4));
 						
-						sendAdminMsgToGroup(bet.get("groupLayerId"), "" + userLayerId + " added a guess to custom bet "+ betId, {});
+						sendAdminMsgToGroup(bet.get("groupLayerId"), "guess was added to custom bet", {});
 						response.success(true);
 					},
 					error:function(bet, error) {
