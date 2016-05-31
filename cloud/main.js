@@ -1525,8 +1525,8 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 													"msgType" : "CustomBetFinished",
 													"winners" : winnersArray,
 													"betName" : bet.get("betName"),
-													"stakeDesc" bet.get("stakeDesc"),
-													"stakeType" bet.get("stakeType")
+													"stakeDesc" : bet.get("stakeDesc"),
+													"stakeType" : bet.get("stakeType")
 											}			
 										sendAdminMsgToGroup(groupLayerId,message, data);
 										//updateLastCustomBetOfGroup(betId, groupLayerId);
