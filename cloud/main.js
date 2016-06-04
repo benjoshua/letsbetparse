@@ -493,7 +493,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 							userQuery.first({
 								success: function(user) {
 									if ((user == undefined) || (user == null)){
-										response.error("couldn't find userID to add his guess");
+										response.error("couldn't find userId to add his guess");
 									}else{
 										//TODO: make sure what's the right behavior for updating etc.
 										sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, {});
@@ -1532,12 +1532,12 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 								logWarning("1");
 								for (var j = 0; j < winnersArray.length; j++) {
 									logWarning("2");
-									var userId = winnersArray[i];
+									var userId = winnersArray[j];
 									if (!(userId in newStatisticsStr)){
-										log("user "+userID+ " doesn't exist in group stats, so adding it with bullseye points already");
+										log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
 										newStatistics[userId] = {"bullseye":1, "almost":0, "lost":0, "points":3};	
 									}else{
-										log("updating a bullseye for user "+userID);
+										log("updating a bullseye for user "+userId);
 										var bullseyes = newStatisticsStr[userId].get("bullseye");
 										var pnts = newStatisticsStr[userId].get("points");
 										bullseyes = bullseyes + 1;
@@ -1548,14 +1548,14 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 									}
 								}
 								logWarning("4");
-								for (var j = 0; j < lostArray.length; j++) {
+								for (var k = 0; k < lostArray.length; k++) {
 									logWarning("5");
-									var userId = lostArray[i];
+									var userId = lostArray[k];
 									if (!(userId in newStatisticsStr)){
-										log("user "+userID+ " doesn't exist in group stats, so adding it with bullseye points already");
+										log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
 										newStatistics[userId] = {"bullseye":0, "almost":0, "lost":1, "points":0};	
 									}else{
-										log("updating a bullseye for user "+userID);
+										log("updating a bullseye for user "+userId);
 										var losts = newStatisticsStr[userId].get("lost");
 										losts = losts + 1;
 										newStatistics[userId].push({key:"lost", value:losts});
