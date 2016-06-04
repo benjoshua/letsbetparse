@@ -1520,14 +1520,15 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 							if ((group == undefined) || (group == null)) {
 								response.error("trying to update last bet: group wasn't found");
 							}else{
+								logW("0");
 								//Updating last bet
 								group.set("lastBetId",bet.id);
 								group.set("lastBetType","Custom");
-								
+								logW("0.5");
 								//Updating stats:
 								var newStatistics = group.get("statistics");
 								var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
-								log("current statistics of group: "+ newStatisticsStr);
+								logW("current statistics of group: "+ newStatisticsStr);
 								logW("1");
 								for (var j = 0; j < winnersArray.length; j++) {
 									logW("2");
