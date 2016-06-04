@@ -1474,6 +1474,8 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 					response.error("this user isn't an admin, thus can't close the bet");
 				}else{
 					//Update stats according to guesses
+					var bullseyeArray = [];
+					var lostArray = [];
 					usersGuesses = bet.get("usersGuesses");
 					if (!(winningGuess in usersGuesses)){
 						logWarning("winning guess wasn't even a possibility");
@@ -1486,13 +1488,17 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 							//Someone guessed right
 							if (winningGuess === guess){
 								for (var i = 0; i < usersArray.length; i++) {
-									log("user guessed right");
-									updateWinStatForUser(usersArray[i]);
+									var userId = usersArray[i];
+									log("user " + userId + " guessed right");
+									updateWinStatForUser(userId);
+									bullseyeArray.push(userId);
 								}
 							}else{
 								for (var i = 0; i < usersArray.length; i++) {
-									log("user guessed wrong");
+									var userId = usersArray[i];
+									log("user " + usersArray[i] + " guessed wrong");
 									updateBetsParticipatedStatForUser(usersArray[i]);
+									lostArray.push(userId);
 								}
 							}
 						}
@@ -1507,16 +1513,56 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 					//Update last bet
 					log("trying to update last bet in group (for custom bet)");
 					var LBGroupClass = Parse.Object.extend("LBGroup");
-					var query = new Parse.Query(LBGroupClass);
-					query.equalTo("layerGroupId",groupLayerId);
-					query.first({
+					var query_group = new Parse.Query(LBGroupClass);
+					query_group.equalTo("layerGroupId",groupLayerId);
+					query_group.first({
 						success: function(group) {
 							//If group doesn't exist in DB:
 							if ((group == undefined) || (group == null)) {
 								response.error("trying to update last bet: group wasn't found");
 							}else{
+								//Updating last bet
 								group.set("lastBetId",bet.id);
 								group.set("lastBetType","Custom");
+								
+								//Updating stats:
+								var currentStatistics = group.get("statistics");
+								var currentStatisticsStr = JSON.stringify(currentStatistics, null, 4);
+								log("current statistics of group: "+ currentStatisticsStr);
+								var newStatistics = currentStatistics;
+								for (var j = 0; j < winnersArray.length; j++) {
+									var userId = winnersArray[i];
+									if (!(userId in currentStatistics)){
+										log("user "+userID+ " doesn't exist in group stats, so adding it with bullseye points already");
+										newStatistics[userId] = {"bullseye":1, "almost":0, "lost":0, "points":3};	
+									}else{
+										log("updating a bullseye for user "+userID);
+										var bullseyes = currentStatistics[userId].get("bullseye");
+										var pnts = currentStatistics[userId].get("points");
+										bullseyes = bullseyes + 1;
+										pnts = pnts + 3;
+										newStatistics[userId].push({key:"bullseye", value:bullseyes});
+										newStatistics[userId].push({key:"points", value:pnts});
+									}
+								}
+								for (var j = 0; j < lostArray.length; j++) {
+									var userId = lostArray[i];
+									if (!(userId in currentStatistics)){
+										log("user "+userID+ " doesn't exist in group stats, so adding it with bullseye points already");
+										newStatistics[userId] = {"bullseye":0, "almost":0, "lost":1, "points":0};	
+									}else{
+										log("updating a bullseye for user "+userID);
+										var losts = currentStatistics[userId].get("lost");
+										losts = losts + 1;
+										newStatistics[userId].push({key:"lost", value:losts});
+									}
+								}
+								
+								var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
+								log("new statistics of group: "+ newStatisticsStr);
+								
+								group.set("statistics",newStatistics);
+								
 								log("trying to save last bet details");
 								group.save(null,{
 									success:function(group) { 
