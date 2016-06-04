@@ -1520,18 +1520,18 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 							if ((group == undefined) || (group == null)) {
 								response.error("trying to update last bet: group wasn't found");
 							}else{
-								logW("0");
+								logWarning("0");
 								//Updating last bet
 								group.set("lastBetId",bet.id);
 								group.set("lastBetType","Custom");
-								logW("0.5");
+								logWarning("0.5");
 								//Updating stats:
 								var newStatistics = group.get("statistics");
 								var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
-								logW("current statistics of group: "+ newStatisticsStr);
-								logW("1");
+								logWarning("current statistics of group: "+ newStatisticsStr);
+								logWarning("1");
 								for (var j = 0; j < winnersArray.length; j++) {
-									logW("2");
+									logWarning("2");
 									var userId = winnersArray[i];
 									if (!(userId in newStatisticsStr)){
 										log("user "+userID+ " doesn't exist in group stats, so adding it with bullseye points already");
@@ -1544,12 +1544,12 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 										pnts = pnts + 3;
 										newStatistics[userId].push({key:"bullseye", value:bullseyes});
 										newStatistics[userId].push({key:"points", value:pnts});
-										logW("3");
+										logWarning("3");
 									}
 								}
-								logW("4");
+								logWarning("4");
 								for (var j = 0; j < lostArray.length; j++) {
-									logW("5");
+									logWarning("5");
 									var userId = lostArray[i];
 									if (!(userId in newStatisticsStr)){
 										log("user "+userID+ " doesn't exist in group stats, so adding it with bullseye points already");
@@ -1559,11 +1559,11 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 										var losts = newStatisticsStr[userId].get("lost");
 										losts = losts + 1;
 										newStatistics[userId].push({key:"lost", value:losts});
-										logW("6");
+										logWarning("6");
 									}
 								}
 								
-								logW("7");
+								logWarning("7");
 								var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
 								log("new statistics of group: "+ newStatisticsStr);
 								
