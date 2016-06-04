@@ -1525,21 +1525,20 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 								group.set("lastBetType","Custom");
 								
 								//Updating stats:
-								var currentStatistics = group.get("statistics");
-								var currentStatisticsStr = JSON.stringify(currentStatistics, null, 4);
-								log("current statistics of group: "+ currentStatisticsStr);
-								var newStatistics = currentStatistics;
+								var newStatistics = group.get("statistics");
+								var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
+								log("current statistics of group: "+ newStatisticsStr);
 								logW("1");
 								for (var j = 0; j < winnersArray.length; j++) {
 									logW("2");
 									var userId = winnersArray[i];
-									if (!(userId in currentStatistics)){
+									if (!(userId in newStatisticsStr)){
 										log("user "+userID+ " doesn't exist in group stats, so adding it with bullseye points already");
 										newStatistics[userId] = {"bullseye":1, "almost":0, "lost":0, "points":3};	
 									}else{
 										log("updating a bullseye for user "+userID);
-										var bullseyes = currentStatistics[userId].get("bullseye");
-										var pnts = currentStatistics[userId].get("points");
+										var bullseyes = newStatisticsStr[userId].get("bullseye");
+										var pnts = newStatisticsStr[userId].get("points");
 										bullseyes = bullseyes + 1;
 										pnts = pnts + 3;
 										newStatistics[userId].push({key:"bullseye", value:bullseyes});
@@ -1551,12 +1550,12 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 								for (var j = 0; j < lostArray.length; j++) {
 									logW("5");
 									var userId = lostArray[i];
-									if (!(userId in currentStatistics)){
+									if (!(userId in newStatisticsStr)){
 										log("user "+userID+ " doesn't exist in group stats, so adding it with bullseye points already");
 										newStatistics[userId] = {"bullseye":0, "almost":0, "lost":1, "points":0};	
 									}else{
 										log("updating a bullseye for user "+userID);
-										var losts = currentStatistics[userId].get("lost");
+										var losts = newStatisticsStr[userId].get("lost");
 										losts = losts + 1;
 										newStatistics[userId].push({key:"lost", value:losts});
 										logW("6");
