@@ -1533,7 +1533,7 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 								for (var j = 0; j < winnersArray.length; j++) {
 									logWarning("2");
 									var userId = winnersArray[j];
-									if (!(userId in newStatisticsStr)){
+									if (!(userId in newStatistics)){
 										log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
 										newStatistics[userId] = {"bullseye":1, "almost":0, "lost":0, "points":3};	
 									}else{
@@ -1551,7 +1551,7 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 								for (var k = 0; k < lostArray.length; k++) {
 									logWarning("5");
 									var userId = lostArray[k];
-									if (!(userId in newStatisticsStr)){
+									if (!(userId in newStatistics)){
 										log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
 										newStatistics[userId] = {"bullseye":0, "almost":0, "lost":1, "points":0};	
 									}else{
