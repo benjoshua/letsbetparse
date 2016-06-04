@@ -1772,6 +1772,9 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 					LBBetClass = Parse.Object.extend("LBFootballGameBet");
 				}else if (lastBetType === "Custom"){
 					LBBetClass = Parse.Object.extend("LBCustomBet");
+				}else if (lastBetType === ""){
+					log("no last bets exist");
+					response.error("No last bet exist (probably first bet just ended)");
 				}else{
 					response.error("Unknown last bet type in group");
 				}
@@ -1839,8 +1842,7 @@ Parse.Cloud.define("getGroupPicturesForGroupLayerIds", function(request, respons
 	});
 });
 
-//for given array of groupLayerId, get pictures
-//every time app is opened
+
 Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, response) {
 	
 		var groupLayerId = request.params.groupLayerId;
