@@ -1343,10 +1343,9 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 					}
 					//console.log("openNewCustomBet: succeeded with data");
 
-					var message = "" + user.get("name") +  " opened a new bet! ("+savedBet.get("betName")+")";
+					var message = "" + user.get("name") +  " opened a new bet";
 					//console.log("openNewCustomBet: gonna send "+message);
 					sendAdminMsgToGroup(groupLayerId, message ,data);
-					sendAdminMsgToGroup(groupLayerId, " " ,{});
 					//sendAdminMsgToGroup(groupLayerId,message, {});
 					//console.log("openNewCustomBet: returning success");
 					response.success(true);
@@ -1412,7 +1411,7 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 						log("these are the guesses after adding new guess:");
 						log(JSON.stringify(newUsersGuesses, null, 4));
 						
-						sendAdminMsgToGroup(bet.get("groupLayerId"), "" + userLayerId + " added a guess to custom bet "+ betId, {});
+						sendAdminMsgToGroup(bet.get("groupLayerId"), "guess was added to custom bet", {});
 						response.success(true);
 					},
 					error:function(bet, error) {
@@ -1567,14 +1566,15 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 								group.save(null,{
 									success:function(group) { 
 										logOk("succeeded saving last bet details");
-										var betName = bet.get("betName");
-										var message = "" + betName + "was closed.";
-										if (winnersArray.length > 0){
-											message = message + "Someone won the bet!";
-										}else{
-											message = message + "No one won the bet =(";
-										}				
-										sendAdminMsgToGroup(groupLayerId,message, {});
+										var message = "Custom bet finished";
+										var data = {
+													"msgType" : "CustomBetFinished",
+													"winners" : winnersArray,
+													"betName" : bet.get("betName"),
+													"stakeDesc" : bet.get("stakeDesc"),
+													"stakeType" : bet.get("stakeType")
+											}			
+										sendAdminMsgToGroup(groupLayerId,message, data);
 										//updateLastCustomBetOfGroup(betId, groupLayerId);
 										response.success();
 									},
