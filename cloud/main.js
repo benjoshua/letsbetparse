@@ -1540,16 +1540,18 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 										newStatistics[userId] = {"bullseye":1, "almost":0, "lost":0, "points":3};	
 									}else{
 										log("updating a bullseye for user "+userId);
-										var bullseyes = newStatistics[userId].get("bullseye");
+										var bullseyes = (newStatistics[userId])["bullseye"];
 										logWarning("2.3");
-										var pnts = newStatistics[userId].get("points");
+										var pnts = (newStatistics[userId])["points"];
 										logWarning("2.4");
 										bullseyes = bullseyes + 1;
 										pnts = pnts + 3;
 										logWarning("2.5");
-										newStatistics[userId].push({key:"bullseye", value:bullseyes});
+										(newStatistics[userId])["bullseye"] = bullseyes;
+										//newStatistics[userId].push({key:"bullseye", value:bullseyes});
 										logWarning("2.6");
-										newStatistics[userId].push({key:"points", value:pnts});
+										(newStatistics[userId])["points"] = pnts;
+										//newStatistics[userId].push({key:"points", value:pnts});
 										logWarning("3");
 									}
 								}
@@ -1562,9 +1564,10 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 										newStatistics[userId] = {"bullseye":0, "almost":0, "lost":1, "points":0};	
 									}else{
 										log("updating a bullseye for user "+userId);
-										var losts = newStatistics[userId].get("lost");
+										var losts = (newStatistics[userId])["lost"];
 										losts = losts + 1;
-										newStatistics[userId].push({key:"lost", value:losts});
+										(newStatistics[userId])["lost"] = losts;
+										//newStatistics[userId].push({key:"lost", value:losts});
 										logWarning("6");
 									}
 								}
