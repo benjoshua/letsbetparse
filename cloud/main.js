@@ -1541,10 +1541,14 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 									}else{
 										log("updating a bullseye for user "+userId);
 										var bullseyes = newStatistics[userId].get("bullseye");
+										logWarning("2.3");
 										var pnts = newStatistics[userId].get("points");
+										logWarning("2.4");
 										bullseyes = bullseyes + 1;
 										pnts = pnts + 3;
+										logWarning("2.5");
 										newStatistics[userId].push({key:"bullseye", value:bullseyes});
+										logWarning("2.6");
 										newStatistics[userId].push({key:"points", value:pnts});
 										logWarning("3");
 									}
