@@ -1337,6 +1337,7 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 				success: function(user) {
 					//console.log("openNewCustomBet: found user");
 					var data = {
+						"msgType" : "newCustomBet",
 						"betType": "customBet",
 						"betId" : savedBet.id,
 						"betName" : savedBet.get("betName")
