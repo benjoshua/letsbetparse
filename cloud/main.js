@@ -71,7 +71,7 @@ setInterval(function() {
 }, liveUpdateInterval);
 
 var dbGamesUpdateHours = 1;
-var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000;
+var dbGamesUpdateInterval = 11*60*1000; //11 mins.      //dbGamesUpdateHours * 60 * 60 * 1000;
 setInterval(function() {
   updateComingGames();
 }, dbGamesUpdateInterval);
@@ -730,38 +730,38 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 	query.equalTo("matchId",matchId);
 	query.first({
 		success: function(match) {
-			//If match already exists in Parse:
-			if (match != undefined && match != null) {
-				//console.log("matchId "+ matchId + " exists in DB already");
-			} else {
-				//New match
+			//If match doesn't exist in Parse:
+			if ((match == undefined ) || (match == null)) {
 				console.log("adding matchId "+ matchId + " to DB");
 				var match = new LBFootballMatchClass();
 				match.set("matchId",matchId);
 				//var d = new Date(date);
 				//console.log(d);
-				match.set("date", date);
-				match.set("leagueId",leagueId);
-				match.set("homeTeam",homeTeam);
-				match.set("homeTeamId",homeTeamId);
-				match.set("awayTeam",awayTeam);
-				match.set("awayTeamId",awayTeamId);
-				match.set("location",loc);
 				
 				match.set("time","Not Started");
 				match.set("homeGoals",0);
 				match.set("awayGoals",0);
-				
-				match.save(null,{
-					success:function(match_success) { 
-						console.log("succeeded saving matchId " + match_success.get("matchId"));
-						//yofi
-					},
-					error:function(match_err, error) {
-						response.error(error);
-					}
-				});
 			}
+			
+			//Updating a match
+			console.log("updatin matchId "+ matchId);
+			match.set("date", date);
+			match.set("leagueId",leagueId);
+			match.set("homeTeam",homeTeam);
+			match.set("homeTeamId",homeTeamId);
+			match.set("awayTeam",awayTeam);
+			match.set("awayTeamId",awayTeamId);
+			match.set("location",loc);
+			
+			match.save(null,{
+				success:function(match_success) { 
+					console.log("succeeded saving matchId " + match_success.get("matchId"));
+					//yofi
+				},
+				error:function(match_err, error) {
+					response.error(error);
+				}
+			});
 		},
 		error: function(error) {
 			response.error(error);
@@ -1340,11 +1340,13 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 						"msgType" : "newCustomBet",
 						"betType": "customBet",
 						"betId" : savedBet.id,
+						"betAdminLayerId" : savedBet.get("betAdminLayerId"),
+						"betAdminName" : user.get("name"),
 						"betName" : savedBet.get("betName")
 					}
 					//console.log("openNewCustomBet: succeeded with data");
 
-					var message = "" + user.get("name") +  " opened a new bet";
+					var message = "" + user.get("name") +  " opened a new bet - " + savedBet.get("betName");
 					//console.log("openNewCustomBet: gonna send "+message);
 					sendAdminMsgToGroup(groupLayerId, message ,data);
 					//sendAdminMsgToGroup(groupLayerId,message, {});
