@@ -428,6 +428,10 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 													"betAdminLayerId" : betAdminLayerId,
 													"teamHomeName" : teamHostName,
 													"teamAwayName" : teamGuestName
+													"teamHomeId" : teamHostId,
+													"teamAwayId" : teamGuestId,
+													"date" : match.get("date")
+													
 												}
 
 												sendAdminMsgToGroup(groupLayerId, "" + user.get("name") +  " opened a new bet!",data);
