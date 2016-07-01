@@ -1001,8 +1001,8 @@ function updateEndedMatch(match, bets){
 	var awayTeamName = match.get("awayTeam");
 	var homeTeamId = match.get("homeTeamId");
 	var awayTeamId = match.get("awayTeamId");
-	var homeTeamGoals = match.get("homeGoals");
-	var awayTeamGoals = match.get("awayGoals");
+	var homeTeamGoals = parseInt(match.get("homeGoals"));
+	var awayTeamGoals = parseInt(match.get("awayGoals"));
 	
 	for(var i = 0; i < bets.length; i++) {
 		var bet = bets[i];
@@ -1084,10 +1084,10 @@ function updateEndedMatch(match, bets){
 								//"betId": bet.id,
 								"teamHomeName" : homeTeamName,
 								"teamAwayName" : awayTeamName,
-								"teamHomeId" : teamHostId,
-								"teamAwayId" : teamGuestId,
-								"teamHomeGoals" : homeTeamId,
-								"teamAwayGoals" : awayTeamId,
+								"teamHomeId" : homeTeamId,
+								"teamAwayId" : awayTeamId,
+								"teamHomeGoals" : homeTeamGoals,
+								"teamAwayGoals" : awayTeamGoals,
 								"betStakesDesc" : betStakeDesc,
 								//"betStakesType" : betStakeType,
 								"winnersArray" : winnersArray
