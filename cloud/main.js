@@ -996,15 +996,19 @@ function performRelevantActionsInRelevantGroupsBecauseStatusChanged(match){
 //send notifications to relevant groups, delete match from db, update statistics in relevant groups
 function updateEndedMatch(match, bets){
 	console.log("in updateEndedMatch()");
-	var matchId = match.get("matchId")
-	var homeTeamName = match.get("homeTeam")
-	var awayTeamName = match.get("awayTeam")
+	var matchId = match.get("matchId");
+	var homeTeamName = match.get("homeTeam");
+	var awayTeamName = match.get("awayTeam");
+	var homeTeamId = match.get("homeTeamId");
+	var awayTeamId = match.get("awayTeamId");
 	var homeTeamGoals = match.get("homeGoals");
 	var awayTeamGoals = match.get("awayGoals");
 	
 	for(var i = 0; i < bets.length; i++) {
 		var bet = bets[i];
 		var groupLayerId = bet.get("layerGroupId");
+		var betStakeDesc = bet.get("stakeDesc");
+		var betStakeType = bet.get("stakeType");
 		var LBGroupClass = Parse.Object.extend("LBGroup");
 		var query = new Parse.Query(LBGroupClass);
 		query.equalTo("layerGroupId",groupLayerId);
@@ -1013,60 +1017,8 @@ function updateEndedMatch(match, bets){
 				//group exists:
 				if (group != undefined && group != null) {
 					
-					
-					
 					var currentStatistics = group.get("statistics");
 					var groupUsersGuesses = bet.get("usersGuesses");
-					
-
-					
-					
-					/**
-					var previousLastBetID = group.get("lastBetId");
-					log("previousLastBetID: "+previousLastBetID);
-					var previousLastBetType = group.get("lastBetType");
-					log("previousLastBetType: "+previousLastBetType);
-					if (previousLastBetType == "Football"){	
-						var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
-						var queryBet = new Parse.Query(LBFootballGameBetClass);
-						queryBet.equalTo("_id", previousLastBetID);
-						queryBet.first({
-							success: function(betToDel) {
-								if ((betToDel != undefined) && (betToDel != null)) {
-									betToDel.destroy({});
-								}
-								else{
-									logWarning("last bet not found in bets DB");
-								}
-							},error:function(bet, error) {
-								logError("updateEndedMatch: error finding bet: "+error.message);
-							}
-						});
-					}
-					else if (previousLastBetType == "Custom"){
-						var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
-						var queryBet = new Parse.Query(LBCustomBetClass);
-						queryBet.equalTo("_id", previousLastBetID);
-						queryBet.first({
-							success: function(betToDel) {
-								if ((betToDel != undefined) && (betToDel != null)) {
-									logOk("deleted last bet of group from DB");
-									betToDel.destroy({});
-								}
-								else{
-									logError("last custom bet not found in bets DB");
-								}
-							},error:function(bet, error) {
-								logError("updateEndedMatch: error finding bet: "+error.message);
-							}
-						});
-						
-					}else{
-						logWarning("Unknown last bet type");
-					}
-					*/
-					
-					
 					
 					var str = JSON.stringify(groupUsersGuesses, null, 4); // (Optional) beautiful indented output.
 					console.log("userGuesses: "+str); // Logs output to dev tools console.
@@ -1125,16 +1077,29 @@ function updateEndedMatch(match, bets){
 					group.save(null,{
 						//TODO: send right msg + data{}
 						success:function(group) { 
-							console.log("saved statistics for group "+groupLayerId);
-							var message = homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+". ";
-							if (winnersArray.length > 0){
+							logOk("saved statistics for group "+groupLayerId);
+							var message = "Final score: " + homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals;
+							var data = {
+								"msgType" : "footballBetEnded",
+								//"betId": bet.id,
+								"teamHomeName" : homeTeamName,
+								"teamAwayName" : awayTeamName,
+								"teamHomeId" : teamHostId,
+								"teamAwayId" : teamGuestId,
+								"teamHomeGoals" : homeTeamId,
+								"teamAwayGoals" : awayTeamId,
+								"betStakesDesc" : betStakeDesc,
+								//"betStakesType" : betStakeType,
+								"winnersArray" : winnersArray
+							}
+							/*if (winnersArray.length > 0){
 								message = message + "Someone won the bet!";
 							}else{
 								message = message + "No one won the bet =(";
-							}
+							}*/
 							
 							console.log("gonna send them this message: "+message);
-							sendAdminMsgToGroup(groupLayerId, message,{});
+							sendAdminMsgToGroup(groupLayerId, message, data);
 						},
 						error:function(group, error) {
 							console.log("updateEndedMatch: error saving guesses: "+error);
