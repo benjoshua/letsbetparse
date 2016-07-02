@@ -735,7 +735,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 		success: function(match) {
 			//If match doesn't exist in Parse:
 			if ((match == undefined ) || (match == null)) {
-				console.log("adding matchId "+ matchId + " to DB");
+				log("Creating matchId "+ matchId + " in DB");
 				var match = new LBFootballMatchClass();
 				match.set("matchId",matchId);
 				//var d = new Date(date);
@@ -747,7 +747,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 			}
 			
 			//Updating a match
-			console.log("updatin matchId "+ matchId);
+			log("Updating data of match "+ matchId);
 			match.set("date", date);
 			match.set("leagueId",leagueId);
 			match.set("homeTeam",homeTeam);
@@ -758,15 +758,16 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 			
 			match.save(null,{
 				success:function(match_success) { 
-					console.log("succeeded saving matchId " + match_success.get("matchId"));
-					//yofi
+					logOk("Succeeded saving data of match " + match_success.get("matchId"));
 				},
 				error:function(match_err, error) {
+					logError("Error saving data of match " + match_success.get("matchId") + ": "+ error);
 					response.error(error);
 				}
 			});
 		},
 		error: function(error) {
+			logError("Error querying match " + matchId + ": "+ error);
 			response.error(error);
 		}
 	});	
@@ -837,7 +838,7 @@ function updateLiveScores() {
 
 //Gets liveScoreXml and calls a function that updates db and notifies relevant groups
 function updateLiveScoresInDBAndNotify(liveScoresXml){
-	log("Updating scores (if needed)");
+	log("Looking for score updates");
 	
 	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
 		parser.parseString(liveScoresXml, function (err, result) {
