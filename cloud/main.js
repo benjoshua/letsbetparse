@@ -1087,7 +1087,7 @@ function updateEndedMatch(match, bets){
 								"teamAwayId" : awayTeamId,
 								"teamHomeGoals" : homeTeamGoals,
 								"teamAwayGoals" : awayTeamGoals,
-								"betStakesDesc" : betStakeDesc,
+								"stakeDesc" : betStakeDesc,
 								//"betStakesType" : betStakeType,
 								"winnersArray" : winnersArray
 							}
