@@ -1911,7 +1911,7 @@ Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, respon
 
 Parse.Cloud.define("sendAdminMessageToGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
-	var senderLayerId = request.params.userLayerId;
+	var senderLayerId = request.params.senderLayerId;
 	var message = request.params.message;
 	
 	log(senderLayerId + " asked to send '" + message + "' to group " + groupLayerId);
