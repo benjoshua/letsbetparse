@@ -1069,47 +1069,58 @@ function updateEndedMatch(match, bets){
 					}
 					
 					log("Group's winners of this match are: "+JSON.stringify(winnersArray, null, 4));
-					
 					group.set("statistics",currentStatistics);
 					
-					//Delete last group's bet
-					deleteLastBetOfGroup(groupLayerId);
-					
-					//Update last bet in group
-					group.set("lastBetId",bet.id);
-					group.set("lastBetType","Football");
-
-					group.save(null,{
-						//TODO: send right msg + data{}
-						success:function(group) { 
-							logOk("saved statistics for group " + groupLayerId);
-							var message = "Final score: " + homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals;
-							var data = {
-								"msgType" : "footballBetEnded",
-								//"betId": bet.id,
-								"teamHomeName" : homeTeamName,
-								"teamAwayName" : awayTeamName,
-								"teamHomeId" : homeTeamId,
-								"teamAwayId" : awayTeamId,
-								"teamHomeGoals" : homeTeamGoals,
-								"teamAwayGoals" : awayTeamGoals,
-								"stakeDesc" : betStakeDesc,
-								//"betStakesType" : betStakeType,
-								"winnersArray" : winnersArray
-							}
-							/*if (winnersArray.length > 0){
-								message = message + "Someone won the bet!";
-							}else{
-								message = message + "No one won the bet =(";
-							}*/
+					bet.set("winnersArray",winnersArray);
+					bet.save(null,{
+						success:function(saved_bet) { 						
+							//Delete last group's bet
+							deleteLastBetOfGroup(groupLayerId);
 							
-							console.log("gonna send them this message: "+message);
-							sendAdminMsgToGroup(groupLayerId, message, data);
+							//Update last bet in group
+							group.set("lastBetId",saved_bet.id);
+							group.set("lastBetType","Football");
+
+							group.save(null,{
+								//TODO: send right msg + data{}
+								success:function(group) { 
+									logOk("saved statistics for group " + groupLayerId);
+									var message = homeTeamName + " vs " + awayTeamName + " - " + homeTeamGoals + ":" + awayTeamGoals +
+										" - Final Score - ";
+									if (winnersArray.length == 0){
+										message = message + "no winners here... try again!";
+									}else if (winnersArray.length == 1){
+										message = message + "Someone won the bet";
+									}else{
+										message = message + "Several users won the bet";
+									}
+									
+									var data = {
+										"msgType" : "footballBetEnded",
+										"teamHomeName" : homeTeamName,
+										"teamAwayName" : awayTeamName,
+										"teamHomeId" : homeTeamId,
+										"teamAwayId" : awayTeamId,
+										"teamHomeGoals" : homeTeamGoals,
+										"teamAwayGoals" : awayTeamGoals,
+										"stakeDesc" : betStakeDesc,
+										"stakeType" : betStakeType,
+										"winnersArray" : winnersArray
+									}
+									
+									console.log("gonna send them this message: "+message);
+									sendAdminMsgToGroup(groupLayerId, message, data);
+								},
+								error:function(group, error) {
+									logError("updateEndedMatch: error saving guesses: "+error);
+								}
+							});
 						},
 						error:function(group, error) {
-							logError("updateEndedMatch: error saving guesses: "+error);
+							logError("failed saving winnersArray in football bet: "+error);
 						}
 					});
+					
 				} else {
 					logError("updateEndedMatch error: group doesn't exist");
 				}
@@ -1806,6 +1817,7 @@ Parse.Cloud.define("getStatsForUser", function(request, response) {
 //Get last bet (whether it's football or custom bet)
 Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
+	log("Looking for last bet in group " + groupLayerId);
 	
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
@@ -1824,7 +1836,7 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 				}else if (lastBetType === "Custom"){
 					LBBetClass = Parse.Object.extend("LBCustomBet");
 				}else if (lastBetType === ""){
-					log("no last bets exist");
+					logW("no last bet exist");
 					response.error("No last bet exist (probably first bet just ended)");
 				}else{
 					response.error("Unknown last bet type in group");
@@ -1834,6 +1846,7 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 				betQuery.first({
 					success: function(lastBet) {
 						if ((group != undefined) && (group != null)) {
+							logOk("returning last bet" + lastBet.id);
 							response.success(lastBet);
 						}else{
 							response.error("last bet wasn't found");
