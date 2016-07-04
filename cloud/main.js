@@ -499,7 +499,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 										response.error("couldn't find userId to add his guess");
 									}else{
 										//TODO: make sure what's the right behavior for updating etc.
-										var  = {
+										var data = {
 											"msgType" : "FootballBet",
 											"betId" : bet.id,
 											"gameId" : gameApiId,
