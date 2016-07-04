@@ -745,7 +745,8 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				match.set("homeGoals",0);
 				match.set("awayGoals",0);
 			}
-			
+
+			log("updating match of "+ homeTeam + " - " + awayTeam + "(" + homeTeamId + " - " + homeAwayId + "), at "+ loc);
 			//Updating a match
 			log("Updating data of match "+ matchId);
 			match.set("date", date);
@@ -759,6 +760,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 			match.save(null,{
 				success:function(match_success) { 
 					logOk("Succeeded saving data of match " + match_success.get("matchId"));
+
 				},
 				error:function(match_err, error) {
 					logError("Error saving data of match " + match_success.get("matchId") + ": "+ error);
@@ -883,7 +885,7 @@ function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
 				var dbAwayGoals = match.get("awayGoals");
 				
 				if ((dbStatus != gameStatus) || (dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
-					log("Found different score in DB. Updaing DB accordingly");
+					log("Found different score or time in DB. Updaing DB accordingly");
 					match.set("time", gameStatus);
 					match.set("homeGoals", homeGoals);
 					match.set("awayGoals", awayGoals);
