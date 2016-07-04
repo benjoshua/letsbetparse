@@ -1510,44 +1510,31 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 									if ((group == undefined) || (group == null)) {
 										response.error("trying to update last bet: group wasn't found");
 									}else{
-										logWarning("0");
 										//Updating last bet
 										group.set("lastBetId",saved_bet.id);
 										group.set("lastBetType","Custom");
-										logWarning("0.5");
 										//Updating stats:
 										var newStatistics = group.get("statistics");
 										var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
-										logWarning("current statistics of group: "+ newStatisticsStr);
-										logWarning("1");
+										log("current statistics of group: "+ newStatisticsStr);
 										for (var j = 0; j < winnersArray.length; j++) {
-											logWarning("2");
 											var userId = winnersArray[j];
-											logWarning("2.1");
 											if (!(userId in newStatistics)){
-												logWarning("2.2");
 												log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
 												newStatistics[userId] = {"bullseye":1, "almost":0, "lost":0, "points":3};	
 											}else{
 												log("updating a bullseye for user "+userId);
 												var bullseyes = (newStatistics[userId])["bullseye"];
-												logWarning("2.3");
 												var pnts = (newStatistics[userId])["points"];
-												logWarning("2.4");
 												bullseyes = bullseyes + 1;
 												pnts = pnts + 3;
-												logWarning("2.5");
 												(newStatistics[userId])["bullseye"] = bullseyes;
 												//newStatistics[userId].push({key:"bullseye", value:bullseyes});
-												logWarning("2.6");
 												(newStatistics[userId])["points"] = pnts;
 												//newStatistics[userId].push({key:"points", value:pnts});
-												logWarning("3");
 											}
 										}
-										logWarning("4");
 										for (var k = 0; k < lostArray.length; k++) {
-											logWarning("5");
 											var userId = lostArray[k];
 											if (!(userId in newStatistics)){
 												log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
@@ -1558,11 +1545,9 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 												losts = losts + 1;
 												(newStatistics[userId])["lost"] = losts;
 												//newStatistics[userId].push({key:"lost", value:losts});
-												logWarning("6");
 											}
 										}
 										
-										logWarning("7");
 										var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
 										log("new statistics of group: "+ newStatisticsStr);
 										
