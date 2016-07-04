@@ -746,7 +746,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				match.set("awayGoals",0);
 			}
 
-			log("updating match of "+ homeTeam + " - " + awayTeam + "(" + homeTeamId + " - " + homeAwayId + "), at "+ loc);
+			log("updating match of "+ homeTeam + " - " + awayTeam + "(" + homeTeamId + " - " + awayTeamId + ")");
 			//Updating a match
 			log("Updating data of match "+ matchId);
 			match.set("date", date);
