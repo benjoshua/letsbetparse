@@ -504,6 +504,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 											"betId" : bet.id,
 											"gameId" : gameApiId,
 											"userLayerId" : userLayerId,
+											"betAdminLayerId" : userLayerId,
 											"teamHomeName" : bet.get("teamHostName"),
 											"teamAwayName" : bet.get("teamGuestName"),
 											"teamHomeId" : bet.get("teamHostId"),
@@ -512,7 +513,6 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 										}
 										sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, data);
 										response.success(true);
-										//msgtype
 									}
 								},
 								error:function(bet, error) {
