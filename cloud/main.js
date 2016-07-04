@@ -426,6 +426,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 													"betId" : savedBet.id,
 													"gameId" : gameId,
 													"betAdminLayerId" : betAdminLayerId,
+													"userLayerId" : betAdminLayerId,
 													"teamHomeName" : teamHostName,
 													"teamAwayName" : teamGuestName,
 													"teamHomeId" : teamHostId,
@@ -498,21 +499,31 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 									if ((user == undefined) || (user == null)){
 										response.error("couldn't find userId to add his guess");
 									}else{
-										//TODO: make sure what's the right behavior for updating etc.
-										var data = {
-											"msgType" : "FootballBet",
-											"betId" : bet.id,
-											"gameId" : gameApiId,
-											"userLayerId" : userLayerId,
-											"betAdminLayerId" : userLayerId,
-											"teamHomeName" : bet.get("teamHostName"),
-											"teamAwayName" : bet.get("teamGuestName"),
-											"teamHomeId" : bet.get("teamHostId"),
-											"teamAwayId" : bet.get("teamGuestId")
-											//"date" : match.get("date") TODO: add!
-										}
-										sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, data);
-										response.success(true);
+										var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+										var query_match = new Parse.Query(LBFootballMatchClass);
+										query_match.equalTo("matchId",gameApiId);
+										query_match.first({
+											success: function(success_match) {
+												var data = {
+													"msgType" : "FootballBet",
+													"betId" : bet.id,
+													"gameId" : gameApiId,
+													"userLayerId" : userLayerId,
+													"betAdminLayerId" : userLayerId, // not true/needed
+													"teamHomeName" : bet.get("teamHostName"),
+													"teamAwayName" : bet.get("teamGuestName"),
+													"teamHomeId" : bet.get("teamHostId"),
+													"teamAwayId" : bet.get("teamGuestId"),
+													"date" : success_match.get("date")
+												}
+												sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, data);
+												response.success(true);
+											},
+											error: function(error_match) {
+												logError("Error querying match " + matchId + ": "+ error_match);
+												response.error(error_match);
+											}
+										});	
 									}
 								},
 								error:function(bet, error) {
