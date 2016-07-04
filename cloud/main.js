@@ -1919,8 +1919,7 @@ Parse.Cloud.define("sendMessageToGroup", function(request, response) {
 	
 	log(senderLayerId + " asked to send '" + message + "' to group " + groupLayerId);
 	sendAdminMsgToGroup(groupLayerId, message, {});
-	sendAdminMsgToGroup(groupLayerId, message, {});
-}
+});
 
 
 
