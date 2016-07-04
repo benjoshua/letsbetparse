@@ -718,8 +718,7 @@ function updateComingGamesInDB(futureMatchesXML){
 							var loc = result.match[i].location[0];
 							
 							var match_data_str = JSON.stringify(result.match[i], null, 4);
-							log("parsed match: "+ match_data_str);
-							
+							//log("parsed match: "+ match_data_str);
 							addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
 						}
 					}
@@ -748,7 +747,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				match.set("awayGoals",0);
 			}
 
-			log("updating match of "+ homeTeam + " - " + awayTeam + "(" + homeTeamId + " - " + awayTeamId + ")");
+			//log("updating match of "+ homeTeam + " - " + awayTeam + "(" + homeTeamId + " - " + awayTeamId + ")");
 			//Updating a match
 			log("Updating data of match "+ matchId);
 			match.set("date", date);
@@ -765,8 +764,6 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 			match.save(null,{
 				success:function(match_success) { 				
 					logOk("Succeeded saving data of match " + match_success.get("matchId"));
-					var saved_match_str = JSON.stringify(match_success, null, 4);
-					log("about to save match: "+ saved_match_str);
 
 				},
 				error:function(match_err, error) {
@@ -1912,7 +1909,7 @@ Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, respon
 
 });
 
-Parse.Cloud.define("sendMessageToGroup", function(request, response) {
+Parse.Cloud.define("sendAdminMessageToGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
 	var senderLayerId = request.params.userLayerId;
 	var message = request.params.message;
