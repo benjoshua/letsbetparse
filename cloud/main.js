@@ -1818,7 +1818,6 @@ Parse.Cloud.define("getStatsForUser", function(request, response) {
 //Get last bet (whether it's football or custom bet)
 Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
-	log("Looking for last bet in group " + groupLayerId);
 	
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
@@ -1847,7 +1846,6 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 				betQuery.first({
 					success: function(lastBet) {
 						if ((group != undefined) && (group != null)) {
-							logOk("returning last bet: " + lastBet.id);
 							response.success(lastBet);
 						}else{
 							response.error("last bet wasn't found");
