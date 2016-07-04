@@ -433,7 +433,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 													"date" : match.get("date")
 												}
 
-												sendAdminMsgToGroup(groupLayerId, "" + user.get("name") +  " opened a new bet!",data);
+												sendAdminMsgToGroup(groupLayerId, "" + user.get("name") +  " opened a new bet!", data);
 												response.success(true);
 											},
 											error:function(savedBet, error) {
@@ -499,8 +499,20 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 										response.error("couldn't find userId to add his guess");
 									}else{
 										//TODO: make sure what's the right behavior for updating etc.
-										sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, {});
+										var  = {
+											"msgType" : "FootballBet",
+											"betId" : bet.id,
+											"gameId" : gameApiId,
+											"userLayerId" : userLayerId,
+											"teamHomeName" : bet.get("teamHostName"),
+											"teamAwayName" : bet.get("teamGuestName"),
+											"teamHomeId" : bet.get("teamHostId"),
+											"teamAwayId" : bet.get("teamGuestId")
+											//"date" : match.get("date") TODO: add!
+										}
+										sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, data);
 										response.success(true);
+										//msgtype
 									}
 								},
 								error:function(bet, error) {
