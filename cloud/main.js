@@ -1574,11 +1574,12 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 												logOk("succeeded saving last bet details");
 												var message = "Custom bet finished";
 												var data = {
-															"msgType" : "CustomBetFinished",
-															"winners" : winnersArray,
-															"betName" : saved_bet.get("betName"),
-															"stakeDesc" : saved_bet.get("stakeDesc"),
-															"stakeType" : saved_bet.get("stakeType")
+														"msgType" : "CustomBetFinished",
+														"winners" : winnersArray,
+														"winnersArray" : winnersArray,
+														"betName" : saved_bet.get("betName"),
+														"stakeDesc" : saved_bet.get("stakeDesc"),
+														"stakeType" : saved_bet.get("stakeType")
 													}			
 												sendAdminMsgToGroup(groupLayerId,message, data);
 												//updateLastCustomBetOfGroup(betId, groupLayerId);
@@ -1846,7 +1847,7 @@ Parse.Cloud.define("getLastBetForGroup", function(request, response) {
 				betQuery.first({
 					success: function(lastBet) {
 						if ((group != undefined) && (group != null)) {
-							logOk("returning last bet" + lastBet.id);
+							logOk("returning last bet: " + lastBet.id);
 							response.success(lastBet);
 						}else{
 							response.error("last bet wasn't found");
