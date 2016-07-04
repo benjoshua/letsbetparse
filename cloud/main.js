@@ -1480,107 +1480,120 @@ Parse.Cloud.define("closeCustomBet", function(request, response) {
 					}
 					
 					var winnersArray = usersGuesses[winningGuess];
-					var groupLayerId = bet.get("groupLayerId");
+					bet.set("winnersArray",winnersArray);
+					bet.save(null,{
+						success:function(saved_bet) { 
+							var groupLayerId = saved_bet.get("groupLayerId");
 					
-					//Delete last bet
-					log("trying to delete last bet in group (for custom bet)");
-					deleteLastBetOfGroup(groupLayerId);
-					//Update last bet
-					log("trying to update last bet in group (for custom bet)");
-					var LBGroupClass = Parse.Object.extend("LBGroup");
-					var query_group = new Parse.Query(LBGroupClass);
-					query_group.equalTo("layerGroupId",groupLayerId);
-					query_group.first({
-						success: function(group) {
-							//If group doesn't exist in DB:
-							if ((group == undefined) || (group == null)) {
-								response.error("trying to update last bet: group wasn't found");
-							}else{
-								logWarning("0");
-								//Updating last bet
-								group.set("lastBetId",bet.id);
-								group.set("lastBetType","Custom");
-								logWarning("0.5");
-								//Updating stats:
-								var newStatistics = group.get("statistics");
-								var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
-								logWarning("current statistics of group: "+ newStatisticsStr);
-								logWarning("1");
-								for (var j = 0; j < winnersArray.length; j++) {
-									logWarning("2");
-									var userId = winnersArray[j];
-									logWarning("2.1");
-									if (!(userId in newStatistics)){
-										logWarning("2.2");
-										log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
-										newStatistics[userId] = {"bullseye":1, "almost":0, "lost":0, "points":3};	
+							//Delete last bet
+							log("trying to delete last bet in group (for custom bet)");
+							deleteLastBetOfGroup(groupLayerId);
+							//Update last bet
+							log("trying to update last bet in group (for custom bet)");
+							var LBGroupClass = Parse.Object.extend("LBGroup");
+							var query_group = new Parse.Query(LBGroupClass);
+							query_group.equalTo("layerGroupId",groupLayerId);
+							query_group.first({
+								success: function(group) {
+									//If group doesn't exist in DB:
+									if ((group == undefined) || (group == null)) {
+										response.error("trying to update last bet: group wasn't found");
 									}else{
-										log("updating a bullseye for user "+userId);
-										var bullseyes = (newStatistics[userId])["bullseye"];
-										logWarning("2.3");
-										var pnts = (newStatistics[userId])["points"];
-										logWarning("2.4");
-										bullseyes = bullseyes + 1;
-										pnts = pnts + 3;
-										logWarning("2.5");
-										(newStatistics[userId])["bullseye"] = bullseyes;
-										//newStatistics[userId].push({key:"bullseye", value:bullseyes});
-										logWarning("2.6");
-										(newStatistics[userId])["points"] = pnts;
-										//newStatistics[userId].push({key:"points", value:pnts});
-										logWarning("3");
+										logWarning("0");
+										//Updating last bet
+										group.set("lastBetId",saved_bet.id);
+										group.set("lastBetType","Custom");
+										logWarning("0.5");
+										//Updating stats:
+										var newStatistics = group.get("statistics");
+										var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
+										logWarning("current statistics of group: "+ newStatisticsStr);
+										logWarning("1");
+										for (var j = 0; j < winnersArray.length; j++) {
+											logWarning("2");
+											var userId = winnersArray[j];
+											logWarning("2.1");
+											if (!(userId in newStatistics)){
+												logWarning("2.2");
+												log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
+												newStatistics[userId] = {"bullseye":1, "almost":0, "lost":0, "points":3};	
+											}else{
+												log("updating a bullseye for user "+userId);
+												var bullseyes = (newStatistics[userId])["bullseye"];
+												logWarning("2.3");
+												var pnts = (newStatistics[userId])["points"];
+												logWarning("2.4");
+												bullseyes = bullseyes + 1;
+												pnts = pnts + 3;
+												logWarning("2.5");
+												(newStatistics[userId])["bullseye"] = bullseyes;
+												//newStatistics[userId].push({key:"bullseye", value:bullseyes});
+												logWarning("2.6");
+												(newStatistics[userId])["points"] = pnts;
+												//newStatistics[userId].push({key:"points", value:pnts});
+												logWarning("3");
+											}
+										}
+										logWarning("4");
+										for (var k = 0; k < lostArray.length; k++) {
+											logWarning("5");
+											var userId = lostArray[k];
+											if (!(userId in newStatistics)){
+												log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
+												newStatistics[userId] = {"bullseye":0, "almost":0, "lost":1, "points":0};	
+											}else{
+												log("updating a bullseye for user "+userId);
+												var losts = (newStatistics[userId])["lost"];
+												losts = losts + 1;
+												(newStatistics[userId])["lost"] = losts;
+												//newStatistics[userId].push({key:"lost", value:losts});
+												logWarning("6");
+											}
+										}
+										
+										logWarning("7");
+										var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
+										log("new statistics of group: "+ newStatisticsStr);
+										
+										group.set("statistics",newStatistics);
+										
+										log("trying to save last bet details");
+										group.save(null,{
+											success:function(group) { 
+												logOk("succeeded saving last bet details");
+												var message = "Custom bet finished";
+												var data = {
+															"msgType" : "CustomBetFinished",
+															"winners" : winnersArray,
+															"betName" : saved_bet.get("betName"),
+															"stakeDesc" : saved_bet.get("stakeDesc"),
+															"stakeType" : saved_bet.get("stakeType")
+													}			
+												sendAdminMsgToGroup(groupLayerId,message, data);
+												//updateLastCustomBetOfGroup(betId, groupLayerId);
+												response.success();
+											},
+											error:function(group, error) {
+												logError("failed saving last bet: "+error);
+											}
+										});
 									}
+								},
+								error: function(error) {
+									logError("closeCustomBet baa: "+error);
+									response.error(error);
 								}
-								logWarning("4");
-								for (var k = 0; k < lostArray.length; k++) {
-									logWarning("5");
-									var userId = lostArray[k];
-									if (!(userId in newStatistics)){
-										log("user "+userId+ " doesn't exist in group stats, so adding it with bullseye points already");
-										newStatistics[userId] = {"bullseye":0, "almost":0, "lost":1, "points":0};	
-									}else{
-										log("updating a bullseye for user "+userId);
-										var losts = (newStatistics[userId])["lost"];
-										losts = losts + 1;
-										(newStatistics[userId])["lost"] = losts;
-										//newStatistics[userId].push({key:"lost", value:losts});
-										logWarning("6");
-									}
-								}
-								
-								logWarning("7");
-								var newStatisticsStr = JSON.stringify(newStatistics, null, 4);
-								log("new statistics of group: "+ newStatisticsStr);
-								
-								group.set("statistics",newStatistics);
-								
-								log("trying to save last bet details");
-								group.save(null,{
-									success:function(group) { 
-										logOk("succeeded saving last bet details");
-										var message = "Custom bet finished";
-										var data = {
-													"msgType" : "CustomBetFinished",
-													"winners" : winnersArray,
-													"betName" : bet.get("betName"),
-													"stakeDesc" : bet.get("stakeDesc"),
-													"stakeType" : bet.get("stakeType")
-											}			
-										sendAdminMsgToGroup(groupLayerId,message, data);
-										//updateLastCustomBetOfGroup(betId, groupLayerId);
-										response.success();
-									},
-									error:function(group, error) {
-										logError("failed saving last bet: "+error);
-									}
-								});
-							}
+							});							
 						},
-						error: function(error) {
-							logError("closeCustomBet baa: "+error);
-							response.error(error);
+						error:function(group, error) {
+							logError("failed saving winnersArray in last bet: "+error);
 						}
 					});
+
+
+
+					
+					
 				}
 			}
 		},
