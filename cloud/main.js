@@ -315,7 +315,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 		}
 	});
 });
-
+  
 
 
 // -------------------------deleteAllGroupsFromDB----------------------------
