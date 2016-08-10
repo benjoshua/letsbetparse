@@ -72,7 +72,7 @@ setInterval(function() {
 
 var dbGamesUpdateHours = 72;
 // var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000; // if we want 11 mins. - 11*60*1000
-var dbGamesUpdateInterval = 11 * 60 * 1000
+ar dbGamesUpdateInterval = 11 * 60 * 1000
 setInterval(function() {
   updateComingGames();
 }, dbGamesUpdateInterval);
@@ -315,7 +315,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 		}
 	});
 });
-  
+
 
 
 // -------------------------deleteAllGroupsFromDB----------------------------
@@ -561,6 +561,7 @@ Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
 
 // ------------------------- testRepeatinFunctions ----------------------------
 Parse.Cloud.define("updateComingGames", function(request, response) {
+	log("updatComingGames")
 	updateComingGames();
 });
 
@@ -708,7 +709,7 @@ function updateComingGames() {
 		//In case we ran too many XMLSOCCER calls for the upper function:
 	//	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateIntervalAndLeague"+"?league=1&"+"Apikey="+xmlSoccerApiKey+"&"+"startDateString="
 	//		+formatDate(startDate)+"&endDateString="+formatDate(endDate);
-		console.log(fullUrl);
+		console.log("API Full URL: " + fullUrl);
 		
 		request({
 			uri: fullUrl,
