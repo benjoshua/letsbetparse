@@ -491,6 +491,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 				usersGuesses[userLayerId] = {"homeGoals": goalsTeamHost, "awayGoals": goalsTeamGuest};
 				bet.save(null,{
 					success:function(bet) {
+					log("#addGuessToFootballGameBet - got bet : " + bet);
 							var LBUserClass = Parse.Object.extend("LBUser");
 							var userQuery = new Parse.Query(LBUserClass);
 
@@ -517,6 +518,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 													"teamAwayId" : bet.get("teamGuestId"),
 													"date" : success_match.get("date")
 												}
+												log("#addGuessToFootballGameBet - data : " + data);
 												var message = "" + user.get("name") + ": ";
 												if (goalsTeamHost == goalsTeamGuest) {
 													if (goalsTeamHost == 0) {
@@ -532,6 +534,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 													}
 													message +=  " will win " + goalsTeamHost + ":" + goalsTeamGuest;
 												}
+												log("#addGuessToFootballGameBet - about to send : " + message);
 												sendAdminMsgToGroup(groupLayerId, message, data);
 												response.success(true);
 											},
