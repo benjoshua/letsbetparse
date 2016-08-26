@@ -528,7 +528,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 													if (goalsTeamHost > goalsTeamGuest) {
 														message += "" + bet.get("teamHostName");
 													} else {
-														message += "" + bet.get("goalsTeamGuest");
+														message += "" + bet.get("teamGuestName");
 													}
 													message +=  " will win " + goalsTeamHost + ":" + goalsTeamGuest;
 												}
