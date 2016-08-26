@@ -532,7 +532,7 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 													}
 													message +=  " will win " + goalsTeamHost + ":" + goalsTeamGuest;
 												}
-												sendAdminMsgToGroup(groupLayerId, "" + user.get("name") + " added a guess to bet " + bet.id, data);
+												sendAdminMsgToGroup(groupLayerId, message, data);
 												response.success(true);
 											},
 											error: function(error_match) {
