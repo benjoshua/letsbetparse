@@ -72,7 +72,7 @@ setInterval(function() {
 
 var dbGamesUpdateHours = 24;
 //var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000; // if we want 11 mins. - 11*60*1000
-var dbGamesUpdateInterval = 1 * 60 * 60 * 1000;
+var dbGamesUpdateInterval = 1 * 60 * 1000;
 setInterval(function() {
   updateComingGames();
 }, dbGamesUpdateInterval);
