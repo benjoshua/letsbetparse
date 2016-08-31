@@ -70,9 +70,9 @@ setInterval(function() {
 	updateLiveScores();
 }, liveUpdateInterval);
 
-var dbGamesUpdateHours = 72;
-//var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000; // if we want 11 mins. - 11*60*1000
-var dbGamesUpdateInterval = 1;
+var dbGamesUpdateHours = 24;
+var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000; // if we want 11 mins. - 11*60*1000
+//var dbGamesUpdateInterval = 11 * 60 * 60 * 1000;
 setInterval(function() {
   updateComingGames();
 }, dbGamesUpdateInterval);
