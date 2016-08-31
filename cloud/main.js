@@ -71,8 +71,8 @@ setInterval(function() {
 }, liveUpdateInterval);
 
 var dbGamesUpdateHours = 24;
-var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000; // if we want 11 mins. - 11*60*1000
-//var dbGamesUpdateInterval = 11 * 60 * 60 * 1000;
+//var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000; // if we want 11 mins. - 11*60*1000
+var dbGamesUpdateInterval = 1 * 60 * 60 * 1000;
 setInterval(function() {
   updateComingGames();
 }, dbGamesUpdateInterval);
@@ -746,6 +746,7 @@ function updateComingGamesInDB(futureMatchesXML){
 		parser.parseString(futureMatchesXML, function (err, result) {
 			var resultArr = [];
 			if (result.match != undefined && result.match != null) {
+				console.log("updateComingGamesInDB - #results: " + result.match.length);
 				for(var i = 0; i < result.match.length; i++) {
 					if (result.match[i] != undefined){ //In case we get the too-many-cooks problem
 						var leagueName = result.match[i].league[0];
@@ -766,6 +767,8 @@ function updateComingGamesInDB(futureMatchesXML){
 						}
 					}
 				}
+			} else {
+				console.log("updateComingGamesInDB - no result: " + err);
 			}
 		});
 	console.log("finished updateComingGamesInDB");
