@@ -140,12 +140,12 @@ function saveUserAndSendSMS(user, phoneNumber, code, response) {
 			var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
 			client.sendSms({
 				to:phoneNumber,
-				from: '+972526286926',
+				from: '+972526282482',
 				body: 'Your code is: ' + code + "."
 			}, function(err, responseData) {
 				if (err) {
 					response.error(err);
-					console.log("saveUserAndSendSMS error: " + err);
+					console.log("saveUserAndSendSMS error: " + err.message);
 				} else {
 					response.success(true);
 					console.log("saveUserAndSendSMS success");
