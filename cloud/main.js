@@ -102,7 +102,7 @@ function formatDate(date) {
 //Sends sms to user and saves the loginCode in Parse
 Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 	var phoneNumber = request.params.phoneNumber;
-	var code = (Math.floor(Math.random()*90000) + 10000);
+	var code = "" + (Math.floor(Math.random()*90000) + 10000);
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("phoneNumber",phoneNumber);
