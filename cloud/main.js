@@ -102,7 +102,7 @@ function formatDate(date) {
 //Sends sms to user and saves the loginCode in Parse
 Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 	var phoneNumber = request.params.phoneNumber;
-	var code = "1"; //"" + (Math.floor(Math.random()*90000) + 10000); //TODO: change back to this random num
+	var code = (Math.floor(Math.random()*90000) + 10000);
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("phoneNumber",phoneNumber);
@@ -136,7 +136,7 @@ function saveUserAndSendSMS(user, phoneNumber, code, response) {
 		success:function(user) {
 			//TODO: return to Twilio! now we just send success
 			response.success(true);
-			/**var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
+			var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
 			client.sendSms({
 				to:phoneNumber,
 				from: '+972526286926',
@@ -147,7 +147,7 @@ function saveUserAndSendSMS(user, phoneNumber, code, response) {
 				} else {
 					response.success(true);
 				}
-			});*/
+			});
 		},
 		error:function(user, error) {
 			response.error(error);
