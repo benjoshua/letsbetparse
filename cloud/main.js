@@ -134,6 +134,7 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 function saveUserAndSendSMS(user, phoneNumber, code, response) {
 	user.save(null,{
 		success:function(user) {
+			console.log("saveUserAndSendSMS");
 			//TODO: return to Twilio! now we just send success
 			response.success(true);
 			var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
@@ -144,8 +145,10 @@ function saveUserAndSendSMS(user, phoneNumber, code, response) {
 			}, function(err, responseData) {
 				if (err) {
 					response.error(err);
+					console.log("saveUserAndSendSMS error: " + err);
 				} else {
 					response.success(true);
+					console.log("saveUserAndSendSMS success");
 				}
 			});
 		},
