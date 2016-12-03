@@ -138,13 +138,19 @@ function saveUserAndSendSMS(user, phoneNumber, code, response) {
 			console.log("saveUserAndSendSMS user saved");
 			//TODO: return to Twilio! now we just send success
 			response.success(true);
-			var client = require('twilio')('ACed1f17d6a82f9a922f8a10de877b79e5', '4ba18cd3ca91916e74d3dac67509bcf0');
+			var client = require('twilio')(
+                process.env.TWILIO_ACCOUNT_SID || 'ACed1f17d6a82f9a922f8a10de877b79e5',
+                process.env.TWILIO_AUTH_TOKEN || '4ba18cd3ca91916e74d3dac67509bcf0'
+            );
 			client.sendSms({
 				to:phoneNumber,
 				from: '+972526282482',
 				body: 'Your code is: ' + code + "."
 			}, function(err, responseData) {
 				if (err) {
+                    console.log("---");
+                    console.dir(err);
+                    console.dir(responseData);
 					response.error(err);
 					console.log("saveUserAndSendSMS error: " + err.message);
 				} else {
