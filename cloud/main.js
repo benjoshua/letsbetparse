@@ -19,12 +19,19 @@ var parseString = require('xml2js').parseString;
 var fs = require('fs');
 
 
+var layerAPI = require('layer-api');
+
 
 // ---------------------- global variables ------------------
 
 //For not calling XMLSOCCER too many times, change to TRUE:
 var shouldUseXmlExamples = false;
 
+
+var layer = new layerAPI({
+  token: process.env.LAYER_PLATFORM_API_TOKEN,
+  appId: process.env.LAYER_APP_UUID
+});
 
 var layerPlatformApiInfo = {
     config: {
@@ -57,10 +64,16 @@ var leaguesDic = {
 	"EURO 2016":56
 };
 
+var coinsConstants = {
+    initialAmount: 10000, 
+    periodicBonusAmount: 2000,
+    periodicBonusIntervalInDays: 7 // 1 week
+}
+
 
 // ---------------------- background operations ------------------
 
-
+// live update
 var liveUpdateMinutes = 0.5; //30 seconds, to be on the safe side
 if (shouldUseXmlExamples == true){
 	liveUpdateMinutes = 10000;
@@ -70,17 +83,27 @@ setInterval(function() {
 	updateLiveScores();
 }, liveUpdateInterval);
 
+// games update
 var dbGamesUpdateHours = 24;
 var dbGamesUpdateInterval = dbGamesUpdateHours * 60 * 60 * 1000; // if we want 11 mins. - 11*60*1000
 //var dbGamesUpdateInterval = 1 * 60 * 1000;
 setInterval(function() {
   updateComingGames();
 }, dbGamesUpdateInterval);
-//Call it too on the first time
+// first time call
 updateComingGames();
 
+// coins bonus
+var coinsBonusUpdateHours = 24;
+var coinsBonusUpdateInterval = coinsBonusUpdateHours * 60 * 60 * 1000;
+setInterval(function() {
+  checkCoinsBonus();
+}, coinsBonusUpdateInterval);
+// first time call
+checkCoinsBonus();
 
 
+// ---------------------- utils ------------------
 
 //yyyy-mm-dd
 function formatDate(date) {
@@ -95,8 +118,62 @@ function formatDate(date) {
     return [year, month, day].join('-');
 }
 
+function generateUuid() {
+	function s4() {
+		return Math.floor((1 + Math.random()) * 0x10000)
+		.toString(16)
+		.substring(1);
+	}
+	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+	s4() + '-' + s4() + s4() + s4();
+}
+
+function sendAdminMsgToGroup(groupLayerId, msg, dataDic) {
+	log("in sendAdminMsgToGroup() with msg: '" + msg + "'. sending to " + groupLayerId);
+	request({
+	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
+	    method: "POST",
+	    body: {
+	        sender: {name: "Admin"},
+	        parts: [{body: msg, mime_type: "text/plain"}, {body: JSON.stringify(dataDic), mime_type: "text/javascript"}],
+	        notification: {text: msg, data: dataDic},
+	    },
+	    json: true,
+	    headers: layerPlatformApiInfo.headers
+	    }, function(error, response, body) {
+
+    });
+}
+
+function sendAnnouncementToUser(userLayerId, msg, dataDic) {
+	log("in sendAnnouncementToUser() with msg: '" + msg + "'. sending to " + groupLayerId);
+	// prepare payload
+    var payload = {
+      recipients: [userLayerId],
+      sender: {
+        name: 'Lets Bet'
+      },
+      parts: [{body: msg, mime_type: "text/plain"}, {body: JSON.stringify(dataDic), mime_type: "text/javascript"}]
+    };
+    // send
+    layer.announcements.send(payload, function(err, res) {
+      if (err) return console.error(err);
+
+      // announcement data 
+      // var announcement = res.body;
+    });
+}
+
+function getNowTime(){
+    var now = new Date();
+    now.setHours(0,0,0,0);
+    return now.getTime();
+}
 
 
+/********************************************************************
+ | Users
+********************************************************************/
 
 // -------------------------sendSmsForPhoneNumber----------------------------
 //Sends sms to user and saves the loginCode in Parse
@@ -113,15 +190,9 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 				user.set("loginCode",code); //TODO: change back to 'code'
 				saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
 			} else {
-			//New user
-			var user = new LBUserClass();
-			user.set("phoneNumber",phoneNumber);
-			user.set("loginCode",code);
-			user.set("name","");
-			user.set("betsWon",0);
-			user.set("betsParticipated",0);
-			user.set("layerIdentityToken",generateUuid());
-			saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
+			     //New user
+			     var user = createUser(LBUserClass, phoneNumber, code);
+			     saveUserAndSendSMS(user, phoneNumber, code, response); //TODO: stopped sending SMS for now, so it returns success anyhow
 			}
 		},
 		error: function(error) {
@@ -129,6 +200,39 @@ Parse.Cloud.define("sendSmsForPhoneNumber", function(request, response) {
 		}
 	});
 });
+
+function getNextPeriodicBonusTime(){
+    var next = new Date(getNowTime() + coinsConstants.periodicBonusIntervalInDays * 24 * 60 * 60 * 1000);
+    return next.getTime();
+}
+
+// creates user given class, phone number, code
+function createUser(LBUserClass, phoneNumber, code) {
+    var user = new LBUserClass();
+    // identification
+    user.set("phoneNumber",phoneNumber);
+    user.set("loginCode",code);
+    user.set("layerIdentityToken",generateUuid());
+    
+    // attributes
+    user.set("name","");
+    
+    // bets
+    user.set("betsWon",0);
+    user.set("betsParticipated",0);
+    
+    
+    // coins
+    user.set("totalCoins",coinsConstants.initialAmount);
+    user.set("availableCoins",coinsConstants.initialAmount);
+    
+    // next bonus time
+    
+    
+    user.set("nextBonusTime", getNextPeriodicBonusTime());
+    
+    return user;
+}
 
 //Practically send the SMS, after saving all data in Parse
 function saveUserAndSendSMS(user, phoneNumber, code, response) {
@@ -138,6 +242,11 @@ function saveUserAndSendSMS(user, phoneNumber, code, response) {
 			console.log("saveUserAndSendSMS user saved");
 			//TODO: return to Twilio! now we just send success
 			response.success(true);
+            //  print code and return if dev env
+            if (process.env.ENV === "dev"){
+                console.log("code is", code);
+                return;
+            }
 			var client = require('twilio')(
                 process.env.TWILIO_ACCOUNT_SID || 'ACed1f17d6a82f9a922f8a10de877b79e5',
                 process.env.TWILIO_AUTH_TOKEN || '4ba18cd3ca91916e74d3dac67509bcf0'
@@ -148,9 +257,9 @@ function saveUserAndSendSMS(user, phoneNumber, code, response) {
 				body: 'Your code is: ' + code + "."
 			}, function(err, responseData) {
 				if (err) {
-                    console.log("---");
-                    console.dir(err);
-                    console.dir(responseData);
+                    //console.log("---");
+                    //console.dir(err);
+                    //console.dir(responseData);
 					response.error(err);
 					console.log("saveUserAndSendSMS error: " + err.message);
 				} else {
@@ -166,15 +275,39 @@ function saveUserAndSendSMS(user, phoneNumber, code, response) {
 	});
 }
 
-function generateUuid() {
-	function s4() {
-		return Math.floor((1 + Math.random()) * 0x10000)
-		.toString(16)
-		.substring(1);
-	}
-	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-	s4() + '-' + s4() + s4() + s4();
+// update coins amount for users where bonus time past, update bonus time to next
+function checkCoinsBonus(){
+    console.log("starting checkCoinsBonus");
+    var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+    query.lessThanOrEqualTo("nextBonusTime",getNowTime());
+	query.find({
+		success: function(users) {
+            // iterate over resulting users, give bonus and update next bonus time
+            for (var i = 0; i < users.length; i++) {
+                var user = users[i];
+                // get total/available coins and update
+                var currentTotalCoins = user.get("totalCoins");
+                var currentAvailableCoins = user.get("availableCoins");
+                user.set("totalCoins", currentTotalCoins+coinsConstants.periodicBonusAmount);
+                user.set("availableCoins", currentAvailableCoins+coinsConstants.periodicBonusAmount);
+                // update next bonus time
+                user.set("nextBonusTime", getNextPeriodicBonusTime());
+                // save
+                user.save();
+                
+                // announce
+                sendAnnouncementToUser(user.get("layerIdentityToken"),
+                                       "You've just received " + coinsConstants.periodicBonusAmount + "more chips! ... Lets bet!",
+                                       {bonusAmount: coinsConstants.periodicBonusAmount});
+            }
+		},
+		error: function(error) {
+
+		}
+	});
 }
+
 
 // -------------------------authenticatePhoneNumberAndSendToken----------------------------
 //Given a phone number and an entered SMS code, the client will get a Token that Layer will identify
@@ -193,6 +326,34 @@ Parse.Cloud.define("authenticatePhoneNumberAndSendToken", function(request, resp
 				if (dbCode === receivedCode){
 					var layerToken = user.get("layerIdentityToken");
 					response.success(layerToken);
+				}
+				else{
+					response.error("User entered wrong SMS code");
+				}
+			} else {
+				response.error("User doesn't exist")
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
+
+Parse.Cloud.define("authenticatePhoneNumberAndSendTokenV2", function(request, response) {
+	var phoneNumber = request.params.phoneNumber;
+	var receivedCode = request.params.code;
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.equalTo("phoneNumber",phoneNumber);
+	query.first({
+		success: function(user) {
+			//If user exists in Parse:
+			if (user != undefined && user != null) {
+				var dbCode = user.get("loginCode");
+				//and has the right code, return the layer-token (LBuser object ID)
+				if (dbCode === receivedCode){
+					response.success(user);
 				}
 				else{
 					response.error("User entered wrong SMS code");
@@ -249,7 +410,7 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.containedIn("phoneNumber",phoneNumbersArray);
-	query.select("name", "phoneNumber", "layerIdentityToken", "picture");
+	query.select("name", "phoneNumber", "layerIdentityToken", "picture", "totalCoins", "availableCoins");
 	query.find({
 		success: function(users) {
 
@@ -262,6 +423,59 @@ Parse.Cloud.define("getUserObjectsForPhoneNumbers", function(request, response) 
 });
 
 
+// ------------------------- getStatsForUser ----------------------------
+
+//WinStats and Percentages
+Parse.Cloud.define("getStatsForUser", function(request, response) {
+	var userLayerId = request.params.userLayerId;
+
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.equalTo("layerIdentityToken", userLayerId);
+	query.select("betsWon", "betsParticipated");
+	query.first({
+		success: function(userStats) {
+			//If user exists in Parse:
+			if (userStats != undefined && userStats != null) {
+				response.success(userStats);
+			} else {
+				response.error("getStatsForUser: User doesn't exist");
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+
+});
+
+// ------------------------- getUserObjectsForUserLayerIds ----------------------------
+
+//for given array of userLayerId, get objects (nickname & picture)
+//every time app is opened
+Parse.Cloud.define("getUserObjectsForUserLayerIds", function(request, response) {
+	var userLayerIdsArray = request.params.userLayerIdsArray;
+
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.containedIn("layerIdentityToken",userLayerIdsArray);
+	query.select("name", "phoneNumber", "layerIdentityToken", "picture", "totalCoins", "availableCoins");
+	query.find({
+		success: function(users) {
+			response.success(users);
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+
+
+});
+
+
+/********************************************************************
+ | Groups
+********************************************************************/
 
 // -------------------------createGroup----------------------------
 
@@ -285,15 +499,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 			} else {
 				//New Group
 				console.log("gonna create a new group");
-				var newGroup = new LBGroupClass();
-				var stats = {};
-				stats[groupAdminLayerId] = {"bullseye":0,"almost":0,"lost":0,"points":0};
-				newGroup.set("statistics",stats);
-				newGroup.set("layerGroupId",groupLayerId);
-				newGroup.set("groupAdminLayerId",groupAdminLayerId);
-				newGroup.set("lastBetId","");
-				newGroup.set("lastBetType","");
-				newGroup.set("picture",picture);
+				var newGroup = createGroup(LBGroupClass, groupLayerId, groupAdminLayerId, picture);
 
 				newGroup.save(null,{
 					success:function(newGroupSuccess) {
@@ -304,7 +510,7 @@ Parse.Cloud.define("createGroup", function(request, response) {
 						userQuery.equalTo("layerIdentityToken", groupAdminLayerId);
 						userQuery.first({
 							success: function(user) {
-								sendAdminMsgToGroup(groupLayerId, "New Group by " + user.get("name") + "... Let's Play!", {});
+								sendAdminMsgToGroup(groupLayerId, "New Group by " + user.get("name") + "... Lets Play!", {});
 								response.success(true);
 							},
 							error:function(bet, error) {
@@ -329,17 +535,258 @@ Parse.Cloud.define("createGroup", function(request, response) {
 	});
 });
 
-
+// creates group given class, group layer id, admin layer id, picture
+function createGroup(LBGroupClass, groupLayerId, groupAdminLayerId, picture){
+    var group = new LBGroupClass();
+    var stats = {};
+    stats[groupAdminLayerId] = {"bullseye":0,"almost":0,"lost":0,"points":0};
+    group.set("statistics",stats);
+    group.set("layerGroupId",groupLayerId);
+    group.set("groupAdminLayerId",groupAdminLayerId);
+    group.set("lastBetId","");
+    group.set("lastBetType","");
+    group.set("picture",picture);
+}
 
 // -------------------------deleteAllGroupsFromDB----------------------------
 
-/**Parse.Cloud.define("deleteAllGroupsFromDB", function(request, response) {
+Parse.Cloud.define("UNIMPLEMENTED_deleteAllGroupsFromDB", function(request, response) {
 	var LBGroupClass = Parse.Object.extend("LBGroup");
 	var query = new Parse.Query(LBGroupClass);
 	query.equalTo("layerGroupId",layerGroupId);
 
 	//TODO: implement...
-});*/
+});
+
+// -------------------------getGroupOpenBets----------------------------
+
+Parse.Cloud.define("getGroupOpenBets", function(request, response) {
+	var groupLayerId = request.params.layerGroupId;
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var group_query = new Parse.Query(LBGroupClass);
+	group_query.equalTo("layerGroupId",groupLayerId);
+	group_query.first({
+		success: function(group) {
+			//group exists:
+			if (group != undefined && group != null) {
+				//First we find group's last bet, which isn't relevant to return cause it's been closed already
+				var lastBetId = group.get("lastBetId");
+
+				var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+				var query = new Parse.Query(LBFootballGameBetClass);
+				query.equalTo("layerGroupId",groupLayerId);
+				query.notEqualTo("_id",lastBetId);
+				query.find({
+					success: function(footballBets) {
+
+						var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
+						var custom_query = new Parse.Query(LBCustomBetClass);
+						custom_query.equalTo("groupLayerId",groupLayerId);
+						custom_query.notEqualTo("_id",lastBetId);
+						custom_query.find({
+							success: function(customBets) {
+								var allBets = footballBets.concat(customBets);
+								if (allBets.length == 0){
+									response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
+								}
+								else{
+									response.success(allBets);
+								}
+							},
+							error: function(error) {
+								response.error(error);
+							}
+						});
+					},
+					error: function(error) {
+						response.error(error);
+					}
+				});
+
+
+			} else {
+				logWarning("getGroupOpenBets error: group doesn't exist");
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+
+
+
+
+
+
+});
+
+// ------------------------- getLastBetForGroup ----------------------------
+
+//Get last bet (whether it's football or custom bet)
+Parse.Cloud.define("getLastBetForGroup", function(request, response) {
+	var groupLayerId = request.params.groupLayerId;
+
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.equalTo("layerGroupId",groupLayerId);
+	query.first({
+		success: function(group) {
+			//If group doesn't exist in DB:
+			if ((group == undefined) || (group == null)) {
+				response.error("group wasn't found");
+			}else{
+				var lastBetId = group.get("lastBetId");
+				var lastBetType = group.get("lastBetType");
+				var LBBetClass;
+				if (lastBetType === "Football"){
+					LBBetClass = Parse.Object.extend("LBFootballGameBet");
+				}else if (lastBetType === "Custom"){
+					LBBetClass = Parse.Object.extend("LBCustomBet");
+				}else if (lastBetType === ""){
+					logW("no last bet exist");
+					response.error("No last bet exist (probably first bet just ended)");
+				}else{
+					response.error("Unknown last bet type in group");
+				}
+				var betQuery = new Parse.Query(LBBetClass);
+				betQuery.equalTo("_id",lastBetId);
+				betQuery.first({
+					success: function(lastBet) {
+						if ((group != undefined) && (group != null)) {
+							response.success(lastBet);
+						}else{
+							response.error("last bet wasn't found");
+						}
+					},
+					error: function(error) {
+						response.error("error fetching last bet: "+error);
+					}
+				});
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+
+});
+
+// ------------------------- getStatisticsForGroup ----------------------------
+
+Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
+	var groupLayerId = request.params.groupLayerId;
+
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.equalTo("layerGroupId",groupLayerId);
+	query.first({
+		success: function(group) {
+			//If group doesn't exist in DB:
+			if ((group == undefined) || (group == null)) {
+				response.error("group wasn't found");
+			}else{
+				var stats = group.get("statistics");
+				//console.log("stats: "+JSON.stringify(stats, null, 4));
+				var result = [];
+				//Sorting, bitch:
+				var len = Object.keys(stats).length;
+				for (var i = 0; i < len; i++) {
+					var bestUserIdSoFar = "";
+					var bestPointsSoFar = -1;
+					for (var userId in stats) {
+						if ((stats.hasOwnProperty(userId)) && (stats[userId] != undefined)) {
+							var userStats = stats[userId];
+							var userPoints = userStats["points"];
+							if (userPoints > bestPointsSoFar){
+								bestUserIdSoFar = userId;
+								bestPointsSoFar = userPoints;
+							}
+
+						}
+					}
+					stats[bestUserIdSoFar]["userId"] = bestUserIdSoFar;
+					result.push(stats[bestUserIdSoFar]);
+					stats[bestUserIdSoFar] = undefined;
+				}
+				// -- boom
+
+				//console.log("returning: "+JSON.stringify(result, null, 4));
+				response.success(result);
+			}
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
+
+
+// ------------------------- getGroupPicturesForGroupLayerIds ----------------------------
+
+//for given array of groupLayerId, get pictures
+//every time app is opened
+Parse.Cloud.define("getGroupPicturesForGroupLayerIds", function(request, response) {
+	var groupLayerIdsArray = request.params.groupLayerIdsArray;
+
+
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.containedIn("layerGroupId",groupLayerIdsArray);
+	query.select("layerGroupId", "picture");
+	query.find({
+		success: function(results) {
+			response.success(results);
+		},
+		error: function(error) {
+			response.error(error);
+		}
+	});
+});
+
+// ------------------------- updateGroupPictureForGroupLayerId ----------------------------
+
+Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, response) {
+
+		var groupLayerId = request.params.groupLayerId;
+		var picture = request.params.picture;
+
+		var LBGroupClass = Parse.Object.extend("LBGroup");
+		var query = new Parse.Query(LBGroupClass);
+		query.equalTo("layerGroupId",groupLayerId);
+		query.first({
+			success: function(group) {
+				group.set("picture", picture);
+				group.save(null,{
+					success:function(groupSuccess) {
+						// sendAdminMsgToGroup(groupLayerId, "Group info changed", {});
+						response.success("success: picture changed");
+					},
+					error:function(groupError, error) {
+						response.error(error);
+					}
+				});
+			},
+			error: function(error) {
+				response.error(error);
+			}
+		});
+
+});
+
+// ------------------------- sendAdminMessageToGroup ----------------------------
+
+Parse.Cloud.define("sendAdminMessageToGroup", function(request, response) {
+	var groupLayerId = request.params.groupLayerId;
+	var senderLayerId = request.params.senderLayerId;
+	var message = request.params.message;
+
+	log(senderLayerId + " asked to send '" + message + "' to group " + groupLayerId);
+	sendAdminMsgToGroup(groupLayerId, message, {});
+});
+
+/********************************************************************
+ | Game Bets
+********************************************************************/
 
 // -------------------------createFootballGameBet----------------------------
 Parse.Cloud.define("createFootballGameBet", function(request, response) {
@@ -448,7 +895,7 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 													"date" : match.get("date")
 												}
 
-												sendAdminMsgToGroup(groupLayerId, "New Bet by " + user.get("name") +  "... Let's Bet!", data);
+												sendAdminMsgToGroup(groupLayerId, "New Bet by " + user.get("name") +  "... Lets Bet!", data);
 												response.success(true);
 											},
 											error:function(savedBet, error) {
@@ -578,752 +1025,11 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 	});
 });
 
-
-/**
-//www.xmlsoccer.com/FootballData.asmx/GetFixturesByDateInterval?ApiKey=OOYXGGEGYDPFYZQTSKQPWSSUENFSIWLCDVFBEQXDWKLCZUWKFU&startDateString=2016-04-01
-&endDateString=2016-04-30
-
-*/
-
-// ------------------------- getGamesPerDatesRange ----------------------------
-Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
-
-});
-
-// ------------------------- testRepeatinFunctions ----------------------------
-Parse.Cloud.define("updateComingGames", function(request, response) {
-	log("updatComingGames")
-	updateComingGames();
-});
-
-
-// ------------------------- testRepeatinFunctions ----------------------------
-Parse.Cloud.define("updateLiveScores", function(request, response) {
-	updateLiveScores();
-});
-
-
-
-
-function sendAdminMsgToGroup(groupLayerId, msg, dataDic) {
-	log("in sendAdminMsgToGroup() with msg: '" + msg + "'. sending to " + groupLayerId);
-	request({
-	    uri: layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
-	    method: "POST",
-	    body: {
-	        sender: {name: "Admin"},
-	        parts: [{body: msg, mime_type: "text/plain"}, {body: JSON.stringify(dataDic), mime_type: "text/javascript"}],
-	        notification: {text: msg, data: dataDic},
-	    },
-	    json: true,
-	    headers: layerPlatformApiInfo.headers
-	    }, function(error, response, body) {
-
-		});
-}
-
-
-Parse.Cloud.define("AdminMsg", function(request, response) {
-	sendAdminMsgToGroup("8dc83080-ae62-4602-b8d2-e400356096db","Fred! Ma Nish!");
-});
-
-
-// -------------------------getGroupOpenBets----------------------------
-Parse.Cloud.define("getGroupOpenBets", function(request, response) {
-	var groupLayerId = request.params.layerGroupId;
-	var LBGroupClass = Parse.Object.extend("LBGroup");
-	var group_query = new Parse.Query(LBGroupClass);
-	group_query.equalTo("layerGroupId",groupLayerId);
-	group_query.first({
-		success: function(group) {
-			//group exists:
-			if (group != undefined && group != null) {
-				//First we find group's last bet, which isn't relevant to return cause it's been closed already
-				var lastBetId = group.get("lastBetId");
-
-				var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
-				var query = new Parse.Query(LBFootballGameBetClass);
-				query.equalTo("layerGroupId",groupLayerId);
-				query.notEqualTo("_id",lastBetId);
-				query.find({
-					success: function(footballBets) {
-
-						var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
-						var custom_query = new Parse.Query(LBCustomBetClass);
-						custom_query.equalTo("groupLayerId",groupLayerId);
-						custom_query.notEqualTo("_id",lastBetId);
-						custom_query.find({
-							success: function(customBets) {
-								var allBets = footballBets.concat(customBets);
-								if (allBets.length == 0){
-									response.error("GroupId not found or no bets exist"); //TODO: distinct between the two
-								}
-								else{
-									response.success(allBets);
-								}
-							},
-							error: function(error) {
-								response.error(error);
-							}
-						});
-					},
-					error: function(error) {
-						response.error(error);
-					}
-				});
-
-
-			} else {
-				logWarning("getGroupOpenBets error: group doesn't exist");
-			}
-		},
-		error: function(error) {
-			response.error(error);
-		}
-	});
-
-
-
-
-
-
-});
-
-
-// -------------------------authenticatePhoneNumberAndSendToken----------------------------
-//Given an array of Layer Conversation IDs, and returns statuses (name, display, etc.) per each conversations,
-//in the same order it was received
-Parse.Cloud.define("testPush", function(request, response) {
-	Parse.Push.send({
-		channels: [ "A2" ],
-		data: {
-			alert: "The Giants won against the Mets 2-3."
-		}
-	}, {
-		success: function() {
-  		  	// Push was successful
-  		  	response.success("YES!");
-  		  },
-  		  error: function(error) {
-   		 	// Handle error
-   		 	response.error(error);
-   		 }
-   	});
-});
-
-
-
-//Called daily
-function updateComingGames() {
-	//If we wanna use the xml example, just use this:
-
-	//if (shouldUseXmlExamples){
-	if (false){
-
-		console.log("using example xml");
-
-		fs.readFile('./matches_example_xml.xml', function(err, data) {
-			updateComingGamesInDB(data);
-		});
-	}
-	else{
-		var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
-		var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
-
-		var startDate = new Date();
-		var endDate = new Date();
-		endDate.setDate(endDate.getDate()+14);
-
-		var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
-				+formatDate(startDate)+"&endDateString="+formatDate(endDate);
-
-		//In case we ran too many XMLSOCCER calls for the upper function:
-	//	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateIntervalAndLeague"+"?league=1&"+"Apikey="+xmlSoccerApiKey+"&"+"startDateString="
-	//		+formatDate(startDate)+"&endDateString="+formatDate(endDate);
-		console.log("API Full URL: " + fullUrl);
-
-		request({
-			uri: fullUrl,
-			method: "GET",
-			json: true,
-			}, function(error, response, body) {
-				updateComingGamesInDB(body);
-		});
-	}
-}
-
-function updateComingGamesInDB(futureMatchesXML){
-	console.log("updateComingGamesInDB");
-
-	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
-		parser.parseString(futureMatchesXML, function (err, result) {
-			var resultArr = [];
-			if (result.match != undefined && result.match != null) {
-				console.log("updateComingGamesInDB - #results: " + result.match.length);
-				for(var i = 0; i < result.match.length; i++) {
-					if (result.match[i] != undefined){ //In case we get the too-many-cooks problem
-						var leagueName = result.match[i].league[0];
-						if (leagueName in leaguesDic){
-							var leagueId = leaguesDic[leagueName];
-							var matchId = result.match[i].id[0];
-							console.log("getting data for gameID "+ matchId + " from league "+leagueId);
-							var date = result.match[i].date[0];
-							var homeTeam = result.match[i].hometeam[0];
-							var homeTeamId = result.match[i].hometeam_id[0];
-							var awayTeam = result.match[i].awayteam[0];
-							var awayTeamId = result.match[i].awayteam_id[0];
-							var loc = result.match[i].location[0];
-
-							var match_data_str = JSON.stringify(result.match[i], null, 4);
-							//log("parsed match: "+ match_data_str);
-							addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
-						}
-					}
-				}
-			} else {
-				console.log("updateComingGamesInDB - no result: " + err);
-			}
-		});
-	console.log("finished updateComingGamesInDB");
-}
-
-function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc){
-	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
-	var query = new Parse.Query(LBFootballMatchClass);
-	query.equalTo("matchId",matchId);
-	query.first({
-		success: function(match) {
-			//If match doesn't exist in Parse:
-			if ((match == undefined ) || (match == null)) {
-				log("Creating matchId "+ matchId + " in DB");
-				var match = new LBFootballMatchClass();
-				match.set("matchId",matchId);
-				//var d = new Date(date);
-				//console.log(d);
-
-				match.set("time","Not Started");
-				match.set("homeGoals",0);
-				match.set("awayGoals",0);
-			}
-
-			//log("updating match of "+ homeTeam + " - " + awayTeam + "(" + homeTeamId + " - " + awayTeamId + ")");
-			//Updating a match
-			log("Updating data of match "+ matchId);
-			match.set("date", date);
-			match.set("leagueId",leagueId);
-			match.set("homeTeam",homeTeam);
-			match.set("homeTeamId",homeTeamId);
-			match.set("awayTeam",awayTeam);
-			match.set("awayTeamId",awayTeamId);
-			match.set("location",loc);
-
-			var match_str = JSON.stringify(match, null, 4);
-			log("about to save match: "+ match_str);
-
-			match.save(null,{
-				success:function(match_success) {
-					logOk("Succeeded saving data of match " + match_success.get("matchId"));
-
-				},
-				error:function(match_err, error) {
-					logError("Error saving data of match " + match_success.get("matchId") + ": "+ error);
-					response.error(error);
-				}
-			});
-		},
-		error: function(error) {
-			logError("Error querying match " + matchId + ": "+ error);
-			response.error(error);
-		}
-	});
-}
-
-// ------------------------- getLBFootballMatches ----------------------------
-//Get all LBFootballMatches saved in the DB
-Parse.Cloud.define("getLBFootballMatches", function(request, response) {
-	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
-	var query = new Parse.Query(LBFootballMatchClass);
-	query.limit(1000);
-	query.find({
-		success: function(matches) {
-			//console.log(matches);
-			if (matches.length == 0){
-				response.error("No matches found in DB");
-			}
-			else{
-				response.success(matches);
-			}
-		},
-		error: function(error) {
-			response.error("getLBFootballMatches error: " + error);
-		}
-	});
-});
-
-
-
-
-
-
-
-
-//Called every 30 seconds
-//updates live scores from xmlsoccer, and then forwards to analyse results
-function updateLiveScores() {
-	//If we wanna use the xml example, just use this:
-	if (shouldUseXmlExamples){
-		console.log("using example xml");
-		//TODO: change to real xml example
-
-		fs.readFile('./live_scores_example_xml.xml', function(err, data) {
-			updateLiveScoresInDBAndNotify(data);
-		});
-	}
-	else{
-
-
-		var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
-		var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
-
-		var startDate = new Date();
-		var endDate = new Date();
-		endDate.setDate(endDate.getDate()+14);
-
-		var fullUrl = ""+xmlSoccerUrl + "GetLiveScore"+"?Apikey="+xmlSoccerApiKey;
-
-		request({
-			uri: fullUrl,
-			method: "GET",
-			json: true,
-			}, function(error, response, body) {
-				updateLiveScoresInDBAndNotify(body);
-		});
-	}
-}
-
-//Gets liveScoreXml and calls a function that updates db and notifies relevant groups
-function updateLiveScoresInDBAndNotify(liveScoresXml){
-	log("Looking for score updates - TEST!! ");
-
-	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
-		parser.parseString(liveScoresXml, function (err, result) {
-			var resultArr = [];
-			if ((result.match != undefined) && (result.match != null)) {
-				for(var i = 0; i < result.match.length; i++) {
-					if (result.match[i] != undefined){ //In case we get the too-many-cooks problem
-						var leagueName = result.match[i].league[0];
-						if (leagueName in leaguesDic){
-							var matchId = result.match[i].id[0];
-
-							//TODO: change according to XML!!
-							var gameStatus = result.match[i].time[0];
-							var homeGoals = parseInt(result.match[i].homegoals[0]);
-							var awayGoals = parseInt(result.match[i].awaygoals[0]);
-							log("score of game "+ matchId + ": "+homeGoals+"-"+awayGoals);
-
-							updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
-						}
-					}
-				}
-			}
-		});
-	//console.log("finished updateLiveScoresInDB()");
-}
-
-
-//after checking if some information is new, the function updates games in db with changes in live scores,
-//and then calls another function that sends notifications to relevant groups
-function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
-	//log("in updateLiveGameIfNeeded() with matchId "+matchId);
-	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
-	var query = new Parse.Query(LBFootballMatchClass);
-	query.equalTo("matchId",matchId);
-	query.first({
-		success: function(match) {
-			//match should exist in Parse:
-			if (match != undefined && match != null) {
-				log("Match exists in DB");
-				var dbStatus = match.get("time");
-				var dbHomeGoals = match.get("homeGoals");
-				var dbAwayGoals = match.get("awayGoals");
-
-				if ((dbStatus != gameStatus) || (dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
-					log("Found different score or time in DB. Updaing DB accordingly");
-					match.set("time", gameStatus);
-					match.set("homeGoals", homeGoals);
-					match.set("awayGoals", awayGoals);
-
-					match.save(null,{
-						success:function(match_success) {
-							logOk("Succeeded updating match " + match_success.get("matchId"));
-							if ((dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
-								//TODO: not needed!
-								sendMessageToRelevantGroupsThatScoreChanged(match_success);
-							}
-
-							if (dbStatus != gameStatus){
-								//send messages
-								performRelevantActionsInRelevantGroupsBecauseStatusChanged(match_success);
-							}
-						},
-						error:function(match_err, error) {
-							logError("Error updating match in DB: "+error);
-						}
-					});
-				}
-			} else {
-				logWarning("Didn't find match " + matchId + " in DB.");
-			}
-		},
-		error: function(error) {
-			logError("Error querying DB for match " + matchId + ": "+error);
-		}
-	});
-}
-
-//Find groups that opened a bet regarding given gameId, and notify them with the relevant change
-function sendMessageToRelevantGroupsThatScoreChanged(match){
-	var matchId = match.get("matchId");
-	log("About to send a message to all relevant groups about the change in the score of match " + matchId);
-	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
-	var query = new Parse.Query(LBFootballGameBetClass)
-	query.equalTo("gameId",matchId);
-	query.find({
-		success: function(bets) {
-
-			var homeTeamName = match.get("homeTeam")
-			var awayTeamName = match.get("awayTeam")
-			var homeTeamGoals = match.get("homeGoals");
-			var awayTeamGoals = match.get("awayGoals");
-			//If bets for given game exist:
-			if (bets != undefined && bets != null) {
-				for(var i = 0; i < bets.length; i++) {
-					var groupLayerId = bets[i].get("layerGroupId");
-					log("About to notify group "+ groupLayerId+" that the score changed");
-					var message = "GOAL! "+homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+".";
-					log("specficially: " + message);
-					sendAdminMsgToGroup(groupLayerId, message,{});
-				}
-			} else {
-				logWarning("No bets exist for match " + matchId);
-			}
-		},
-		error: function(error) {
-			logError("Error finding match: " + error);
-			response.error(error);
-		}
-	});
-}
-
-//Find groups that opened a bet regarding given gameId, and notify them with the relevant change
-function performRelevantActionsInRelevantGroupsBecauseStatusChanged(match){
-	//console.log("in performRelevantActionsInRelevantGroupsBecauseStatusChanged()");
-	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
-	var query = new Parse.Query(LBFootballGameBetClass)
-	var matchId = match.get("matchId");
-
-	query.equalTo("gameId",matchId);
-	query.find({
-		success: function(bets) {
-			//If bets for given game exist:
-			if (bets != undefined && bets != null) {
-				var homeTeamName = match.get("homeTeam")
-				var awayTeamName = match.get("awayTeam")
-				var homeTeamGoals = match.get("homeGoals");
-				var awayTeamGoals = match.get("awayGoals");
-				var gameTime = match.get("time");
-
-				for(var i = 0; i < bets.length; i++) {
-					var groupLayerId = bets[i].get("layerGroupId");
-					if (gameTime == "0'"){
-						var message = homeTeamName+" vs "+awayTeamName+" - The bet has started";
-						sendAdminMsgToGroup(groupLayerId, message,{});
-					}
-					else if (gameTime == "Halftime"){
-						var message = homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+" - Half Time";
-						sendAdminMsgToGroup(groupLayerId, message,{});
-					}
-				}
-				if ((gameTime == "Finished") || (gameTime == "Finished AET") || (gameTime == "Finished AP")){
-					updateEndedMatch(match, bets);
-				}
-			} else {
-				logWarning("No bets exist for match " + matchId);
-
-			}
-		},
-		error: function(error) {
-			response.error(error);
-		}
-	});
-}
-
-//send notifications to relevant groups, delete match from db, update statistics in relevant groups
-function updateEndedMatch(match, bets){
-	var matchId = match.get("matchId");
-	log("Match " + matchId + " ended. Updating relevant groups.");
-	var homeTeamName = match.get("homeTeam");
-	var awayTeamName = match.get("awayTeam");
-	var homeTeamId = match.get("homeTeamId");
-	var awayTeamId = match.get("awayTeamId");
-	var homeTeamGoals = parseInt(match.get("homeGoals"));
-	var awayTeamGoals = parseInt(match.get("awayGoals"));
-
-	for(var i = 0; i < bets.length; i++) {
-		var bet = bets[i];
-		var groupLayerId = bet.get("layerGroupId");
-		var betStakeDesc = bet.get("stakeDesc");
-		var betStakeType = bet.get("stakeType");
-		var LBGroupClass = Parse.Object.extend("LBGroup");
-		var query = new Parse.Query(LBGroupClass);
-		query.equalTo("layerGroupId",groupLayerId);
-		query.first({
-			success: function(group) {
-				//group exists:
-				if (group != undefined && group != null) {
-					log("Updating group " + groupLayerId);
-					var currentStatistics = group.get("statistics");
-					var groupUsersGuesses = bet.get("usersGuesses");
-
-					var str = JSON.stringify(groupUsersGuesses, null, 4); // (Optional) beautiful indented output.
-					log("The group's guesses are: "+ str); // Logs output to dev tools console.
-
-					//update statistics
-					var winnersArray = [];
-					for (var userId in groupUsersGuesses) {
-						userGuess = groupUsersGuesses[userId];
-						if ((currentStatistics[userId] == undefined) || (currentStatistics[userId] == null)){
-							logWarning("Stats of user " + userId + " are undefined. Initializing them");
-							currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};
-						}
-						userStatistics = currentStatistics[userId];
-						log("userStatistics of " + userId + ": "+JSON.stringify(userStatistics, null, 4));
-
-						var homeGuess = userGuess["homeGoals"];
-						var awayGuess = userGuess["awayGoals"];
-						//bullseye:
-						if ((homeGuess == homeTeamGoals) && (awayGuess == awayTeamGoals)){
-							//console.log("bullseye");
-							winnersArray.push(userId);
-							userStatistics["bullseye"] = userStatistics["bullseye"]+1;
-							userStatistics["points"] = userStatistics["points"]+2;
-							updateWinStatForUser(userId); //Will update both betsWon and betsParticipated
-						}
-						//almost:
-						else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) ||
-								  ((homeTeamGoals == awayTeamGoals) && (homeGuess == awayGuess)) ||
-								  ((homeTeamGoals < awayTeamGoals) && (homeGuess < awayGuess)) ){
-							//console.log("almost");
-							userStatistics["almost"] = userStatistics["almost"]+1;
-							userStatistics["points"] = userStatistics["points"]+1;
-							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
-						}
-						//lost bet:
-						else{
-							//console.log("lost ");
-							userStatistics["lost"] = userStatistics["lost"]+1;
-							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
-						}
-						currentStatistics[userId] = userStatistics;
-					}
-
-					log("Group's winners of this match are: "+JSON.stringify(winnersArray, null, 4));
-					group.set("statistics",currentStatistics);
-
-					bet.set("winnersArray",winnersArray);
-					bet.save(null,{
-						success:function(saved_bet) {
-							//Delete last group's bet
-							deleteLastBetOfGroup(groupLayerId);
-
-							//Update last bet in group
-							group.set("lastBetId",saved_bet.id);
-							group.set("lastBetType","Football");
-
-							group.save(null,{
-								//TODO: send right msg + data{}
-								success:function(group) {
-									logOk("saved statistics for group " + groupLayerId);
-									var message = homeTeamName + " vs " + awayTeamName + " - " + homeTeamGoals + ":" + awayTeamGoals +
-										" - Final Score - ";
-										var data = {
-											"msgType" : "footballBetEnded",
-											"teamHomeName" : homeTeamName,
-											"teamAwayName" : awayTeamName,
-											"teamHomeId" : homeTeamId,
-											"teamAwayId" : awayTeamId,
-											"teamHomeGoals" : homeTeamGoals,
-											"teamAwayGoals" : awayTeamGoals,
-											"stakeDesc" : betStakeDesc,
-											"stakeType" : betStakeType,
-											"winnersArray" : winnersArray
-										}
-
-									if (winnersArray.length == 0){
-										message = message + "no winners here... try again!";
-										console.log("gonna send them this message: " + message);
-										sendAdminMsgToGroup(groupLayerId, message, data);
-									} else {
-											var LBUserClass = Parse.Object.extend("LBUser");
-											var userQuery = new Parse.Query(LBUserClass);
-
-											userQuery.containsAll("layerIdentityToken", winnersArray);
-											userQuery.first({
-												success: function(users) {
-													message = message + (winnersArray.length == 1 ? "the winner is " : "the winners are ");
-													message = message + users.map(function(u){ return u.get("name");}).join(",");
-													console.log("gonna send them this message: " + message);
-													sendAdminMsgToGroup(groupLayerId, message, data);
-													response.success(true);
-												},
-												error:function(bet, error) {
-													var str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
-													console.log(str); // Logs output to dev tools console.
-													response.error(error);
-												}
-											});
-									}
-								},
-								error:function(group, error) {
-									logError("updateEndedMatch: error saving guesses: "+error);
-								}
-							});
-						},
-						error:function(group, error) {
-							logError("failed saving winnersArray in football bet: "+error);
-						}
-					});
-
-				} else {
-					logError("updateEndedMatch error: group doesn't exist");
-				}
-			},
-			error: function(error) {
-				response.error(error);
-			}
-		});
-	}
-
-	match.destroy({});
-}
-
-//delete group's last bet from DB, given a groupLayerId
-function deleteLastBetOfGroup(groupLayerId){
-	log("deleteLastBetOfGroup of group "+groupLayerId);
-	var LBGroupClass = Parse.Object.extend("LBGroup");
-	var query = new Parse.Query(LBGroupClass);
-	query.equalTo("layerGroupId",groupLayerId);
-	log("test 1");
-	query.first({
-		success: function(group) {
-			//group exists:
-			log("test 2");
-			if (group != undefined && group != null) {
-				log("in group "+groupLayerId);
-
-				var betId = group.get("lastBetId");
-				var betType = group.get("lastBetType");
-
-				var LBBetClass;
-				if (betType === "Football"){
-					LBBetClass = Parse.Object.extend("LBFootballGameBet");
-				}else if (betType === "Custom"){
-					LBBetClass = Parse.Object.extend("LBCustomBet");
-				}else{
-					logWarning("Unknown last bet type in group");
-				}
-				var betQuery = new Parse.Query(LBBetClass);
-				betQuery.equalTo("_id",betId);
-				betQuery.first({
-					success: function(betToDel) {
-						if ((betToDel != undefined) && (betToDel != null)) {
-							logOk("deleted "+betType+" bet "+betId+" from DB");
-							betToDel.destroy({});
-						}else{
-							logError(betType+" bet "+betId+" was not found in bets DB");
-						}
-					},
-					error: function(error) {
-						logError("error fetching bet: "+error);
-					}
-				});
-
-			} else {
-				logError("deleteLastBetOfGroup error: group doesn't exist");
-			}
-		},
-		error: function(error) {
-			logError("deleteLastBetOfGroup error: "+error);
-		}
-	});
-
-
-
-
-}
-
-//Will update betsParticipated in user stats
-function updateBetsParticipatedStatForUser(userLayerId){
-	console.log("updateBetsParticipatedStatForUser");
-	var LBUserClass = Parse.Object.extend("LBUser");
-	var query = new Parse.Query(LBUserClass);
-	query.equalTo("layerIdentityToken",userLayerId);
-	query.first({
-		success: function(user) {
-			//If user exists in Parse:
-			if (user != undefined && user != null) {
-				var amountOfBetsParticipated = user.get("betsParticipated");
-				amountOfBetsParticipated = amountOfBetsParticipated + 1;
-				user.set("betsParticipated",amountOfBetsParticipated);
-				user.save(null,{
-					success:function(user) {
-						console.log("succeeded saving betsParticipated");
-					}, error:function(user, error) {
-						console.log("failed saving betsParticipated");
-					}
-				});
-			} else {
-				console.log("Tried to update user stat but couldn't find user");
-			}
-		},
-		error: function(error) {
-			console.log("Tried to update user stat but failed performing query");
-		}
-	});
-}
-
-//Will updateboth betsWon AND betsParticipated in user stats
-function updateWinStatForUser(userLayerId){
-	var LBUserClass = Parse.Object.extend("LBUser");
-	var query = new Parse.Query(LBUserClass);
-	query.equalTo("layerIdentityToken",userLayerId);
-	query.first({
-		success: function(user) {
-			//If user exists in Parse:
-			if (user != undefined && user != null) {
-				var amountOfBetsWon = user.get("betsWon");
-				amountOfBetsWon = amountOfBetsWon + 1;
-				user.set("betsWon",amountOfBetsWon);
-				var amountOfBetsParticipated = user.get("betsParticipated");
-				amountOfBetsParticipated = amountOfBetsParticipated + 1;
-				user.set("betsParticipated",amountOfBetsParticipated);
-				user.save(null,{
-					success:function(user) {
-						console.log("succeeded saveing betsParticipated and betsWon");
-					}, error:function(user, error) {
-						console.log("failed saveing betsParticipated and betsWon");
-					}
-				});
-			} else {
-				console.log("Tried to update user stat but couldn't find user");
-			}
-		},
-		error: function(error) {
-			console.log("Tried to update user stat but failed performing query");
-		}
-	});
-}
-
+/********************************************************************
+ | Custom Bets
+********************************************************************/
+
+// ------------------------- openNewCustomBet ----------------------------
 
 Parse.Cloud.define("openNewCustomBet", function(request, response) {
 	var betName = request.params.betName;
@@ -1403,7 +1109,7 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 					}
 					//console.log("openNewCustomBet: succeeded with data");
 
-					var message = "New Bet by " + user.get("name") +  "... Let's Bet!";
+					var message = "New Bet by " + user.get("name") +  "... Lets Bet!";
 					//console.log("openNewCustomBet: gonna send "+message);
 					sendAdminMsgToGroup(groupLayerId, message ,data);
 					//sendAdminMsgToGroup(groupLayerId,message, {});
@@ -1422,6 +1128,8 @@ Parse.Cloud.define("openNewCustomBet", function(request, response) {
 
 	});
 });
+
+// ------------------------- addGuessToCustomBet ----------------------------
 
 Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 	var betId = request.params.betId;
@@ -1488,6 +1196,8 @@ Parse.Cloud.define("addGuessToCustomBet", function(request, response) {
 	});
 });
 
+// ------------------------- getAllCustomBetsForGroup ----------------------------
+
 Parse.Cloud.define("getAllCustomBetsForGroup", function(request, response) {
 	var groupLayerId = request.params.groupLayerId;
 
@@ -1508,6 +1218,8 @@ Parse.Cloud.define("getAllCustomBetsForGroup", function(request, response) {
 		}
 	});
 });
+
+// ------------------------- closeCustomBet ----------------------------
 
 Parse.Cloud.define("closeCustomBet", function(request, response) {
 
@@ -1800,224 +1512,697 @@ function updateLastCustomBetOfGroup(betId, groupLayerId){
 	});
 }*/
 
-Parse.Cloud.define("getStatisticsForGroup", function(request, response) {
-	var groupLayerId = request.params.groupLayerId;
 
-	var LBGroupClass = Parse.Object.extend("LBGroup");
-	var query = new Parse.Query(LBGroupClass);
-	query.equalTo("layerGroupId",groupLayerId);
+/********************************************************************
+ | Games
+********************************************************************/
+
+//www.xmlsoccer.com/FootballData.asmx/GetFixturesByDateInterval?ApiKey=OOYXGGEGYDPFYZQTSKQPWSSUENFSIWLCDVFBEQXDWKLCZUWKFU&startDateString=2016-04-01&endDateString=2016-04-30
+
+
+// ------------------------- getGamesPerDatesRange ----------------------------
+Parse.Cloud.define("getGamesPerDatesRange", function(iko, piko) {
+
+});
+
+// ------------------------- updateComingGames ----------------------------
+Parse.Cloud.define("updateComingGames", function(request, response) {
+	log("updatComingGames")
+	updateComingGames();
+});
+
+//Called daily
+function updateComingGames() {
+	//If we wanna use the xml example, just use this:
+
+	//if (shouldUseXmlExamples){
+	if (false){
+
+		console.log("using example xml");
+
+		fs.readFile('./matches_example_xml.xml', function(err, data) {
+			updateComingGamesInDB(data);
+		});
+	}
+	else{
+		var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
+		var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
+
+		var startDate = new Date();
+		var endDate = new Date();
+		endDate.setDate(endDate.getDate()+14);
+
+		var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateInterval"+"?Apikey="+xmlSoccerApiKey+"&"+"startDateString="
+				+formatDate(startDate)+"&endDateString="+formatDate(endDate);
+
+		//In case we ran too many XMLSOCCER calls for the upper function:
+	//	var fullUrl = ""+xmlSoccerUrl + "GetFixturesByDateIntervalAndLeague"+"?league=1&"+"Apikey="+xmlSoccerApiKey+"&"+"startDateString="
+	//		+formatDate(startDate)+"&endDateString="+formatDate(endDate);
+		console.log("API Full URL: " + fullUrl);
+
+		request({
+			uri: fullUrl,
+			method: "GET",
+			json: true,
+			}, function(error, response, body) {
+				updateComingGamesInDB(body);
+		});
+	}
+}
+
+// - helper for updateComingGames
+//
+function updateComingGamesInDB(futureMatchesXML){
+	console.log("updateComingGamesInDB");
+
+	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
+		parser.parseString(futureMatchesXML, function (err, result) {
+			var resultArr = [];
+			if (result.match != undefined && result.match != null) {
+				console.log("updateComingGamesInDB - #results: " + result.match.length);
+				for(var i = 0; i < result.match.length; i++) {
+					if (result.match[i] != undefined){ //In case we get the too-many-cooks problem
+						var leagueName = result.match[i].league[0];
+						if (leagueName in leaguesDic){
+							var leagueId = leaguesDic[leagueName];
+							var matchId = result.match[i].id[0];
+							console.log("getting data for gameID "+ matchId + " from league "+leagueId);
+							var date = result.match[i].date[0];
+							var homeTeam = result.match[i].hometeam[0];
+							var homeTeamId = result.match[i].hometeam_id[0];
+							var awayTeam = result.match[i].awayteam[0];
+							var awayTeamId = result.match[i].awayteam_id[0];
+							var loc = result.match[i].location[0];
+
+							var match_data_str = JSON.stringify(result.match[i], null, 4);
+							//log("parsed match: "+ match_data_str);
+							addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc);
+						}
+					}
+				}
+			} else {
+				console.log("updateComingGamesInDB - no result: " + err);
+			}
+		});
+	console.log("finished updateComingGamesInDB");
+}
+
+// - helper for updateComingGamesInDB
+//
+function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, awayTeam, awayTeamId, loc){
+	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+	var query = new Parse.Query(LBFootballMatchClass);
+	query.equalTo("matchId",matchId);
 	query.first({
-		success: function(group) {
-			//If group doesn't exist in DB:
-			if ((group == undefined) || (group == null)) {
-				response.error("group wasn't found");
-			}else{
-				var stats = group.get("statistics");
-				//console.log("stats: "+JSON.stringify(stats, null, 4));
-				var result = [];
-				//Sorting, bitch:
-				var len = Object.keys(stats).length;
-				for (var i = 0; i < len; i++) {
-					var bestUserIdSoFar = "";
-					var bestPointsSoFar = -1;
-					for (var userId in stats) {
-						if ((stats.hasOwnProperty(userId)) && (stats[userId] != undefined)) {
-							var userStats = stats[userId];
-							var userPoints = userStats["points"];
-							if (userPoints > bestPointsSoFar){
-								bestUserIdSoFar = userId;
-								bestPointsSoFar = userPoints;
+		success: function(match) {
+			//If match doesn't exist in Parse:
+			if ((match == undefined ) || (match == null)) {
+				log("Creating matchId "+ matchId + " in DB");
+				var match = new LBFootballMatchClass();
+				match.set("matchId",matchId);
+				//var d = new Date(date);
+				//console.log(d);
+
+				match.set("time","Not Started");
+				match.set("homeGoals",0);
+				match.set("awayGoals",0);
+			}
+
+			//log("updating match of "+ homeTeam + " - " + awayTeam + "(" + homeTeamId + " - " + awayTeamId + ")");
+			//Updating a match
+			log("Updating data of match "+ matchId);
+			match.set("date", date);
+			match.set("leagueId",leagueId);
+			match.set("homeTeam",homeTeam);
+			match.set("homeTeamId",homeTeamId);
+			match.set("awayTeam",awayTeam);
+			match.set("awayTeamId",awayTeamId);
+			match.set("location",loc);
+
+			var match_str = JSON.stringify(match, null, 4);
+			log("about to save match: "+ match_str);
+
+			match.save(null,{
+				success:function(match_success) {
+					logOk("Succeeded saving data of match " + match_success.get("matchId"));
+
+				},
+				error:function(match_err, error) {
+					logError("Error saving data of match " + match_success.get("matchId") + ": "+ error);
+					response.error(error);
+				}
+			});
+		},
+		error: function(error) {
+			logError("Error querying match " + matchId + ": "+ error);
+			response.error(error);
+		}
+	});
+}
+
+
+// ------------------------- updateLiveScores ----------------------------
+Parse.Cloud.define("updateLiveScores", function(request, response) {
+	updateLiveScores();
+});
+
+
+//Called every 30 seconds
+//updates live scores from xmlsoccer, and then forwards to analyse results
+function updateLiveScores() {
+	//If we wanna use the xml example, just use this:
+	if (shouldUseXmlExamples){
+		console.log("using example xml");
+		//TODO: change to real xml example
+
+		fs.readFile('./live_scores_example_xml.xml', function(err, data) {
+			updateLiveScoresInDBAndNotify(data);
+		});
+	}
+	else{
+
+
+		var xmlSoccerApiKey = process.env.XML_SOCCER_KEY;
+		var xmlSoccerUrl = "http://www.xmlsoccer.com/FootballData.asmx/";
+
+		var startDate = new Date();
+		var endDate = new Date();
+		endDate.setDate(endDate.getDate()+14);
+
+		var fullUrl = ""+xmlSoccerUrl + "GetLiveScore"+"?Apikey="+xmlSoccerApiKey;
+
+		request({
+			uri: fullUrl,
+			method: "GET",
+			json: true,
+			}, function(error, response, body) {
+				updateLiveScoresInDBAndNotify(body);
+		});
+	}
+}
+
+// - helper for updateLiveScores
+//Gets liveScoreXml and calls a function that updates db and notifies relevant groups
+function updateLiveScoresInDBAndNotify(liveScoresXml){
+	log("Looking for score updates - TEST!! ");
+
+	var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
+		parser.parseString(liveScoresXml, function (err, result) {
+			var resultArr = [];
+			if ((result.match != undefined) && (result.match != null)) {
+				for(var i = 0; i < result.match.length; i++) {
+					if (result.match[i] != undefined){ //In case we get the too-many-cooks problem
+						var leagueName = result.match[i].league[0];
+						if (leagueName in leaguesDic){
+							var matchId = result.match[i].id[0];
+
+							//TODO: change according to XML!!
+							var gameStatus = result.match[i].time[0];
+							var homeGoals = parseInt(result.match[i].homegoals[0]);
+							var awayGoals = parseInt(result.match[i].awaygoals[0]);
+							log("score of game "+ matchId + ": "+homeGoals+"-"+awayGoals);
+
+							updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals);
+						}
+					}
+				}
+			}
+		});
+	//console.log("finished updateLiveScoresInDB()");
+}
+
+
+// - helper for updateLiveScoresInDBAndNotify
+//after checking if some information is new, the function updates games in db with changes in live scores,
+//and then calls another function that sends notifications to relevant groups
+function updateLiveGameIfNeeded(matchId, gameStatus, homeGoals, awayGoals){
+	//log("in updateLiveGameIfNeeded() with matchId "+matchId);
+	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+	var query = new Parse.Query(LBFootballMatchClass);
+	query.equalTo("matchId",matchId);
+	query.first({
+		success: function(match) {
+			//match should exist in Parse:
+			if (match != undefined && match != null) {
+				log("Match exists in DB");
+				var dbStatus = match.get("time");
+				var dbHomeGoals = match.get("homeGoals");
+				var dbAwayGoals = match.get("awayGoals");
+
+				if ((dbStatus != gameStatus) || (dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
+					log("Found different score or time in DB. Updaing DB accordingly");
+					match.set("time", gameStatus);
+					match.set("homeGoals", homeGoals);
+					match.set("awayGoals", awayGoals);
+
+					match.save(null,{
+						success:function(match_success) {
+							logOk("Succeeded updating match " + match_success.get("matchId"));
+							if ((dbHomeGoals != homeGoals) || (dbAwayGoals != awayGoals)){
+								//TODO: not needed!
+								sendMessageToRelevantGroupsThatScoreChanged(match_success);
 							}
 
+							if (dbStatus != gameStatus){
+								//send messages
+								performRelevantActionsInRelevantGroupsBecauseStatusChanged(match_success);
+							}
+						},
+						error:function(match_err, error) {
+							logError("Error updating match in DB: "+error);
 						}
-					}
-					stats[bestUserIdSoFar]["userId"] = bestUserIdSoFar;
-					result.push(stats[bestUserIdSoFar]);
-					stats[bestUserIdSoFar] = undefined;
+					});
 				}
-				// -- boom
-
-				//console.log("returning: "+JSON.stringify(result, null, 4));
-				response.success(result);
-			}
-		},
-		error: function(error) {
-			response.error(error);
-		}
-	});
-});
-
-//WinStats and Percentages
-Parse.Cloud.define("getStatsForUser", function(request, response) {
-	var userLayerId = request.params.userLayerId;
-
-	var LBUserClass = Parse.Object.extend("LBUser");
-	var query = new Parse.Query(LBUserClass);
-	query.equalTo("layerIdentityToken", userLayerId);
-	query.select("betsWon", "betsParticipated");
-	query.first({
-		success: function(userStats) {
-			//If user exists in Parse:
-			if (userStats != undefined && userStats != null) {
-				response.success(userStats);
 			} else {
-				response.error("getStatsForUser: User doesn't exist");
+				logWarning("Didn't find match " + matchId + " in DB.");
 			}
 		},
 		error: function(error) {
-			response.error(error);
+			logError("Error querying DB for match " + matchId + ": "+error);
 		}
 	});
+}
 
-});
+// - helper for updateLiveGameIfNeeded
+//Find groups that opened a bet regarding given gameId, and notify them with the relevant change
+function sendMessageToRelevantGroupsThatScoreChanged(match){
+	var matchId = match.get("matchId");
+	log("About to send a message to all relevant groups about the change in the score of match " + matchId);
+	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+	var query = new Parse.Query(LBFootballGameBetClass)
+	query.equalTo("gameId",matchId);
+	query.find({
+		success: function(bets) {
 
-
-
-//Get last bet (whether it's football or custom bet)
-Parse.Cloud.define("getLastBetForGroup", function(request, response) {
-	var groupLayerId = request.params.groupLayerId;
-
-	var LBGroupClass = Parse.Object.extend("LBGroup");
-	var query = new Parse.Query(LBGroupClass);
-	query.equalTo("layerGroupId",groupLayerId);
-	query.first({
-		success: function(group) {
-			//If group doesn't exist in DB:
-			if ((group == undefined) || (group == null)) {
-				response.error("group wasn't found");
-			}else{
-				var lastBetId = group.get("lastBetId");
-				var lastBetType = group.get("lastBetType");
-				var LBBetClass;
-				if (lastBetType === "Football"){
-					LBBetClass = Parse.Object.extend("LBFootballGameBet");
-				}else if (lastBetType === "Custom"){
-					LBBetClass = Parse.Object.extend("LBCustomBet");
-				}else if (lastBetType === ""){
-					logW("no last bet exist");
-					response.error("No last bet exist (probably first bet just ended)");
-				}else{
-					response.error("Unknown last bet type in group");
+			var homeTeamName = match.get("homeTeam")
+			var awayTeamName = match.get("awayTeam")
+			var homeTeamGoals = match.get("homeGoals");
+			var awayTeamGoals = match.get("awayGoals");
+			//If bets for given game exist:
+			if (bets != undefined && bets != null) {
+				for(var i = 0; i < bets.length; i++) {
+					var groupLayerId = bets[i].get("layerGroupId");
+					log("About to notify group "+ groupLayerId+" that the score changed");
+					var message = "GOAL! "+homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+".";
+					log("specficially: " + message);
+					sendAdminMsgToGroup(groupLayerId, message,{});
 				}
-				var betQuery = new Parse.Query(LBBetClass);
-				betQuery.equalTo("_id",lastBetId);
-				betQuery.first({
-					success: function(lastBet) {
-						if ((group != undefined) && (group != null)) {
-							response.success(lastBet);
-						}else{
-							response.error("last bet wasn't found");
-						}
-					},
-					error: function(error) {
-						response.error("error fetching last bet: "+error);
+			} else {
+				logWarning("No bets exist for match " + matchId);
+			}
+		},
+		error: function(error) {
+			logError("Error finding match: " + error);
+			response.error(error);
+		}
+	});
+}
+
+// - helper for updateLiveGameIfNeeded
+//Find groups that opened a bet regarding given gameId, and notify them with the relevant change
+function performRelevantActionsInRelevantGroupsBecauseStatusChanged(match){
+	//console.log("in performRelevantActionsInRelevantGroupsBecauseStatusChanged()");
+	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+	var query = new Parse.Query(LBFootballGameBetClass)
+	var matchId = match.get("matchId");
+
+	query.equalTo("gameId",matchId);
+	query.find({
+		success: function(bets) {
+			//If bets for given game exist:
+			if (bets != undefined && bets != null) {
+				var homeTeamName = match.get("homeTeam")
+				var awayTeamName = match.get("awayTeam")
+				var homeTeamGoals = match.get("homeGoals");
+				var awayTeamGoals = match.get("awayGoals");
+				var gameTime = match.get("time");
+
+				for(var i = 0; i < bets.length; i++) {
+					var groupLayerId = bets[i].get("layerGroupId");
+					if (gameTime == "0'"){
+						var message = homeTeamName+" vs "+awayTeamName+" - The bet has started";
+						sendAdminMsgToGroup(groupLayerId, message,{});
 					}
-				});
+					else if (gameTime == "Halftime"){
+						var message = homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+" - Half Time";
+						sendAdminMsgToGroup(groupLayerId, message,{});
+					}
+				}
+				if ((gameTime == "Finished") || (gameTime == "Finished AET") || (gameTime == "Finished AP")){
+					updateEndedMatch(match, bets);
+				}
+			} else {
+				logWarning("No bets exist for match " + matchId);
+
 			}
 		},
 		error: function(error) {
 			response.error(error);
 		}
 	});
+}
 
-});
+// - helper for performRelevantActionsInRelevantGroupsBecauseStatusChanged
+//send notifications to relevant groups, delete match from db, update statistics in relevant groups
+function updateEndedMatch(match, bets){
+	var matchId = match.get("matchId");
+	log("Match " + matchId + " ended. Updating relevant groups.");
+	var homeTeamName = match.get("homeTeam");
+	var awayTeamName = match.get("awayTeam");
+	var homeTeamId = match.get("homeTeamId");
+	var awayTeamId = match.get("awayTeamId");
+	var homeTeamGoals = parseInt(match.get("homeGoals"));
+	var awayTeamGoals = parseInt(match.get("awayGoals"));
 
-//for given array of userLayerId, get objects (nickname & picture)
-//every time app is opened
-Parse.Cloud.define("getUserObjectsForUserLayerIds", function(request, response) {
-	var userLayerIdsArray = request.params.userLayerIdsArray;
-
-	var LBUserClass = Parse.Object.extend("LBUser");
-	var query = new Parse.Query(LBUserClass);
-	query.containedIn("layerIdentityToken",userLayerIdsArray);
-	query.select("name", "phoneNumber", "layerIdentityToken", "picture");
-	query.find({
-		success: function(users) {
-			response.success(users);
-		},
-		error: function(error) {
-			response.error(error);
-		}
-	});
-
-
-});
-
-//for given array of groupLayerId, get pictures
-//every time app is opened
-Parse.Cloud.define("getGroupPicturesForGroupLayerIds", function(request, response) {
-	var groupLayerIdsArray = request.params.groupLayerIdsArray;
-
-
-	var LBGroupClass = Parse.Object.extend("LBGroup");
-	var query = new Parse.Query(LBGroupClass);
-	query.containedIn("layerGroupId",groupLayerIdsArray);
-	query.select("layerGroupId", "picture");
-	query.find({
-		success: function(results) {
-			response.success(results);
-		},
-		error: function(error) {
-			response.error(error);
-		}
-	});
-});
-
-
-Parse.Cloud.define("updateGroupPictureForGroupLayerId", function(request, response) {
-
-		var groupLayerId = request.params.groupLayerId;
-		var picture = request.params.picture;
-
+	for(var i = 0; i < bets.length; i++) {
+		var bet = bets[i];
+		var groupLayerId = bet.get("layerGroupId");
+		var betStakeDesc = bet.get("stakeDesc");
+		var betStakeType = bet.get("stakeType");
 		var LBGroupClass = Parse.Object.extend("LBGroup");
 		var query = new Parse.Query(LBGroupClass);
 		query.equalTo("layerGroupId",groupLayerId);
 		query.first({
 			success: function(group) {
-				group.set("picture", picture);
-				group.save(null,{
-					success:function(groupSuccess) {
-						// sendAdminMsgToGroup(groupLayerId, "Group info changed", {});
-						response.success("success: picture changed");
-					},
-					error:function(groupError, error) {
-						response.error(error);
+				//group exists:
+				if (group != undefined && group != null) {
+					log("Updating group " + groupLayerId);
+					var currentStatistics = group.get("statistics");
+					var groupUsersGuesses = bet.get("usersGuesses");
+
+					var str = JSON.stringify(groupUsersGuesses, null, 4); // (Optional) beautiful indented output.
+					log("The group's guesses are: "+ str); // Logs output to dev tools console.
+
+					//update statistics
+					var winnersArray = [];
+					for (var userId in groupUsersGuesses) {
+						userGuess = groupUsersGuesses[userId];
+						if ((currentStatistics[userId] == undefined) || (currentStatistics[userId] == null)){
+							logWarning("Stats of user " + userId + " are undefined. Initializing them");
+							currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};
+						}
+						userStatistics = currentStatistics[userId];
+						log("userStatistics of " + userId + ": "+JSON.stringify(userStatistics, null, 4));
+
+						var homeGuess = userGuess["homeGoals"];
+						var awayGuess = userGuess["awayGoals"];
+						//bullseye:
+						if ((homeGuess == homeTeamGoals) && (awayGuess == awayTeamGoals)){
+							//console.log("bullseye");
+							winnersArray.push(userId);
+							userStatistics["bullseye"] = userStatistics["bullseye"]+1;
+							userStatistics["points"] = userStatistics["points"]+2;
+							updateWinStatForUser(userId); //Will update both betsWon and betsParticipated
+						}
+						//almost:
+						else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) ||
+								  ((homeTeamGoals == awayTeamGoals) && (homeGuess == awayGuess)) ||
+								  ((homeTeamGoals < awayTeamGoals) && (homeGuess < awayGuess)) ){
+							//console.log("almost");
+							userStatistics["almost"] = userStatistics["almost"]+1;
+							userStatistics["points"] = userStatistics["points"]+1;
+							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
+						}
+						//lost bet:
+						else{
+							//console.log("lost ");
+							userStatistics["lost"] = userStatistics["lost"]+1;
+							updateBetsParticipatedStatForUser(userId); //Will update betsParticipated
+						}
+						currentStatistics[userId] = userStatistics;
 					}
-				});
+
+					log("Group's winners of this match are: "+JSON.stringify(winnersArray, null, 4));
+					group.set("statistics",currentStatistics);
+
+					bet.set("winnersArray",winnersArray);
+					bet.save(null,{
+						success:function(saved_bet) {
+							//Delete last group's bet
+							deleteLastBetOfGroup(groupLayerId);
+
+							//Update last bet in group
+							group.set("lastBetId",saved_bet.id);
+							group.set("lastBetType","Football");
+
+							group.save(null,{
+								//TODO: send right msg + data{}
+								success:function(group) {
+									logOk("saved statistics for group " + groupLayerId);
+									var message = homeTeamName + " vs " + awayTeamName + " - " + homeTeamGoals + ":" + awayTeamGoals +
+										" - Final Score - ";
+										var data = {
+											"msgType" : "footballBetEnded",
+											"teamHomeName" : homeTeamName,
+											"teamAwayName" : awayTeamName,
+											"teamHomeId" : homeTeamId,
+											"teamAwayId" : awayTeamId,
+											"teamHomeGoals" : homeTeamGoals,
+											"teamAwayGoals" : awayTeamGoals,
+											"stakeDesc" : betStakeDesc,
+											"stakeType" : betStakeType,
+											"winnersArray" : winnersArray
+										}
+
+									if (winnersArray.length == 0){
+										message = message + "no winners here... try again!";
+										console.log("gonna send them this message: " + message);
+										sendAdminMsgToGroup(groupLayerId, message, data);
+									} else {
+											var LBUserClass = Parse.Object.extend("LBUser");
+											var userQuery = new Parse.Query(LBUserClass);
+
+											userQuery.containsAll("layerIdentityToken", winnersArray);
+											userQuery.first({
+												success: function(users) {
+													message = message + (winnersArray.length == 1 ? "the winner is " : "the winners are ");
+													message = message + users.map(function(u){ return u.get("name");}).join(",");
+													console.log("gonna send them this message: " + message);
+													sendAdminMsgToGroup(groupLayerId, message, data);
+													response.success(true);
+												},
+												error:function(bet, error) {
+													var str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
+													console.log(str); // Logs output to dev tools console.
+													response.error(error);
+												}
+											});
+									}
+								},
+								error:function(group, error) {
+									logError("updateEndedMatch: error saving guesses: "+error);
+								}
+							});
+						},
+						error:function(group, error) {
+							logError("failed saving winnersArray in football bet: "+error);
+						}
+					});
+
+				} else {
+					logError("updateEndedMatch error: group doesn't exist");
+				}
 			},
 			error: function(error) {
 				response.error(error);
 			}
 		});
+	}
 
+	match.destroy({});
+}
+
+
+// ------------------------- getLBFootballMatches ----------------------------
+//Get all LBFootballMatches saved in the DB
+Parse.Cloud.define("getLBFootballMatches", function(request, response) {
+	var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+	var query = new Parse.Query(LBFootballMatchClass);
+	query.limit(1000);
+	query.find({
+		success: function(matches) {
+			//console.log(matches);
+			if (matches.length == 0){
+				response.error("No matches found in DB");
+			}
+			else{
+				response.success(matches);
+			}
+		},
+		error: function(error) {
+			response.error("getLBFootballMatches error: " + error);
+		}
+	});
 });
 
-Parse.Cloud.define("sendAdminMessageToGroup", function(request, response) {
-	var groupLayerId = request.params.groupLayerId;
-	var senderLayerId = request.params.senderLayerId;
-	var message = request.params.message;
 
-	log(senderLayerId + " asked to send '" + message + "' to group " + groupLayerId);
-	sendAdminMsgToGroup(groupLayerId, message, {});
+// ------------------------- bet helpers ----------------------------
+
+//delete group's last bet from DB, given a groupLayerId
+function deleteLastBetOfGroup(groupLayerId){
+	log("deleteLastBetOfGroup of group "+groupLayerId);
+	var LBGroupClass = Parse.Object.extend("LBGroup");
+	var query = new Parse.Query(LBGroupClass);
+	query.equalTo("layerGroupId",groupLayerId);
+	log("test 1");
+	query.first({
+		success: function(group) {
+			//group exists:
+			log("test 2");
+			if (group != undefined && group != null) {
+				log("in group "+groupLayerId);
+
+				var betId = group.get("lastBetId");
+				var betType = group.get("lastBetType");
+
+				var LBBetClass;
+				if (betType === "Football"){
+					LBBetClass = Parse.Object.extend("LBFootballGameBet");
+				}else if (betType === "Custom"){
+					LBBetClass = Parse.Object.extend("LBCustomBet");
+				}else{
+					logWarning("Unknown last bet type in group");
+				}
+				var betQuery = new Parse.Query(LBBetClass);
+				betQuery.equalTo("_id",betId);
+				betQuery.first({
+					success: function(betToDel) {
+						if ((betToDel != undefined) && (betToDel != null)) {
+							logOk("deleted "+betType+" bet "+betId+" from DB");
+							betToDel.destroy({});
+						}else{
+							logError(betType+" bet "+betId+" was not found in bets DB");
+						}
+					},
+					error: function(error) {
+						logError("error fetching bet: "+error);
+					}
+				});
+
+			} else {
+				logError("deleteLastBetOfGroup error: group doesn't exist");
+			}
+		},
+		error: function(error) {
+			logError("deleteLastBetOfGroup error: "+error);
+		}
+	});
+
+
+
+
+}
+
+//Will update betsParticipated in user stats
+function updateBetsParticipatedStatForUser(userLayerId){
+	console.log("updateBetsParticipatedStatForUser");
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.equalTo("layerIdentityToken",userLayerId);
+	query.first({
+		success: function(user) {
+			//If user exists in Parse:
+			if (user != undefined && user != null) {
+				var amountOfBetsParticipated = user.get("betsParticipated");
+				amountOfBetsParticipated = amountOfBetsParticipated + 1;
+				user.set("betsParticipated",amountOfBetsParticipated);
+				user.save(null,{
+					success:function(user) {
+						console.log("succeeded saving betsParticipated");
+					}, error:function(user, error) {
+						console.log("failed saving betsParticipated");
+					}
+				});
+			} else {
+				console.log("Tried to update user stat but couldn't find user");
+			}
+		},
+		error: function(error) {
+			console.log("Tried to update user stat but failed performing query");
+		}
+	});
+}
+
+//Will updateboth betsWon AND betsParticipated in user stats
+function updateWinStatForUser(userLayerId){
+	var LBUserClass = Parse.Object.extend("LBUser");
+	var query = new Parse.Query(LBUserClass);
+	query.equalTo("layerIdentityToken",userLayerId);
+	query.first({
+		success: function(user) {
+			//If user exists in Parse:
+			if (user != undefined && user != null) {
+				var amountOfBetsWon = user.get("betsWon");
+				amountOfBetsWon = amountOfBetsWon + 1;
+				user.set("betsWon",amountOfBetsWon);
+				var amountOfBetsParticipated = user.get("betsParticipated");
+				amountOfBetsParticipated = amountOfBetsParticipated + 1;
+				user.set("betsParticipated",amountOfBetsParticipated);
+				user.save(null,{
+					success:function(user) {
+						console.log("succeeded saveing betsParticipated and betsWon");
+					}, error:function(user, error) {
+						console.log("failed saveing betsParticipated and betsWon");
+					}
+				});
+			} else {
+				console.log("Tried to update user stat but couldn't find user");
+			}
+		},
+		error: function(error) {
+			console.log("Tried to update user stat but failed performing query");
+		}
+	});
+}
+
+
+/********************************************************************
+ | Other
+********************************************************************/
+
+
+// ------------------------- AdminMsg ----------------------------
+
+Parse.Cloud.define("AdminMsg", function(request, response) {
+	sendAdminMsgToGroup("8dc83080-ae62-4602-b8d2-e400356096db","Fred! Ma Nish!");
 });
 
+// -------------------------testPush----------------------------
 
+Parse.Cloud.define("testPush", function(request, response) {
+	Parse.Push.send({
+		channels: [ "A2" ],
+		data: {
+			alert: "The Giants won against the Mets 2-3."
+		}
+	}, {
+		success: function() {
+  		  	// Push was successful
+  		  	response.success("YES!");
+  		  },
+  		  error: function(error) {
+   		 	// Handle error
+   		 	response.error(error);
+   		 }
+   	});
+});
 
+// ------------------------- Logging ----------------------------
 
+var logColors = {"Black":"\x1b[30m", "Red":"\x1b[31m", "Green":"\x1b[32m", "Yellow":"\x1b[33m", "Blue":"\x1b[34m", "Magenta":"\x1b[35m", "Cyan":"\x1b[36m", "White":"\x1b[37m"}
 
-var colors = {"Black":"\x1b[30m", "Red":"\x1b[31m", "Green":"\x1b[32m", "Yellow":"\x1b[33m", "Blue":"\x1b[34m", "Magenta":"\x1b[35m", "Cyan":"\x1b[36m", "White":"\x1b[37m"}
 function logOk(msg) {
-	console.log(colors["Green"], msg);
+	console.log(logColors["Green"], msg);
 }
 function logWarning(msg) {
-	console.log(colors["Yellow"], msg);
+	console.log(logColors["Yellow"], msg);
 }
 function logError(msg) {
-	console.log(colors["Red"], msg);
+	console.log(logColors["Red"], msg);
 }
 function log(msg) {
-	console.log(colors["Magenta"], msg);
+	console.log(logColors["Magenta"], msg);
 }
 function logError(msg) {
-	console.log(colors["Red"], msg);
+	console.log(logColors["Red"], msg);
 }
