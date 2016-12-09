@@ -923,6 +923,165 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 	});
 });
 
+Parse.Cloud.define("createFootballGameBetV2", function(request, response) {
+	var betAdminLayerId = request.params.betAdminLayerId;
+	var stakeType = request.params.stakeType;
+	var stakeDesc = request.params.stakeDesc;
+
+    // [query class]
+    var LBUserClass = Parse.Object.extend("LBUser");
+    var userQuery = new Parse.Query(LBUserClass);
+    // [query conditions]
+    userQuery.equalTo("layerIdentityToken", betAdminLayerId);
+    // [query run]
+    userQuery.first({
+        success: function(user) {
+            // if stake type is "Money" use coins logic 
+            if (stakeType == "Money"){
+                // check sufficient coins
+                var currentAvailableCoins = user.get("availableCoins");
+                if (stakeDesc > currentAvailableCoins){
+                    response.error("insufficientAvailableCoins");
+                    return;
+                }
+                
+                createFootballGameBet(user, request, response, function(){
+                    user.set("availableCoins", currentAvailableCoins - stakeDesc);
+                    user.save();
+                });
+                                
+            }
+            // otherwise create bet regularly
+            else {
+                createFootballGameBet(user, request, response);
+            }
+
+        },
+        error:function(user, error) {
+            response.error("findBetAdminUser: " + error);
+        }
+    });
+    
+    
+	
+});
+
+function createFootballGameBet(adminLBUser, request, response, onSuccess){
+    // extract params
+    var groupLayerId = request.params.layerGroupId;
+	var gameId = request.params.gameId;
+	var betAdminLayerId = request.params.betAdminLayerId;
+	var hostAdminGoalsBet = parseInt(request.params.hostAdminGoalsBet);
+	var guestAdminGoalsBet = parseInt(request.params.guestAdminGoalsBet);
+	var stakeType = request.params.stakeType;
+	var stakeDesc = request.params.stakeDesc;
+    
+    // check if bet in this group for this match already exists
+    // [query class]
+    var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+	var query = new Parse.Query(LBFootballGameBetClass);
+    // [query conditions]
+	query.equalTo("layerGroupId",groupLayerId);
+	query.equalTo("gameId",gameId);
+    // [query run]
+	query.first({
+		success: function(query_bet) {
+			// return error if already exists
+			if (query_bet != undefined && query_bet != null) {
+				response.error("errorBetAlreadyExists");
+                return;
+			}
+            
+            // get all the relevant data about the match from DB
+            // [query class]
+            var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+            var footballQuery = new Parse.Query(LBFootballMatchClass);
+            // [query conditions]
+            footballQuery.equalTo("matchId",gameId);
+            // [query run]
+            footballQuery.first({
+                success: function(match) {
+                    // validate match
+                    if ((match == undefined) || (match == null)){
+                        response.error("match wasn't found in DB: " + error);
+                        return;
+                    }
+
+                    // extract match params
+                    var teamHostName = match.get("homeTeam");
+                    var teamGuestName = match.get("awayTeam");
+                    var teamHostId = match.get("homeTeamId");
+                    var teamGuestId = match.get("awayTeamId");
+
+                    log("Got relevant data about match " + gameId + " from DB");
+
+                    // create the new bet
+                    // [class]
+                    var bet = new LBFootballGameBetClass();
+                    // [params]
+                    // - general
+                    bet.set("layerGroupId",groupLayerId);
+                    bet.set("gameId",gameId);
+                    bet.set("betAdminLayerId",betAdminLayerId);
+                    // - stakes
+                    bet.set("stakeType",stakeType);
+                    bet.set("stakeDesc",stakeDesc);
+                    // - match data
+                    bet.set("teamHostName",teamHostName);
+                    bet.set("teamHostId",teamHostId);
+                    bet.set("teamGuestName",teamGuestName);
+                    bet.set("teamGuestId",teamGuestId);
+                    // - guesses with admin's guess
+                    var usersGuesses = {};
+                    usersGuesses[betAdminLayerId] = {"homeGoals": hostAdminGoalsBet, "awayGoals": guestAdminGoalsBet};
+                    bet.set("usersGuesses",usersGuesses);
+
+                    // [save]
+                    bet.save(null,{
+                        success:function(savedBet) {
+
+                            // send message to group that the given admin has opened a new bet
+                            var data = {
+                                "msgType" : "FootballBet",
+                                "betId" : savedBet.id,
+                                "gameId" : gameId,
+                                "betAdminLayerId" : betAdminLayerId,
+                                "userLayerId" : betAdminLayerId,
+                                "teamHomeName" : teamHostName,
+                                "teamAwayName" : teamGuestName,
+                                "teamHomeId" : teamHostId,
+                                "teamAwayId" : teamGuestId,
+                                "date" : match.get("date")
+                            }
+
+                            sendAdminMsgToGroup(groupLayerId, "New Bet by " + user.get("name") +  "... Lets Bet!", data);
+                            
+                            // call on success callback if exists
+                            if (onSuccess){
+                                onSuccess();
+                            }
+                            
+                            // respond successfully with amount of user's available coins
+                            response.success(user.get("availableCoins"));
+                        },
+                        error:function(bet, error) {
+                            response.error("saveBetError: " + error);
+                        }
+                    }); // [save bet query]
+                    
+                },
+                error: function(error) {
+                    response.error("getMatchError: " + error);
+                }
+            }); // [get match query]
+			
+		},
+		error: function(error) {
+			response.error("checkPreExistingBetError: " + error);
+		}
+	}); // [check pre-existing bet query]
+}
+
 
 // ------------------------- addGuessToFootballGameBet ----------------------------
 Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
@@ -1024,6 +1183,168 @@ Parse.Cloud.define("addGuessToFootballGameBet", function(request, response) {
 		}
 	});
 });
+
+Parse.Cloud.define("addGuessToFootballGameBetV2", function(request, response) {
+	var gameApiId = request.params.gameApiId;
+	var groupLayerId = request.params.groupLayerId;
+	var userLayerId = request.params.userLayerId;
+
+    // get bet by group and game id
+    // [query class]
+	var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
+	var query = new Parse.Query(LBFootballGameBetClass);
+    // [query conditions]
+	query.equalTo("layerGroupId",groupLayerId);
+	query.equalTo("gameId",gameApiId);
+    // [query run]
+	query.first({
+		success: function(bet) {
+            // validate bet
+            if (bet == undefined || bet == null) {
+                response.error("BetDoesntExist");
+                return;
+            }
+
+            // make sure guess doesn't exist yet
+            if (bet.get("usersGuesses")[userLayerId] != undefined){
+                response.error("GuessAlreadyExists");
+                return;
+            }
+            
+            // get guessing user
+            // [query class]
+            var LBUserClass = Parse.Object.extend("LBUser");
+            var userQuery = new Parse.Query(LBUserClass);
+            // [query conditions]
+            userQuery.equalTo("layerIdentityToken", userLayerId);
+            // [query run]
+            userQuery.first({
+                success: function(user) {
+                    // validate user
+                    if ((user == undefined) || (user == null)){
+                        response.error("GuessingUserNotFound");
+                        return;
+                    }
+                    
+                    // if stake type is "Money" use coins logic 
+                    if (bet.get("stakeType") == "Money"){
+                        // check sufficient coins
+                        var currentAvailableCoins = user.get("availableCoins");
+                        var stakeDesc = bet.get("stakeDesc");
+                        if (stakeDesc > currentAvailableCoins){
+                            response.error("insufficientAvailableCoins");
+                            return;
+                        }
+
+                        addGuessToFootballGameBet(user, bet, request, response, function(){
+                            user.set("availableCoins", currentAvailableCoins - stakeDesc);
+                            user.save();
+                        });
+
+                    }
+                    // otherwise add guess regularly
+                    else {
+                        addGuessToFootballGameBet(user, bet, request, response);
+                    }
+                    
+                },
+                error: function(error) {
+                    response.error("findGuessingUserError: " + error);
+                }
+            });			
+		},
+		error: function(error) {
+			response.error("findBetError: " + error);
+		}
+	});
+});
+
+function addGuessToFootballGameBet(user, bet, request, response, onSuccess){
+    var gameApiId = request.params.gameApiId;
+    var groupLayerId = request.params.groupLayerId;
+    var userLayerId = request.params.userLayerId;
+    var goalsTeamHost = parseInt(request.params.goalsTeamHost);
+    var goalsTeamGuest = parseInt(request.params.goalsTeamGuest);
+    
+    // add guess to bet
+    var usersGuesses = bet.get("usersGuesses");
+    usersGuesses[userLayerId] = {"homeGoals": goalsTeamHost, "awayGoals": goalsTeamGuest};
+
+    // save bet
+    bet.save(null,{
+        success:function(bet) {
+            
+            // call on success callback if exists
+            if (onSuccess){
+                onSuccess();
+            }
+            
+            log("guess added to bet: " + bet);
+
+            // formulate and send notification to group
+
+            // get match
+            // [query class]
+            var LBFootballMatchClass = Parse.Object.extend("LBFootballMatch");
+            var query_match = new Parse.Query(LBFootballMatchClass);
+            // [query conditions]
+            query_match.equalTo("matchId",gameApiId);
+            // [query run]
+            query_match.first({
+                success: function(success_match) {
+                    // prepare notification payload data
+                    var data = {
+                        "msgType" : "FootballBet",
+                        "betId" : bet.id,
+                        "gameId" : gameApiId,
+                        "userLayerId" : userLayerId,
+                        "betAdminLayerId" : userLayerId, // not true/needed
+                        "teamHomeName" : bet.get("teamHostName"),
+                        "teamAwayName" : bet.get("teamGuestName"),
+                        "teamHomeId" : bet.get("teamHostId"),
+                        "teamAwayId" : bet.get("teamGuestId"),
+                        "date" : success_match.get("date")
+                    }
+
+                    log("adding bet guess with data: " + data);
+
+                    // prepare notification message
+                    // - guesser name
+                    var message = "" + user.get("name") + ": ";
+                    // - bet in words
+                    if (goalsTeamHost == goalsTeamGuest) {
+                        if (goalsTeamHost == 0) {
+                            message += "Boring draw";
+                        } else {
+                            message += "draw " + goalsTeamHost + ":" + goalsTeamGuest;
+                        }
+                    } else {
+                        if (goalsTeamHost > goalsTeamGuest) {
+                            message += "" + bet.get("teamHostName");
+                        } else {
+                            message += "" + bet.get("teamGuestName");
+                        }
+                        message +=  " will win " + goalsTeamHost + ":" + goalsTeamGuest;
+                    }
+
+                    log("adding bet guess with notification message: " + message);
+
+                    // send notification
+                    sendAdminMsgToGroup(groupLayerId, message, data);
+
+                    // return with amount of user's available coins
+                    response.success(user.get("availableCoins"));
+                },
+                error: function(error) {
+                    response.error("getBetMatchError: " + error);
+                }
+            });
+        },
+        error:function(bet, error) {
+            response.error("saveBetError: " + error);
+        }
+    });
+}
 
 /********************************************************************
  | Custom Bets
