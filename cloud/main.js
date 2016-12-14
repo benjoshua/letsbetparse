@@ -170,6 +170,35 @@ function getNowTime(){
     return now.getTime();
 }
 
+// ---------------------- scripts ------------------
+
+function migrateUsersToCoins(){
+    console.log('migrateUsersToCoins');
+    var LBUserClass = Parse.Object.extend("LBUser");
+    var userQuery = new Parse.Query(LBUserClass);
+    userQuery.find({
+        success: function(users) {
+            console.log('[migrateUsersToCoins] got ' + users.length +' users');
+            for (var i in users){
+                var user = users[i];
+                var total = user.get("totalCoins");
+                var available = user.get("availableCoins");
+                if (total == undefined || total == null || available == undefined || available == null) {
+                    console.log('[migrateUsersToCoins] migrating user:', user.get("layerIdentityToken"));
+                    user.set("totalCoins",coinsConstants.initialAmount);
+                    user.set("availableCoins",coinsConstants.initialAmount);
+                    user.set("nextBonusTime", getNextPeriodicBonusTime());
+                    user.save();
+                }
+            }
+        },
+        error:function(error) {
+            console.log('migrateUsersToCoins ERROR');
+        }
+    });
+}
+
+migrateUsersToCoins();
 
 /********************************************************************
  | Users
@@ -454,6 +483,8 @@ Parse.Cloud.define("getStatsForUser", function(request, response) {
 //for given array of userLayerId, get objects (nickname & picture)
 //every time app is opened
 Parse.Cloud.define("getUserObjectsForUserLayerIds", function(request, response) {
+    console.log("getUserObjectsForUserLayerIds IN");
+    
 	var userLayerIdsArray = request.params.userLayerIdsArray;
 
 	var LBUserClass = Parse.Object.extend("LBUser");
@@ -924,10 +955,13 @@ Parse.Cloud.define("createFootballGameBet", function(request, response) {
 });
 
 Parse.Cloud.define("createFootballGameBetV2", function(request, response) {
+    console.log('createFootballGameBetV2 IN');
 	var betAdminLayerId = request.params.betAdminLayerId;
 	var stakeType = request.params.stakeType;
 	var stakeDesc = request.params.stakeDesc;
-
+    
+    
+    
     // [query class]
     var LBUserClass = Parse.Object.extend("LBUser");
     var userQuery = new Parse.Query(LBUserClass);
@@ -938,22 +972,26 @@ Parse.Cloud.define("createFootballGameBetV2", function(request, response) {
         success: function(user) {
             // if stake type is "Money" use coins logic 
             if (stakeType == "Money"){
+                var stakeDescInt = parseInt(stakeDesc);
+                
                 // check sufficient coins
                 var currentAvailableCoins = user.get("availableCoins");
-                if (stakeDesc > currentAvailableCoins){
+                if (stakeDescInt > currentAvailableCoins){
                     response.error("insufficientAvailableCoins");
                     return;
                 }
                 
-                createFootballGameBet(user, request, response, function(){
-                    user.set("availableCoins", currentAvailableCoins - stakeDesc);
+                createFootballGameBet(user, request, response, function(){                    
+                    user.set("availableCoins", currentAvailableCoins - stakeDescInt);
                     user.save();
                 });
-                                
+                          
+                return;
             }
             // otherwise create bet regularly
             else {
                 createFootballGameBet(user, request, response);
+                return;
             }
 
         },
@@ -967,6 +1005,7 @@ Parse.Cloud.define("createFootballGameBetV2", function(request, response) {
 });
 
 function createFootballGameBet(adminLBUser, request, response, onSuccess){
+
     // extract params
     var groupLayerId = request.params.layerGroupId;
 	var gameId = request.params.gameId;
@@ -986,8 +1025,11 @@ function createFootballGameBet(adminLBUser, request, response, onSuccess){
     // [query run]
 	query.first({
 		success: function(query_bet) {
+ 
 			// return error if already exists
 			if (query_bet != undefined && query_bet != null) {
+                console.log(errorBetAlreadyExists);
+                console.dir(query_bet);
 				response.error("errorBetAlreadyExists");
                 return;
 			}
@@ -1001,6 +1043,7 @@ function createFootballGameBet(adminLBUser, request, response, onSuccess){
             // [query run]
             footballQuery.first({
                 success: function(match) {
+            
                     // validate match
                     if ((match == undefined) || (match == null)){
                         response.error("match wasn't found in DB: " + error);
@@ -1039,7 +1082,7 @@ function createFootballGameBet(adminLBUser, request, response, onSuccess){
                     // [save]
                     bet.save(null,{
                         success:function(savedBet) {
-
+  
                             // send message to group that the given admin has opened a new bet
                             var data = {
                                 "msgType" : "FootballBet",
@@ -1054,7 +1097,7 @@ function createFootballGameBet(adminLBUser, request, response, onSuccess){
                                 "date" : match.get("date")
                             }
 
-                            sendAdminMsgToGroup(groupLayerId, "New Bet by " + user.get("name") +  "... Lets Bet!", data);
+                            sendAdminMsgToGroup(groupLayerId, "New Bet by " + adminLBUser.get("name") +  "... Lets Bet!", data);
                             
                             // call on success callback if exists
                             if (onSuccess){
@@ -1062,7 +1105,7 @@ function createFootballGameBet(adminLBUser, request, response, onSuccess){
                             }
                             
                             // respond successfully with amount of user's available coins
-                            response.success(user.get("availableCoins"));
+                            response.success(adminLBUser.get("availableCoins"));
                         },
                         error:function(bet, error) {
                             response.error("saveBetError: " + error);
@@ -2334,6 +2377,302 @@ function updateEndedMatch(match, bets){
 }
 
 
+
+function updateEndedMatchV2(match, bets){
+	var matchId = match.get("matchId");
+	var homeTeamName = match.get("homeTeam");
+	var awayTeamName = match.get("awayTeam");
+	var homeTeamId = match.get("homeTeamId");
+	var awayTeamId = match.get("awayTeamId");
+	var homeTeamGoals = parseInt(match.get("homeGoals"));
+	var awayTeamGoals = parseInt(match.get("awayGoals"));
+    
+    log("Match " + matchId + " ended. Updating relevant groups.");
+
+    // update each bet opened for this match
+    function updateBet(bet){
+        
+        var groupLayerId = bet.get("layerGroupId");
+		var betStakeDesc = bet.get("stakeDesc");
+		var betStakeType = bet.get("stakeType");
+        
+        // update group on match end
+        function updateGroup(group) {
+            // validate group
+            if (group != undefined && group != null) {
+                logError("updateEndedMatch error: group doesn't exist");
+                return;
+            }
+
+            log("Updating group " + groupLayerId);
+            var currentStatistics = group.get("statistics");
+            var groupUsersGuesses = bet.get("usersGuesses");
+
+            var str = JSON.stringify(groupUsersGuesses, null, 4); // (Optional) beautiful indented output.
+            log("The group's guesses are: "+ str); // Logs output to dev tools console.
+
+            
+            var winnersArray = [];
+            
+            var userResults = {
+                bullseye:[],
+                almost:[],
+                lost:[],
+                deltaMap:{}
+            };
+            
+            
+            // flag if bet is of "money" type
+            var isMoneyBet = betStakeType == "Money";
+            
+            
+            // updates statistics of user in group and assigns guess result to userResults
+            function updateGroupStatsAndCollectGuessResults(userId){
+                // get user's guess
+                var userGuess = groupUsersGuesses[userId];
+                // ensure user's group statistics object exists, initialize otherwise
+                if ((currentStatistics[userId] == undefined) || (currentStatistics[userId] == null)){
+                    logWarning("Stats of user " + userId + " are undefined. Initializing them");
+                    currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};
+                }
+                // get user's group statistics
+                var userStatistics = currentStatistics[userId];
+                log("userStatistics of " + userId + ": "+JSON.stringify(userStatistics, null, 4));
+
+                // get user's guess
+                var homeGuess = userGuess["homeGoals"];
+                var awayGuess = userGuess["awayGoals"];
+                
+                
+                //bullseye:
+                if ((homeGuess == homeTeamGoals) && (awayGuess == awayTeamGoals)){
+                    
+                    userStatistics["bullseye"] = userStatistics["bullseye"]+1;
+                    userStatistics["points"] = userStatistics["points"]+2;
+                    
+                    winnersArray.push(userId);
+                    userResults.bullseye.push(userId);
+                    
+                    if (!isMoneyBet)
+                        updateWinStatForUser(userId); // will update both betsWon and betsParticipated
+                }
+                //almost:
+                else if ( ((homeTeamGoals > awayTeamGoals) && (homeGuess > awayGuess)) || // guessed winner is home team
+                          ((homeTeamGoals == awayTeamGoals) && (homeGuess == awayGuess)) || // guessed tie
+                          ((homeTeamGoals < awayTeamGoals) && (homeGuess < awayGuess)) ){ // guessed winner is away team
+                    //console.log("almost");
+                    userStatistics["almost"] = userStatistics["almost"]+1;
+                    userStatistics["points"] = userStatistics["points"]+1;
+                    
+                    winnersArray.push(userId);
+                    userResults.almost.push(userId);
+                    
+                    if (!isMoneyBet)
+                        updateBetsParticipatedStatForUser(userId); // will update betsParticipated
+                }
+                //lost bet:
+                else{
+                    //console.log("lost ");
+                    userStatistics["lost"] = userStatistics["lost"]+1;
+                    
+                    userResults.lost.push(userId);
+                    
+                    if (!isMoneyBet)
+                        updateBetsParticipatedStatForUser(userId); // will update betsParticipated
+                    
+                }
+                currentStatistics[userId] = userStatistics;
+            }
+            
+            // iterate over guessing users, update statistics and populate userResults
+            for (var userId in groupUsersGuesses) {
+                updateGroupStatsAndCollectGuessResults(userId);
+            }
+            
+            // update statistics
+            group.set("statistics",currentStatistics);
+            
+            // updates user models with new coins status and increases bets won/participated
+            function updateCoins(){
+                // calculate lot
+                var lot = betStakeDesc * groupUsersGuesses.length;
+                
+                // bullseye bonus
+                var bullseyeBonusFactor = 0.1;
+                var bullseyeBonus = betStakeDesc * bullseyeBonusFactor;
+                
+                /*var bullseyeBonusPerGuesser = 0;
+                var prizeShare = 0;
+                
+                // prize calculation when bullseye guess exists
+                if (userResults.bullseye.length > 0){
+                    // set bullseye bonus percentage
+                    var bullseyeBonusPercentage = 0.1;
+                    // calculate bullseye bonus per bullseye guesser
+                    bullseyeBonusPerGuesser = (lot * bullseyeBonusPercentage) / userResults.bullseye.length;
+                    // calculate prize share per bullseye & almost guessers
+                    prizeShare = (lot * (1-bullseyeBonusPercentage)) / (userResults.bullseye.length + userResults.almost.length);
+                }
+                // prize calculation when bullseye guess doesn't exist but almost guess exists
+                else if (userResults.almost.length > 0){
+                    prizeShare = lot / userResults.almost.length;
+                }*/
+                
+                // sum of users to split lot with
+                var numofCorrectGuesses = userResults.bullseye.length + userResults.almost.length;
+                
+                // in case at least one correct guess exists
+                if (numofCorrectGuesses > 0){
+                    var prizeShare = lot / numofCorrectGuesses; // prizeShare always >= betStakeDesc
+                    
+                    var bullseyeShare = prizeShare + bullseyeBonus;
+                    var bullseyeDeltaTotal = bullseyeShare - betStakeDesc;
+                    
+                    for (var i in userResults.bullseye){
+                        updateWinStatForUser(userResults.bullseye[i], bullseyeDeltaTotal, bullseyeShare);
+                        userResults.deltaMap[userResults.bullseye[i]] = [bullseyeDeltaTotal, bullseyeShare];
+                    }
+                    
+                    var almostDeltaTotal = prizeShare - betStakeDesc;
+                    
+                    for (var i in userResults.almost){
+                        updateWinStatForUser(userResults.almost[i], almostDeltaTotal, prizeShare);
+                        userResults.deltaMap[userResults.almost[i]] = [almostDeltaTotal, prizeShare];
+                    }
+                    
+                    for (var i in userResults.lost){
+                        updateBetsParticipatedStatForUser(userResults.lost[i], -betStakeDesc);
+                        userResults.deltaMap[userResults.lost[i]] = [-betStakeDesc, 0];
+                    }
+                }
+                // no correct guesses
+                else {
+                    for (var userId in groupUsersGuesses) {
+                        updateBetsParticipatedStatForUser(userId, 0, betStakeDesc);
+                        userResults.deltaMap[userId] = [0, betStakeDesc];
+                    }
+                }
+            
+            }
+            
+            // call update coins if money bet
+            if (isMoneyBet){
+                updateCoins();
+            }
+
+            log("Group's winners of this match are: "+JSON.stringify(winnersArray, null, 4));
+            
+            // update bet
+            
+            // - set winners array
+            bet.set("winnersArray",winnersArray);
+            // - save
+            bet.save(null,{
+                success:function(saved_bet) {
+                    // group's last bet
+                    
+                    // - delete last group's bet
+                    deleteLastBetOfGroup(groupLayerId);
+
+                    // - update last bet in group
+                    group.set("lastBetId",saved_bet.id);
+                    group.set("lastBetType","Football");
+
+                    // save group
+                    group.save(null,{
+                        //TODO: send right msg + data{}
+                        success:function(group) {
+                            
+                            logOk("saved group " + groupLayerId);
+                            
+                            //var message = homeTeamName + " vs " + awayTeamName + " - " + homeTeamGoals + ":" + awayTeamGoals +
+                            //    " - Final Score - ";
+                            
+                            // formulate push notification message
+                            var message = homeTeamName + " vs " + awayTeamName + " - " + homeTeamGoals + ":" + awayTeamGoals + ", check out bet results!";
+                            
+                            // prepare push notification payload
+                            var data = {
+                                "msgType" : "footballBetEnded",
+                                "teamHomeName" : homeTeamName,
+                                "teamAwayName" : awayTeamName,
+                                "teamHomeId" : homeTeamId,
+                                "teamAwayId" : awayTeamId,
+                                "teamHomeGoals" : homeTeamGoals,
+                                "teamAwayGoals" : awayTeamGoals,
+                                "stakeDesc" : betStakeDesc,
+                                "stakeType" : betStakeType,
+                                "winnersArray" : winnersArray,
+                                "coinsDeltaMap" : userResults.deltaMap,
+                            }
+
+                            console.log("gonna send them this message: " + message);
+                            sendAdminMsgToGroup(groupLayerId, message, data);
+
+                            /*if (winnersArray.length == 0){
+                                message = message + "no winners here... try again!";
+                                console.log("gonna send them this message: " + message);
+                                sendAdminMsgToGroup(groupLayerId, message, data);
+                            } else {
+                                    var LBUserClass = Parse.Object.extend("LBUser");
+                                    var userQuery = new Parse.Query(LBUserClass);
+
+                                    userQuery.containsAll("layerIdentityToken", winnersArray);
+                                    userQuery.first({
+                                        success: function(users) {
+                                            message = message + (winnersArray.length == 1 ? "the winner is " : "the winners are ");
+                                            message = message + users.map(function(u){ return u.get("name");}).join(",");
+                                            console.log("gonna send them this message: " + message);
+                                            sendAdminMsgToGroup(groupLayerId, message, data);
+                                            response.success(true);
+                                        },
+                                        error:function(bet, error) {
+                                            var str = JSON.stringify(error, null, 4); // (Optional) beautiful indented output.
+                                            console.log(str); // Logs output to dev tools console.
+                                            response.error(error);
+                                        }
+                                    });
+                            }*/
+                        },
+                        error:function(group, error) {
+                            logError("updateEndedMatch: error saving group: " + error);
+                        }
+                    });
+                },
+                error:function(bet, error) {
+                    logError("updateEndedMatch: error saving bet: " + error);
+                }
+            });
+
+        }
+        
+        // get bet's group
+        // [query class]
+		var LBGroupClass = Parse.Object.extend("LBGroup");
+		var query = new Parse.Query(LBGroupClass);
+        // [query conditions]
+		query.equalTo("layerGroupId",groupLayerId);
+        // [query run]
+		query.first({
+			success: function(group) {
+				updateGroup(group);
+			},
+			error: function(error) {
+				response.error(error);
+			}
+		});
+    }
+    
+    // iterate over bets, update each one
+	for(var i = 0; i < bets.length; i++) {
+		updateBet(bets[i]);	
+	}
+
+	match.destroy({});
+}
+
+
+
 // ------------------------- getLBFootballMatches ----------------------------
 //Get all LBFootballMatches saved in the DB
 Parse.Cloud.define("getLBFootballMatches", function(request, response) {
@@ -2415,7 +2754,7 @@ function deleteLastBetOfGroup(groupLayerId){
 }
 
 //Will update betsParticipated in user stats
-function updateBetsParticipatedStatForUser(userLayerId){
+function updateBetsParticipatedStatForUser(userLayerId, deltaTotalCoins, deltaAvailableCoins){
 	console.log("updateBetsParticipatedStatForUser");
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
@@ -2427,6 +2766,9 @@ function updateBetsParticipatedStatForUser(userLayerId){
 				var amountOfBetsParticipated = user.get("betsParticipated");
 				amountOfBetsParticipated = amountOfBetsParticipated + 1;
 				user.set("betsParticipated",amountOfBetsParticipated);
+                
+                updateUserCoinsOnMatchEnd(user, deltaTotalCoins, deltaAvailableCoins);
+                
 				user.save(null,{
 					success:function(user) {
 						console.log("succeeded saving betsParticipated");
@@ -2445,7 +2787,7 @@ function updateBetsParticipatedStatForUser(userLayerId){
 }
 
 //Will updateboth betsWon AND betsParticipated in user stats
-function updateWinStatForUser(userLayerId){
+function updateWinStatForUser(userLayerId, deltaTotalCoins, deltaAvailableCoins){
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
 	query.equalTo("layerIdentityToken",userLayerId);
@@ -2459,6 +2801,9 @@ function updateWinStatForUser(userLayerId){
 				var amountOfBetsParticipated = user.get("betsParticipated");
 				amountOfBetsParticipated = amountOfBetsParticipated + 1;
 				user.set("betsParticipated",amountOfBetsParticipated);
+                
+                updateUserCoinsOnMatchEnd(user, deltaTotalCoins, deltaAvailableCoins);
+                
 				user.save(null,{
 					success:function(user) {
 						console.log("succeeded saveing betsParticipated and betsWon");
@@ -2474,6 +2819,19 @@ function updateWinStatForUser(userLayerId){
 			console.log("Tried to update user stat but failed performing query");
 		}
 	});
+}
+
+// updates user coins status according to params
+function updateUserCoinsOnMatchEnd(user, deltaTotalCoins, deltaAvailableCoins){
+    if (deltaTotalCoins){
+        var totalCoins = user.get("totalCoins");
+        user.set("totalCoins", totalCoins + deltaTotalCoins);
+    }
+
+    if (deltaAvailableCoins){
+        var availableCoins = user.get("availableCoins");
+        user.set("availableCoins", availableCoins + deltaAvailableCoins);
+    }
 }
 
 
@@ -2512,18 +2870,20 @@ Parse.Cloud.define("testPush", function(request, response) {
 
 var logColors = {"Black":"\x1b[30m", "Red":"\x1b[31m", "Green":"\x1b[32m", "Yellow":"\x1b[33m", "Blue":"\x1b[34m", "Magenta":"\x1b[35m", "Cyan":"\x1b[36m", "White":"\x1b[37m"}
 
+var muteLog = true;
+
 function logOk(msg) {
-	console.log(logColors["Green"], msg);
+	if (!muteLog) console.log(logColors["Green"], msg);
 }
 function logWarning(msg) {
-	console.log(logColors["Yellow"], msg);
+	if (!muteLog) console.log(logColors["Yellow"], msg);
 }
 function logError(msg) {
-	console.log(logColors["Red"], msg);
+	if (!muteLog) console.log(logColors["Red"], msg);
 }
 function log(msg) {
-	console.log(logColors["Magenta"], msg);
+	if (!muteLog) console.log(logColors["Magenta"], msg);
 }
 function logError(msg) {
-	console.log(logColors["Red"], msg);
+	if (!muteLog) console.log(logColors["Red"], msg);
 }

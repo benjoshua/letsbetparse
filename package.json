@@ -15,6 +15,7 @@
     "jquery": "^2.2.2",
     "jsdom": "^8.1.0",
     "kerberos": "~0.0.x",
+    "layer-api": "^2.3.1",
     "layer-patch": "layerhq/layer-patch",
     "parse": "~1.6.12",
     "parse-server": "~2.1",
