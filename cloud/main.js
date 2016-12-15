@@ -577,6 +577,7 @@ function createGroup(LBGroupClass, groupLayerId, groupAdminLayerId, picture){
     group.set("lastBetId","");
     group.set("lastBetType","");
     group.set("picture",picture);
+    return group;
 }
 
 // -------------------------deleteAllGroupsFromDB----------------------------
