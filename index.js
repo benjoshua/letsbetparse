@@ -44,5 +44,5 @@ app.get('/', function(req, res) {
 
 var port = process.env.PORT || 1337;
 app.listen(port, function() {
-    console.log('parse-server-example running on port ' + port + '.');
+    console.log('LetsBet server running on port ' + port + '.');
 });
