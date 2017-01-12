@@ -107,6 +107,12 @@ setTimeout(checkCoinsBonus, 5000);
 // migrate users to coins, slightly delayed from boot
 setTimeout(migrateUsersToCoins, 5000);
 
+
+setTimeout(function(){
+    console.log('---------- Updating! -----------');
+    updateLiveGameIfNeeded("370097", "Finished", 1, 0);
+}, 30000);
+
 // ---------------------- utils ------------------
 
 //yyyy-mm-dd
@@ -2191,7 +2197,7 @@ function updateLiveScoresInDBAndNotify(liveScoresXml){
 			}
             logOk("[updateLiveScoresInDBAndNotify] done");
 		} else {
-            logError("[updateLiveScoresInDBAndNotify] error", err);
+            logError("[updateLiveScoresInDBAndNotify] error:", err, "result:", result);
 		}
 	});
 	//console.log("finished updateLiveScoresInDB()");
@@ -2270,7 +2276,7 @@ function sendMessageToRelevantGroupsThatScoreChanged(match){
 					var groupLayerId = bets[i].get("layerGroupId");
 					logInfo("About to notify group "+ groupLayerId+" that the score changed");
 					var message = "GOAL! "+homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+".";
-					logInfo("specficially: " + message);
+					logInfo("specifically: " + message);
 					sendAdminMsgToGroup(groupLayerId, message,{});
 				}
 			} else {
@@ -2315,7 +2321,7 @@ function performRelevantActionsInRelevantGroupsBecauseStatusChanged(match){
 					}
 				}
 				if ((gameTime == "Finished") || (gameTime == "Finished AET") || (gameTime == "Finished AP")){
-					updateEndedMatch(match, bets);
+					updateEndedMatchV2(match, bets);
 				}
 			} else {
 				logWarning("No bets exist for match " + matchId);
@@ -2362,12 +2368,15 @@ function updateEndedMatch(match, bets){
 					//update statistics
 					var winnersArray = [];
 					for (var userId in groupUsersGuesses) {
-						userGuess = groupUsersGuesses[userId];
+						if (!groupUsersGuesses.hasOwnProperty(userId))
+							continue;
+
+						var userGuess = groupUsersGuesses[userId];
 						if ((currentStatistics[userId] == undefined) || (currentStatistics[userId] == null)){
 							logWarning("[updateEndedMatch] Stats of user " + userId + " are undefined. Initializing them");
 							currentStatistics[userId] = {"bullseye":0, "almost":0, "lost":0, "points":0};
 						}
-						userStatistics = currentStatistics[userId];
+						var userStatistics = currentStatistics[userId];
 						logInfo("[updateEndedMatch] userStatistics of " + userId + ": "+JSON.stringify(userStatistics, null, 4));
 
 						var homeGuess = userGuess["homeGoals"];
@@ -2493,15 +2502,16 @@ function updateEndedMatchV2(match, bets){
 
     // update each bet opened for this match
     function updateBet(bet){
-        
         var groupLayerId = bet.get("layerGroupId");
+        logInfo("[updateEndedMatchV2] Updating bet for layerGroupId" + groupLayerId);
+
 		var betStakeDesc = bet.get("stakeDesc");
 		var betStakeType = bet.get("stakeType");
         
         // update group on match end
         function updateGroup(group) {
             // validate group
-            if (group != undefined && group != null) {
+            if (group == undefined || group == null) {
                 logError("[updateEndedMatchV2] group doesn't exist");
                 return;
             }
@@ -2585,10 +2595,13 @@ function updateEndedMatchV2(match, bets){
                 }
                 currentStatistics[userId] = userStatistics;
             }
-            
+
+            var numofGuesses = 0;
+
             // iterate over guessing users, update statistics and populate userResults
             for (var userId in groupUsersGuesses) {
                 updateGroupStatsAndCollectGuessResults(userId);
+                ++numofGuesses;
             }
             
             // update statistics
@@ -2597,11 +2610,14 @@ function updateEndedMatchV2(match, bets){
             // updates user models with new coins status and increases bets won/participated
             function updateCoins(){
                 // calculate lot
-                var lot = betStakeDesc * groupUsersGuesses.length;
+                var lot = betStakeDesc * numofGuesses;
+                logInfo("[updateEndedMatchV2] lot is", lot);
                 
                 // bullseye bonus
                 var bullseyeBonusFactor = 0.1;
                 var bullseyeBonus = betStakeDesc * bullseyeBonusFactor;
+
+                logInfo("[updateEndedMatchV2] bullseyeBonus is", bullseyeBonus);
                 
                 /*var bullseyeBonusPerGuesser = 0;
                 var prizeShare = 0;
@@ -2622,6 +2638,7 @@ function updateEndedMatchV2(match, bets){
                 
                 // sum of users to split lot with
                 var numofCorrectGuesses = userResults.bullseye.length + userResults.almost.length;
+                logInfo("[updateEndedMatchV2] numofCorrectGuesses is", numofCorrectGuesses);
                 
                 // in case at least one correct guess exists
                 if (numofCorrectGuesses > 0){
@@ -2659,7 +2676,9 @@ function updateEndedMatchV2(match, bets){
             
             // call update coins if money bet
             if (isMoneyBet){
+                logInfo("[updateEndedMatchV2] Updating coins");
                 updateCoins();
+                logInfo("[updateEndedMatchV2] userResults: "+JSON.stringify(userResults, null, 4));
             }
 
             logInfo("[updateEndedMatchV2] Group's winners of this match are: "+JSON.stringify(winnersArray, null, 4));
@@ -2705,8 +2724,8 @@ function updateEndedMatchV2(match, bets){
                                 "stakeDesc" : betStakeDesc,
                                 "stakeType" : betStakeType,
                                 "winnersArray" : winnersArray,
-                                "coinsDeltaMap" : userResults.deltaMap,
-                            }
+                                "coinsDeltaMap" : userResults.deltaMap
+                            };
 
                             logInfo("[updateEndedMatchV2] gonna send them this message: " + message);
                             sendAdminMsgToGroup(groupLayerId, message, data);
@@ -2887,7 +2906,7 @@ function updateBetsParticipatedStatForUser(userLayerId, deltaTotalCoins, deltaAv
 	});
 }
 
-//Will updateboth betsWon AND betsParticipated in user stats
+//Will update both betsWon AND betsParticipated in user stats
 function updateWinStatForUser(userLayerId, deltaTotalCoins, deltaAvailableCoins){
 	var LBUserClass = Parse.Object.extend("LBUser");
 	var query = new Parse.Query(LBUserClass);
@@ -2907,9 +2926,9 @@ function updateWinStatForUser(userLayerId, deltaTotalCoins, deltaAvailableCoins)
                 
 				user.save(null,{
 					success:function(user) {
-						logOk("[updateWinStatForUser] succeeded saveing betsParticipated and betsWon");
+						logOk("[updateWinStatForUser] succeeded saving betsParticipated and betsWon");
 					}, error:function(user, error) {
-						logError("[updateWinStatForUser] failed saveing betsParticipated and betsWon");
+						logError("[updateWinStatForUser] failed saving betsParticipated and betsWon");
 					}
 				});
 			} else {
@@ -2927,11 +2946,13 @@ function updateUserCoinsOnMatchEnd(user, deltaTotalCoins, deltaAvailableCoins){
     if (deltaTotalCoins){
         var totalCoins = user.get("totalCoins");
         user.set("totalCoins", totalCoins + deltaTotalCoins);
+        logInfo("[updateUserCoinsOnMatchEnd] updating totalCoins to ", totalCoins + deltaTotalCoins);
     }
 
     if (deltaAvailableCoins){
         var availableCoins = user.get("availableCoins");
         user.set("availableCoins", availableCoins + deltaAvailableCoins);
+        logInfo("[updateUserCoinsOnMatchEnd] updating availableCoins to ", availableCoins + deltaAvailableCoins);
     }
 }
 
