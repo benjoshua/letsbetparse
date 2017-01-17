@@ -1,8 +1,11 @@
 // dev patch
-var devEnvVars = require('./dev.env.json');
-for (var key in devEnvVars){
-    console.log('Adding environment variable', key);
-    process.env[key] = devEnvVars[key];
+// if ENV env var doesn't exist, load dev env vars
+if (!process.env.ENV) {
+    var devEnvVars = require('./dev.env.json');
+    for (var key in devEnvVars) {
+        console.log('Adding environment variable', key);
+        process.env[key] = devEnvVars[key];
+    }
 }
 // \dev patch
 
@@ -21,9 +24,9 @@ if (!databaseUri) {
 var api = new ParseServer({
   databaseURI: databaseUri || 'mongodb://admin:tomyoav1708@ds055885.mongolab.com:55885/heroku_htf2c3kb',
   cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/cloud/main.js',
-  appId: process.env.APP_ID || 'NEiRE5VTNb3ZJbhTfSOEe8BPajRfilQM1Wyc2DNj',
-  serverURL: process.env.SERVER_URL || 'https://letsbet.herokuapp.com/parse/',
-  masterKey: process.env.MASTER_KEY || 'RGoiOYHXZ8hpFMs8YzG9IXGNSRdHDdg6PZ8c9ud8' //Add your master key here. Keep it secret!
+  appId: process.env.APP_ID,
+  serverURL: process.env.SERVER_URL,
+  masterKey: process.env.MASTER_KEY
 });
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
 // If you wish you require them, you can set them as options in the initialization above:
