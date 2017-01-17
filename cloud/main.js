@@ -109,8 +109,7 @@ setTimeout(migrateUsersToCoins, 5000);
 
 
 setTimeout(function(){
-    console.log('---------- Updating! -----------');
-    updateLiveGameIfNeeded("370097", "Finished", 1, 0);
+   //updateLiveGameIfNeeded("367672", "Finished", 2, 0);
 }, 30000);
 
 // ---------------------- utils ------------------
@@ -670,19 +669,19 @@ Parse.Cloud.define("getGroupOpenBets", function(request, response) {
 			//group exists:
 			if (group != undefined && group != null) {
 				//First we find group's last bet, which isn't relevant to return cause it's been closed already
-				var lastBetId = group.get("lastBetId");
+				//var lastBetId = group.get("lastBetId");
 
 				var LBFootballGameBetClass = Parse.Object.extend("LBFootballGameBet");
 				var query = new Parse.Query(LBFootballGameBetClass);
 				query.equalTo("layerGroupId",groupLayerId);
-				query.notEqualTo("_id",lastBetId);
+				//query.notEqualTo("_id",lastBetId);
 				query.find({
 					success: function(footballBets) {
 
 						var LBCustomBetClass = Parse.Object.extend("LBCustomBet");
 						var custom_query = new Parse.Query(LBCustomBetClass);
 						custom_query.equalTo("groupLayerId",groupLayerId);
-						custom_query.notEqualTo("_id",lastBetId);
+						//custom_query.notEqualTo("_id",lastBetId);
 						custom_query.find({
 							success: function(customBets) {
 								var allBets = footballBets.concat(customBets);
@@ -1150,6 +1149,8 @@ function createFootballGameBet(adminLBUser, request, response, onSuccess){
                     var usersGuesses = {};
                     usersGuesses[betAdminLayerId] = {"homeGoals": hostAdminGoalsBet, "awayGoals": guestAdminGoalsBet};
                     bet.set("usersGuesses",usersGuesses);
+                    // - active state
+                    bet.set("active", 'true');
 
                     // [save]
                     bet.save(null,{
@@ -2084,6 +2085,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 				match.set("time","Not Started");
 				match.set("homeGoals",0);
 				match.set("awayGoals",0);
+				match.set("active", 'true');
 			}
 
 			//log("updating match of "+ homeTeam + " - " + awayTeam + "(" + homeTeamId + " - " + awayTeamId + ")");
@@ -2275,7 +2277,7 @@ function sendMessageToRelevantGroupsThatScoreChanged(match){
 				for(var i = 0; i < bets.length; i++) {
 					var groupLayerId = bets[i].get("layerGroupId");
 					logInfo("About to notify group "+ groupLayerId+" that the score changed");
-					var message = "GOAL! "+homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals+".";
+					var message = "GOAL! "+homeTeamName+" vs "+awayTeamName+" - "+homeTeamGoals+":"+awayTeamGoals;
 					logInfo("specifically: " + message);
 					sendAdminMsgToGroup(groupLayerId, message,{});
 				}
@@ -2685,15 +2687,30 @@ function updateEndedMatchV2(match, bets){
             
             // update bet
             
-            // - set winners array
+            // - set winners array and coins delta map
             bet.set("winnersArray",winnersArray);
+            bet.set("coinsDeltaMap",userResults.deltaMap);
+
+            // - set end bet info
+			bet.set("active", 'false');
+			bet.set("teamHomeGoals", homeTeamGoals);
+            bet.set("teamAwayGoals", awayTeamGoals);
+
+            var winnerId = null;
+            if (homeTeamGoals > awayTeamGoals)
+            	winnerId = homeTeamId;
+            if (homeTeamGoals < awayTeamGoals)
+                winnerId = awayTeamGoals;
+
+            bet.set("winnerId", winnerId);
+
             // - save
             bet.save(null,{
                 success:function(saved_bet) {
                     // group's last bet
                     
                     // - delete last group's bet
-                    deleteLastBetOfGroup(groupLayerId);
+                    //deleteLastBetOfGroup(groupLayerId);
 
                     // - update last bet in group
                     group.set("lastBetId",saved_bet.id);
@@ -2724,7 +2741,9 @@ function updateEndedMatchV2(match, bets){
                                 "stakeDesc" : betStakeDesc,
                                 "stakeType" : betStakeType,
                                 "winnersArray" : winnersArray,
-                                "coinsDeltaMap" : userResults.deltaMap
+                                "coinsDeltaMap" : userResults.deltaMap,
+								"betId":saved_bet.id,
+								"gameId":matchId
                             };
 
                             logInfo("[updateEndedMatchV2] gonna send them this message: " + message);
@@ -2789,7 +2808,18 @@ function updateEndedMatchV2(match, bets){
 		updateBet(bets[i]);	
 	}
 
-	match.destroy({});
+	//match.destroy({});
+	// update match to ended
+    match.set('active', 'false');
+
+    match.save(null,{
+        success:function(match) {
+            logOk("[updateEndedMatchV2] set match active flag to false", "match id:", matchId);
+        },
+        error:function(match, error) {
+            logError("[updateEndedMatchV2] error saving match: ", "match id:", matchId, "error:", error);
+        }
+    });
 }
 
 
