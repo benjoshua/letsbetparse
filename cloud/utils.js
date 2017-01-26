@@ -1,5 +1,6 @@
 var LayerAPI = require('layer-api');
 
+var helpers = {};
 /**
  * Utils
  */
@@ -10,7 +11,7 @@ var utils = {
     logger: {
         logColors: {"Black":"\x1b[30m", "Red":"\x1b[31m", "Green":"\x1b[32m", "Yellow":"\x1b[33m", "Blue":"\x1b[34m", "Magenta":"\x1b[35m", "Cyan":"\x1b[36m", "White":"\x1b[37m"},
         muteLog: false,
-        _log: function() {
+        /*_log: function() {
             var args = Array.prototype.slice.call(arguments);
             var color = args.shift();
             args = args[0];
@@ -33,25 +34,25 @@ var utils = {
                 return str;
             }).join(' ');
             console.log(color, logToWrite);
-        },
+        },*/
 
         logOk: function() {
-            if (!this.muteLog) _log(this.logColors["Green"], Array.prototype.slice.call(arguments));
+            if (!this.muteLog) helpers.log(this.logColors["Green"], Array.prototype.slice.call(arguments));
         },
         logWarning: function() {
-            if (!this.muteLog) _log(this.logColors["Yellow"], Array.prototype.slice.call(arguments));
+            if (!this.muteLog) helpers.log(this.logColors["Yellow"], Array.prototype.slice.call(arguments));
         },
         logError: function() {
-            if (!this.muteLog) _log(this.logColors["Red"], Array.prototype.slice.call(arguments));
+            if (!this.muteLog) helpers.log(this.logColors["Red"], Array.prototype.slice.call(arguments));
         },
         log: function() {
-            if (!this.muteLog) _log(this.logColors["White"], Array.prototype.slice.call(arguments));
+            if (!this.muteLog) helpers.log(this.logColors["White"], Array.prototype.slice.call(arguments));
         },
         logInfo: function(){
-            if (!this.muteLog) _log(this.logColors["Blue"], Array.prototype.slice.call(arguments));
+            if (!this.muteLog) helpers.log(this.logColors["Blue"], Array.prototype.slice.call(arguments));
         },
         logMethod: function(){
-            if (!this.muteLog) _log(this.logColors["Blue"], Array.prototype.slice.call(arguments));
+            if (!this.muteLog) helpers.log(this.logColors["Blue"], Array.prototype.slice.call(arguments));
         }
     },
 
@@ -62,8 +63,8 @@ var utils = {
         ApiToken: process.env.LAYER_PLATFORM_API_TOKEN,
         AppUUID: process.env.LAYER_APP_UUID,
         layerApi: new LayerAPI({
-            token: this.ApiToken,
-            appId: this.AppUUID
+            token: process.env.LAYER_PLATFORM_API_TOKEN,
+            appId: process.env.LAYER_APP_UUID
         }),
         layerPlatformApiInfo: {
             config: {
@@ -86,7 +87,7 @@ var utils = {
         },
         sendAdminMsgToGroup: function(groupLayerId, msg, dataDic) {
             utils.logger.logMethod("[sendAdminMsgToGroup] with msg:", msg, "sending to", groupLayerId);
-            request({
+            global.libs.request({
                 uri: this.layerPlatformApiInfo.config.serverUrl + "/conversations/" + groupLayerId + "/messages",
                 method: "POST",
                 body: {
@@ -173,6 +174,7 @@ var utils = {
     scheduler: {
         scheduled: {},
         schedule: function(id, callback, interval, options){
+            utils.logger.logInfo('[scheduler] scheduling ', id);
             this.scheduled[id]=setInterval(callback, interval);
             options = options || {};
             if (options.callNow){
@@ -209,3 +211,33 @@ var utils = {
 };
 
 module.exports = utils;
+
+// ----------------- [helpers] ----------------- //
+
+/**
+ * general log method
+ */
+helpers.log = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var color = args.shift();
+    args = args[0];
+    var logToWrite = args.map(function (arg) {
+        var str;
+        var argType = typeof arg;
+
+        if (arg === null) {
+            str = 'null';
+        } else if (arg === undefined) {
+            str = '';
+        } else if (!arg.toString || arg.toString() === '[object Object]') {
+            str = '\n' + JSON.stringify(arg, null, '  ') + '\n';
+        } else if (argType === 'string') {
+            str = arg;
+        } else {
+            str = arg.toString();
+        }
+
+        return str;
+    }).join(' ');
+    console.log(color, logToWrite);
+};

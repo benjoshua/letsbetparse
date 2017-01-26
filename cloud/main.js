@@ -1,30 +1,43 @@
 // ---------------------- dependencies ------------------ //
 
 // [external]
-var request = require("request"); // used by platform API
-var deferred = require('deferred'); // used by platform API
-var xml2js = require('xml2js');
-var parseString = require('xml2js').parseString;
-var fs = require('fs');
+// prepare libraries object
+var libs = {};
+libs.request = require("request"); // used by platform API
+libs.deferred = require('deferred'); // used by platform API
+libs.xml2js = require('xml2js');
+libs.parseString = require('xml2js').parseString;
+libs.fs = require('fs');
 
 // jQuery
 // used for xml from XMLSOCCER
-var jQuery;
+libs.jQuery = null;
 require("jsdom").env("", function(err, window) {
 	if (err) {
 		console.error(err);
 		return;
 	}
 
-	jQuery = require("jquery")(window);
+    libs.jQuery = require("jquery")(window);
 	global.DOMParser = require('xmldom').DOMParser;
 });
+
+// assign libs to global scope
+global.libs = libs;
 
 // [internal]
 var constants = global.constants = require('./constants');
 var utils = global.utils = require('./utils');
 
-// [controllers]
+// models
+var models = global.models = {
+    user: require('./models/user'),
+    group: require('./models/group'),
+    bet: require('./models/bet'),
+    match: require('./models/match')
+};
+
+// controllers
 var controllers = {
 	users: require('./controllers/users'),
 	groups: require('./controllers/groups'),

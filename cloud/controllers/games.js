@@ -1,10 +1,10 @@
 var utils = global.utils;
 var constants = global.constants;
 
-var Group = require('../models/group');
-var User = require('../models/user');
-var Bet = require('../models/bet');
-var Match = require('../models/match');
+var Group = global.models.group;
+var User = global.models.user;
+var Bet = global.models.bet;
+var Match = global.models.match;
 
 var shouldUseXmlExamples = false; // toggle use of XML Soccer API or sample data
 
@@ -23,7 +23,7 @@ module.exports = {
         if (false){
             utils.logger.logMethod("[updateComingGames] using example xml");
 
-            fs.readFile('./matches_example_xml.xml', function(err, data) {
+            global.libs.fs.readFile('./matches_example_xml.xml', function(err, data) {
                 updateComingGamesInDB(data);
             });
 
@@ -46,7 +46,7 @@ module.exports = {
 
         utils.logger.logInfo("[updateComingGames] requesting data from", fullUrl);
 
-        request({
+        global.libs.request({
             uri: fullUrl,
             method: "GET",
             json: true
@@ -68,7 +68,7 @@ module.exports = {
 
             //TODO: change to real xml example
 
-            fs.readFile('./live_scores_example_xml.xml', function(err, data) {
+            global.libs.fs.readFile('./live_scores_example_xml.xml', function(err, data) {
                 updateLiveScoresInDBAndNotify(data);
             });
 
@@ -86,7 +86,7 @@ module.exports = {
 
         utils.logger.logInfo("[updateLiveScores] requesting data from", fullUrl);
 
-        request({
+        global.libs.request({
             uri: fullUrl,
             method: "GET",
             json: true
@@ -133,7 +133,7 @@ module.exports = {
 function updateComingGamesInDB(futureMatchesXML){
     utils.logger.logMethod("[updateComingGamesInDB] starting");
 
-    var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
+    var parser = new global.libs.xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
     parser.parseString(futureMatchesXML, function (err, result) {
         // validate result
         if (err || result == undefined || result == null || result.match == undefined || result.match == null){
@@ -234,7 +234,7 @@ function addLBFootballMatchToDB(matchId, date, leagueId, homeTeam, homeTeamId, a
 function updateLiveScoresInDBAndNotify(liveScoresXml){
     utils.logger.logMethod("[updateLiveScoresInDBAndNotify] started ");
 
-    var parser = new xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
+    var parser = new global.libs.xml2js.Parser({explicitRoot: false, normalizeTags: true}); //Without "XMLSOCCER.COM", with lowercase
     parser.parseString(liveScoresXml, function (err, result) {
         if ((result != undefined) && (result != null) && (result.match != undefined) && (result.match != null)) {
             utils.logger.logInfo("[updateLiveScoresInDBAndNotify] xml parsing complete with " + result.match.length + " results");

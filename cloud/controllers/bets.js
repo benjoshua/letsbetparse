@@ -1,10 +1,10 @@
 var utils = global.utils;
 var constants = global.constants;
 
-var Group = require('../models/group');
-var User = require('../models/user');
-var Bet = require('../models/bet');
-var Match = require('../models/match');
+var Group = global.models.group;
+var User = global.models.user;
+var Bet = global.models.bet;
+var Match = global.models.match;
 
 module.exports = {
     /**

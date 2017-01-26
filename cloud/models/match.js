@@ -1,6 +1,6 @@
 module.exports = {
     name: 'LBFootballMatch',
-    modelClass: Parse.Object.extend(this.name),
+    modelClass: Parse.Object.extend('LBFootballMatch'),
     query: function(){
         return new Parse.Query(this.modelClass);
     },

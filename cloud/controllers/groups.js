@@ -1,8 +1,8 @@
 var utils = global.utils;
 var constants = global.constants;
 
-var Group = require('../models/group');
-var User = require('../models/user');
+var Group = global.models.group;
+var User = global.models.user;
 
 module.exports = {
     /**
